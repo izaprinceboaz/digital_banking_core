@@ -1,7 +1,11 @@
 C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\AccountServiceApplication.java
 C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\controller\AccountController.java
+C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\controller\StatementController.java
 C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\entity\Account.java
 C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\entity\AccountStatus.java
 C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\entity\AccountType.java
 C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\entity\Currency.java
+C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\entity\EntryType.java
+C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\entity\Statement.java
 C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\repository\AccountRepository.java
+C:\Users\irige\Downloads\digital_banking_core\account-service\src\main\java\com\bok\account\repository\StatementRepository.java

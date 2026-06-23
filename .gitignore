@@ -1,3 +1,6 @@
 .env
 .vscode
 .github
+
+# Ignore compiled Java classes
+*.class

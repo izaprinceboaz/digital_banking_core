@@ -1,4 +1,7 @@
 C:\Users\irige\Downloads\digital_banking_core\notification-service\src\main\java\com\bok\notification\controller\NotificationController.java
+C:\Users\irige\Downloads\digital_banking_core\notification-service\src\main\java\com\bok\notification\controller\NotificationPreferenceController.java
 C:\Users\irige\Downloads\digital_banking_core\notification-service\src\main\java\com\bok\notification\entity\Notification.java
+C:\Users\irige\Downloads\digital_banking_core\notification-service\src\main\java\com\bok\notification\entity\NotificationPreference.java
 C:\Users\irige\Downloads\digital_banking_core\notification-service\src\main\java\com\bok\notification\NotificationServiceApplication.java
+C:\Users\irige\Downloads\digital_banking_core\notification-service\src\main\java\com\bok\notification\repository\NotificationPreferenceRepository.java
 C:\Users\irige\Downloads\digital_banking_core\notification-service\src\main\java\com\bok\notification\repository\NotificationRepository.java
