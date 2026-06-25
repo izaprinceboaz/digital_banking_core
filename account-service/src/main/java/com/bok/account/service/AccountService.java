@@ -26,7 +26,7 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException(accountId);
+            throw new InsufficientFundsException(account.getBalance());
         }
 
         account.setBalance(account.getBalance().subtract(amount));
