@@ -1,7 +1,9 @@
 package com.bok.notification.controller;
 
 import com.bok.notification.entity.NotificationPreference;
-import com.bok.notification.repository.NotificationPreferenceRepository;
+import com.bok.notification.service.NotificationPreferenceService;
+import com.bok.notification.service.NotificationService;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,24 +13,24 @@ import java.util.UUID;
 @RequestMapping("/api/notification-preferences")
 public class NotificationPreferenceController {
 
-    private final NotificationPreferenceRepository notificationPreferenceRepository;
+    private final NotificationPreferenceService notificationPreferenceService;
 
-    public NotificationPreferenceController(NotificationPreferenceRepository notificationPreferenceRepository) {
-        this.notificationPreferenceRepository = notificationPreferenceRepository;
+    public NotificationPreferenceController(NotificationPreferenceService notificationPreferenceService) {
+        this.notificationPreferenceService = notificationPreferenceService;
     }
 
     @PostMapping
     public NotificationPreference createNotificationPreference(@RequestBody NotificationPreference notificationPreference) {
-        return notificationPreferenceRepository.save(notificationPreference);
+        return notificationPreferenceService.createNotificationPreference(notificationPreference);
     }
 
     @GetMapping
     public List<NotificationPreference> listNotificationPreferences() {
-        return notificationPreferenceRepository.findAll();
+        return notificationPreferenceService.listNotificationPreferences();
     }
 
     @GetMapping("/{id}")
     public NotificationPreference getNotificationPreferenceById(@PathVariable UUID id) {
-        return notificationPreferenceRepository.findById(id).orElse(null);
+        return notificationPreferenceService.getNotificationPreferenceById(id);
     }
 }

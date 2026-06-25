@@ -1,0 +1,79 @@
+package com.bok.transaction.service;
+
+import com.bok.transaction.entity.Transaction;
+import com.bok.transaction.entity.TransactionStatus;
+import com.bok.transaction.entity.TransactionType;
+import com.bok.transaction.repository.TransactionRepository;
+import com.bok.transaction.client.AccountClient;
+import com.bok.transaction.client.NotificationClient;
+
+import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class TransactionService {
+
+    private final TransactionRepository transactionRepository;
+    private final AccountClient accountClient;
+    private final NotificationClient notificationClient;
+
+    public TransactionService(TransactionRepository transactionRepository, AccountClient accountClient, NotificationClient notificationClient) {
+        this.transactionRepository = transactionRepository;
+        this.accountClient = accountClient;
+        this.notificationClient = notificationClient;
+    }
+
+    public Transaction createTransaction(Transaction transaction) {
+        return transactionRepository.save(transaction);
+    }
+
+    public Transaction getTransactionById(UUID id) {
+        return transactionRepository.findById(id).orElse(null);
+    }
+
+    public List<Transaction> listTransactions() {
+        return transactionRepository.findAll();
+    }
+
+    @Transactional
+    public Transaction transfer(Transaction transaction) {
+        transaction.setReferenceNumber("TXN-" + UUID.randomUUID());
+        transaction.setType(TransactionType.TRANSFER);
+        transaction.setStatus(TransactionStatus.PENDING);
+        transaction = transactionRepository.save(transaction);
+
+        try {
+            
+            BigDecimal senderBalance = accountClient.debit(transaction.getSenderAccountId(), transaction.getAmount());
+            accountClient.createStatement(transaction.getSenderAccountId(), transaction.getReferenceNumber(),
+                                            transaction.getDescription(), transaction.getAmount(), senderBalance, "DEBIT");
+        } catch (RuntimeException ex) {
+            transaction.setStatus(TransactionStatus.FAILED);
+            transaction.setFailureReason(ex.getMessage());
+            return transactionRepository.save(transaction);
+        }
+
+        try {
+            
+            BigDecimal receiverBalance = accountClient.credit(transaction.getReceiverAccountId(), transaction.getAmount());
+            accountClient.createStatement(transaction.getReceiverAccountId(), transaction.getReferenceNumber(),
+                                            transaction.getDescription(), transaction.getAmount(), receiverBalance, "CREDIT");
+        } catch (RuntimeException ex) {
+            accountClient.credit(transaction.getSenderAccountId(), transaction.getAmount());
+            transaction.setStatus(TransactionStatus.FAILED);
+            transaction.setFailureReason("Credit failed, rolled back: " + ex.getMessage());
+            return transactionRepository.save(transaction);
+        }
+
+        transaction.setStatus(TransactionStatus.COMPLETED);
+        return transactionRepository.save(transaction);
+    }
+    
+    
+}

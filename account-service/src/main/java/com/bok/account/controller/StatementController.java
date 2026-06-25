@@ -1,7 +1,7 @@
 package com.bok.account.controller;
 
 import com.bok.account.entity.Statement;
-import com.bok.account.repository.StatementRepository;
+import com.bok.account.service.StatementService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,24 +11,24 @@ import java.util.UUID;
 @RequestMapping("/api/statements")
 public class StatementController {
 
-    private final StatementRepository statementRepository;
+    private final StatementService statementService;
 
-    public StatementController(StatementRepository statementRepository) {
-        this.statementRepository = statementRepository;
+    public StatementController(StatementService statementService) {
+        this.statementService = statementService;
     }
 
     @PostMapping
     public Statement createStatement(@RequestBody Statement statement) {
-        return statementRepository.save(statement);
+        return statementService.createStatement(statement);
     }
 
     @GetMapping
     public List<Statement> listStatements() {
-        return statementRepository.findAll();
+        return statementService.listStatements();
     }
 
     @GetMapping("/{id}")
     public Statement getStatementById(@PathVariable UUID id) {
-        return statementRepository.findById(id).orElse(null);
+        return statementService.getStatementById(id);
     }
 }

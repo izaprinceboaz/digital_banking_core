@@ -1,7 +1,7 @@
 package com.bok.savings.controller;
 
 import com.bok.savings.entity.InterestRecord;
-import com.bok.savings.repository.InterestRecordRepository;
+import com.bok.savings.service.InterestRecordService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,24 +11,24 @@ import java.util.UUID;
 @RequestMapping("/api/interest-records")
 public class InterestRecordController {
 
-    private final InterestRecordRepository interestRecordRepository;
+    private final InterestRecordService interestRecordService;
 
-    public InterestRecordController(InterestRecordRepository interestRecordRepository) {
-        this.interestRecordRepository = interestRecordRepository;
+    public InterestRecordController(InterestRecordService interestRecordService) {
+        this.interestRecordService = interestRecordService;
     }
 
     @PostMapping
     public InterestRecord createInterestRecord(@RequestBody InterestRecord interestRecord) {
-        return interestRecordRepository.save(interestRecord);
+        return interestRecordService.createInterestRecord(interestRecord);
     }
 
     @GetMapping
     public List<InterestRecord> listInterestRecords() {
-        return interestRecordRepository.findAll();
+        return interestRecordService.listInterestRecords();
     }
 
     @GetMapping("/{id}")
     public InterestRecord getInterestRecordById(@PathVariable UUID id) {
-        return interestRecordRepository.findById(id).orElse(null);
+        return interestRecordService.getInterestRecordById(id);
     }
 }

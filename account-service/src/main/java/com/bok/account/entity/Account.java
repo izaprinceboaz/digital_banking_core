@@ -6,6 +6,8 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.math.BigDecimal;
+
 
 @Entity
 @Table(name = "accounts")
@@ -31,7 +33,7 @@ public class Account {
     private Currency currency = Currency.RWF;
 
     @Column(nullable = false)
-    private float balance = 0.0f;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
@@ -64,7 +66,7 @@ public class Account {
         return currency;
     }
 
-    public float getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
@@ -96,7 +98,7 @@ public class Account {
         this.currency = currency;
     }
 
-    public void setBalance(float balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 

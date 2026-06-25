@@ -1,7 +1,7 @@
 package com.bok.notification.controller;
 
 import com.bok.notification.entity.Notification;
-import com.bok.notification.repository.NotificationRepository;
+import com.bok.notification.service.NotificationService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,29 +11,30 @@ import java.util.UUID;
 @RequestMapping("/api/notifications")
 public class NotificationController {
 
-    private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
-    public NotificationController(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
     }
 
     @PostMapping
-    public Notification createNotification(@RequestBody Notification notificatin) {
-        return notificationRepository.save(notificatin);
+    public Notification createNotification(@RequestBody Notification notification) {
+        return notificationService.createNotification(notification);
     }
 
     @GetMapping
     public List<Notification> listNotifications() {
-        return notificationRepository.findAll();
+        return notificationService.listNotifications();
     }
 
     @GetMapping("/{id}")
     public Notification getNotificationById(@PathVariable UUID id) {
-        return notificationRepository.findById(id).orElse(null);
+        return notificationService.getNotificationById(id);
     }
 
     @DeleteMapping("/{id}")
     public void deleteNotification(@PathVariable UUID id) {
-        notificationRepository.deleteById(id);
+        notificationService.deleteNotification(id);
     }
+    
 }

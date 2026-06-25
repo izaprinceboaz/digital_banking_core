@@ -1,7 +1,7 @@
 package com.bok.savings.controller;
 
 import com.bok.savings.entity.SavingsPlan;
-import com.bok.savings.repository.SavingsPlanRepository;
+import com.bok.savings.service.SavingsPlanService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,24 +11,24 @@ import java.util.UUID;
 @RequestMapping("/api/savings-plans")
 public class SavingsPlanController {
 
-    private final SavingsPlanRepository savingsPlanRepository;
+    private final SavingsPlanService savingsPlanService;
 
-    public SavingsPlanController(SavingsPlanRepository savingsPlanRepository) {
-        this.savingsPlanRepository = savingsPlanRepository;
+    public SavingsPlanController(SavingsPlanService savingsPlanService) {
+        this.savingsPlanService = savingsPlanService;
     }
 
     @PostMapping
     public SavingsPlan createSavingsPlan(@RequestBody SavingsPlan savingsPlan) {
-        return savingsPlanRepository.save(savingsPlan);
+        return savingsPlanService.createSavingsPlan(savingsPlan);
     }
 
     @GetMapping
     public List<SavingsPlan> listSavingsPlans() {
-        return savingsPlanRepository.findAll();
+        return savingsPlanService.listSavingsPlans();
     }
 
     @GetMapping("/{id}")
     public SavingsPlan getSavingsPlanById(@PathVariable UUID id) {
-        return savingsPlanRepository.findById(id).orElse(null);
+        return savingsPlanService.getSavingsPlanById(id);
     }
 }
