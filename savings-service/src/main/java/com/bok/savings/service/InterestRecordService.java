@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bok.savings.entity.InterestRecord;
+import com.bok.savings.exception.InterestRecordNotFoundException;
 import com.bok.savings.repository.InterestRecordRepository;
 
 @Service
@@ -26,6 +27,6 @@ public class InterestRecordService {
     }
 
     public InterestRecord getInterestRecordById(  UUID id) {
-        return interestRecordRepository.findById(id).orElse(null);
+        return interestRecordRepository.findById(id).orElseThrow(() -> new InterestRecordNotFoundException());
     }
 }

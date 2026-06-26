@@ -1,5 +1,6 @@
 package com.bok.auth.controller;
 
+import com.bok.auth.dto.UserResponse;
 import com.bok.auth.entity.User;
 import com.bok.auth.service.AuthService;
 import com.bok.auth.exception.UserNotFoundException;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -22,13 +24,13 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> listUsers() {
-        return authService.listUsers();
+    public List<UserResponse> listUsers() {
+        return authService.listUsers().stream().map(UserResponse::from).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable UUID id) {
-        return authService.getUserById(id);
+    public UserResponse getUserById(@PathVariable UUID id) {
+        return UserResponse.from(authService.getUserById(id));
     }
     
     @ExceptionHandler(UserNotFoundException.class)

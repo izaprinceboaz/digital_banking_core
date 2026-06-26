@@ -1,5 +1,7 @@
 package com.bok.transaction.controller;
 
+import com.bok.transaction.dto.TransferRequest;
+import com.bok.transaction.dto.TransferResponse;
 import com.bok.transaction.entity.Transaction;
 import com.bok.transaction.service.TransactionService;
 
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -19,22 +22,24 @@ public class TransactionController {
     }
 
     @PostMapping
-    public Transaction createTransaction(@RequestBody Transaction transaction) {
-        return transactionService.createTransaction(transaction);
+    public TransferResponse createTransaction(@RequestBody Transaction transaction) {
+        return TransferResponse.from(transactionService.createTransaction(transaction));
     }
 
     @GetMapping
-    public List<Transaction> listTransactions() {
-        return transactionService.listTransactions();
+    public List<TransferResponse> listTransactions() {
+        return transactionService.listTransactions().stream()
+                .map(TransferResponse::from)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Transaction getTransactionById(@PathVariable UUID id) {
-        return transactionService.getTransactionById(id);
+    public TransferResponse getTransactionById(@PathVariable UUID id) {
+        return TransferResponse.from(transactionService.getTransactionById(id));
     }
 
     @PostMapping("/transfer")
-    public Transaction transfer(@RequestBody Transaction transaction) {
-        return transactionService.transfer(transaction);
+    public TransferResponse transfer(@RequestBody TransferRequest transferRequest) {
+        return TransferResponse.from(transactionService.transfer(transferRequest));
     }
 }

@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import com.bok.auth.entity.User;
 import com.bok.auth.repository.UserRepository;
 import com.bok.auth.exception.UserNotFoundException;
+import com.bok.auth.dto.LoginRequest;
+import com.bok.auth.dto.RegisterRequest;
+import com.bok.auth.exception.InvalidCredentialsException;
 
 import jakarta.transaction.Transactional;
 
@@ -22,17 +25,23 @@ public class AuthService {
     }
 
     
-    public Optional<User> login(String email, String passwordHash) {
-        return userRepository.findByEmailAndPasswordHash(email, passwordHash);
+    public User login(LoginRequest loginRequest) {
+        return userRepository.findByEmailAndPasswordHash(loginRequest.getEmail(), loginRequest.getPasswordHash()).orElseThrow(() -> new UserNotFoundException());
     }
 
     @Transactional
-    public User register(User user) {
-        return userRepository.save(user);
+    public User register(RegisterRequest user) {
+        User newUser = new User();
+        newUser.setFirstName(user.getFirstName());
+        newUser.setLastName(user.getLastName());
+        newUser.setEmail(user.getEmail());
+        newUser.setPhoneNumber(user.getPhoneNumber());
+        newUser.setPasswordHash(user.getPasswordHash());
+        return userRepository.save(newUser);
     }
 
     public User getUserById(UUID id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException());
     }
 
     public List<User> listUsers() {

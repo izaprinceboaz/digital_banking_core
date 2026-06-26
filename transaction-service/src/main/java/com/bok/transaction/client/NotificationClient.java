@@ -17,14 +17,17 @@ public class NotificationClient {
     }
 
 
-    public void createNotification(UUID userId, String channel, String title,
+    public void sendNotification(UUID userId, String message) {
+        createNotification(userId, "EMAIL", "Transaction Update", message, false, "TRANSFER_COMPLETED");
+    }
+
+    private void createNotification(UUID userId, String channel, String title,
                                  String message, boolean isRead, String eventType) {
         Map<String, Object> notification = Map.of(
-                "account", Map.of("id", userId),
+                "userId", userId,
                 "channel", channel,
                 "title", title,
                 "message", message,
-                "isRead", isRead,
                 "eventType", eventType
         );
 

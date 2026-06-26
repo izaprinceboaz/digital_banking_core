@@ -6,6 +6,8 @@ import com.bok.transaction.entity.TransactionType;
 import com.bok.transaction.repository.TransactionRepository;
 import com.bok.transaction.client.AccountClient;
 import com.bok.transaction.client.NotificationClient;
+import com.bok.transaction.dto.TransferRequest;
+import com.bok.transaction.exception.TransactionNotFoundException;
 
 import jakarta.transaction.Transactional;
 
@@ -34,7 +36,7 @@ public class TransactionService {
     }
 
     public Transaction getTransactionById(UUID id) {
-        return transactionRepository.findById(id).orElse(null);
+        return transactionRepository.findById(id).orElseThrow(() -> new TransactionNotFoundException());
     }
 
     public List<Transaction> listTransactions() {
@@ -42,7 +44,14 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction transfer(Transaction transaction) {
+    public Transaction transfer(TransferRequest transferRequest) {
+        Transaction transaction = new Transaction();
+        transaction.setSenderAccountId(transferRequest.getSenderAccountId());
+        transaction.setReceiverAccountId(transferRequest.getReceiverAccountId());
+        transaction.setAmount(transferRequest.getAmount());
+        transaction.setDescription(transferRequest.getDescription());
+        transaction.setCurrency(transferRequest.getCurrency());
+
         transaction.setReferenceNumber("TXN-" + UUID.randomUUID());
         transaction.setType(TransactionType.TRANSFER);
         transaction.setStatus(TransactionStatus.PENDING);
@@ -51,8 +60,12 @@ public class TransactionService {
         try {
             
             BigDecimal senderBalance = accountClient.debit(transaction.getSenderAccountId(), transaction.getAmount());
+
             accountClient.createStatement(transaction.getSenderAccountId(), transaction.getReferenceNumber(),
                                             transaction.getDescription(), transaction.getAmount(), senderBalance, "DEBIT");
+            
+            notificationClient.sendNotification(transaction.getSenderAccountId(), "Transfer of " + transaction.getAmount() + " " + transaction.getCurrency() + " to account " + transaction.getReceiverAccountId() + " is successful. Reference: " + transaction.getReferenceNumber());
+
         } catch (RuntimeException ex) {
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setFailureReason(ex.getMessage());
@@ -62,8 +75,12 @@ public class TransactionService {
         try {
             
             BigDecimal receiverBalance = accountClient.credit(transaction.getReceiverAccountId(), transaction.getAmount());
+
             accountClient.createStatement(transaction.getReceiverAccountId(), transaction.getReferenceNumber(),
                                             transaction.getDescription(), transaction.getAmount(), receiverBalance, "CREDIT");
+
+            notificationClient.sendNotification(transaction.getReceiverAccountId(), "You have received " + transaction.getAmount() + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountId() + ". Reference: " + transaction.getReferenceNumber());
+            
         } catch (RuntimeException ex) {
             accountClient.credit(transaction.getSenderAccountId(), transaction.getAmount());
             transaction.setStatus(TransactionStatus.FAILED);

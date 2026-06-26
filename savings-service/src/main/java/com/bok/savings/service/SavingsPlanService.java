@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bok.savings.entity.SavingsPlan;
+import com.bok.savings.exception.SavingsPlanNotFoundException;
 import com.bok.savings.repository.SavingsPlanRepository;
 
 @Service
@@ -26,6 +27,6 @@ public class SavingsPlanService {
     }
 
     public SavingsPlan getSavingsPlanById(  UUID id) {
-        return savingsPlanRepository.findById(id).orElse(null);
+        return savingsPlanRepository.findById(id).orElseThrow(() -> new SavingsPlanNotFoundException());
     }
 }

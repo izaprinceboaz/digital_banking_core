@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bok.transaction.entity.TransferLimit;
+import com.bok.transaction.exception.TransferLimitNotFoundException;
 import com.bok.transaction.repository.TransferLimitRepository;
 
 @Service
@@ -29,6 +30,6 @@ public class TransferLimitService {
 
     
     public TransferLimit getTransferLimitById(  UUID id) {
-        return transferLimitRepository.findById(id).orElse(null);
+        return transferLimitRepository.findById(id).orElseThrow(() -> new TransferLimitNotFoundException());
     }
 }

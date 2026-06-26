@@ -2,6 +2,7 @@ package com.bok.notification.controller;
 
 import com.bok.notification.entity.Notification;
 import com.bok.notification.service.NotificationService;
+import com.bok.notification.dto.NotificationRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class NotificationController {
     }
 
     @PostMapping
-    public Notification createNotification(@RequestBody Notification notification) {
+    public Notification createNotification(@RequestBody NotificationRequest notification) {
         return notificationService.createNotification(notification);
     }
 

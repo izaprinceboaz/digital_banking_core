@@ -37,7 +37,7 @@ public class AccountClient {
 
 
     public void createStatement(UUID accountId, String transactionRef, String description,
-                                 BigDecimal amount, BigDecimal balanceAfter, String entryType) {
+                                BigDecimal amount, BigDecimal balanceAfter, String entryType) {
         Map<String, Object> statement = Map.of(
                 "account", Map.of("id", accountId),
                 "transactionRef", transactionRef,

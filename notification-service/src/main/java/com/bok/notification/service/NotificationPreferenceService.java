@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.bok.notification.entity.NotificationPreference;
 import com.bok.notification.repository.NotificationPreferenceRepository;
+import com.bok.notification.exception.NotificationPreferenceNotFoundException;
 
 @Service
 public class NotificationPreferenceService {
@@ -29,6 +30,6 @@ public class NotificationPreferenceService {
     }
 
     public NotificationPreference getNotificationPreferenceById(  UUID id) {
-        return notificationPreferenceRepository.findById(id).orElse(null);
+        return notificationPreferenceRepository.findById(id).orElseThrow(() -> new NotificationPreferenceNotFoundException());
     }
 }

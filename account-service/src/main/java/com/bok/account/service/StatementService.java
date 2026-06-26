@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.bok.account.entity.Statement;
 import com.bok.account.repository.StatementRepository;
+import com.bok.account.exception.StatementNotFoundException;
 
 @Service
 public class StatementService {
@@ -28,7 +29,7 @@ public class StatementService {
 
     
     public Statement getStatementById(  UUID id) {
-        return statementRepository.findById(id).orElse(null);
+        return statementRepository.findById(id).orElseThrow(() -> new StatementNotFoundException());
     }
 }
 

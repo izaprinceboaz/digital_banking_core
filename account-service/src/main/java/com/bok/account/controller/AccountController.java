@@ -4,6 +4,7 @@ import com.bok.account.entity.Account;
 import com.bok.account.exception.AccountNotFoundException;
 import com.bok.account.exception.InsufficientFundsException;
 import com.bok.account.service.AccountService;
+import com.bok.account.dto.AccountResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
 @RestController
@@ -24,33 +26,40 @@ public class AccountController {
     }
 
     @PostMapping("/create")
-    public Account createAccount(@RequestBody Account account) {
-        return accountService.createAccount(account);
+    public AccountResponse createAccount(@RequestBody Account account) {
+        Account createdAccount = accountService.createAccount(account);
+        return AccountResponse.from(createdAccount);
     }
 
     @GetMapping
-    public List<Account> listAccounts() {
-        return accountService.listAccounts();
+    public List<AccountResponse> listAccounts() {
+        return accountService.listAccounts().stream()
+                .map(AccountResponse::from)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Account getAccountById(@PathVariable UUID id) {
-        return accountService.getAccountById(id);
+    public AccountResponse getAccountById(@PathVariable UUID id) {
+        Account account = accountService.getAccountById(id);
+        return AccountResponse.from(account);
     }
 
     @PostMapping("/{id}/balance")
-    public Account updateBalance(@PathVariable UUID id, @RequestBody BigDecimal newBalance) {
-        return accountService.updateBalance(id, newBalance);
+    public AccountResponse updateBalance(@PathVariable UUID id, @RequestBody BigDecimal newBalance) {
+        Account account = accountService.updateBalance(id, newBalance);
+        return AccountResponse.from(account);
     }
 
     @PostMapping("/{id}/debit")
-    public Account debitAccount(@PathVariable UUID id, @RequestBody BigDecimal amount) {
-        return accountService.debit(id, amount);
+    public AccountResponse debitAccount(@PathVariable UUID id, @RequestBody BigDecimal amount) {
+        Account account = accountService.debit(id, amount);
+        return AccountResponse.from(account);
     }
 
     @PostMapping("/{id}/credit")
-    public Account creditAccount(@PathVariable UUID id, @RequestBody BigDecimal amount) {
-        return accountService.credit(id, amount);
+    public AccountResponse creditAccount(@PathVariable UUID id, @RequestBody BigDecimal amount) {
+        Account account = accountService.credit(id, amount);
+        return AccountResponse.from(account);
     }
 
     @DeleteMapping("/{id}")

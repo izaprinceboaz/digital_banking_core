@@ -2,6 +2,7 @@ package com.bok.auth.service;
 
 import com.bok.auth.entity.RefreshToken;
 import com.bok.auth.repository.RefreshTokenRepository;
+import com.bok.auth.exception.InvalidRefreshTokenException;
 
 import java.util.UUID;
 
@@ -21,6 +22,6 @@ public class RefreshTokenService {
     }
 
     public RefreshToken getRefreshTokenById(UUID id) {
-        return refreshTokenRepository.findById(id).orElse(null);
+        return refreshTokenRepository.findById(id).orElseThrow(() -> new InvalidRefreshTokenException());
     }
 }

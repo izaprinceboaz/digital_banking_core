@@ -16,3 +16,5 @@ spring:
 services:
   account:
     base-url: ${ACCOUNT_SERVICE_URL:http://localhost:8082}
+  notification:
+    base-url: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
