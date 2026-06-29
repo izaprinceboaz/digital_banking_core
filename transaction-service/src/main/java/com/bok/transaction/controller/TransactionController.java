@@ -42,4 +42,9 @@ public class TransactionController {
     public TransferResponse transfer(@RequestBody TransferRequest transferRequest) {
         return TransferResponse.from(transactionService.transfer(transferRequest));
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteTransaction(@PathVariable UUID id) {
+        transactionService.deleteTransaction(id);
+    }
 }

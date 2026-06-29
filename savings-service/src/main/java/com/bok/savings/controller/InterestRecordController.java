@@ -31,4 +31,9 @@ public class InterestRecordController {
     public InterestRecord getInterestRecordById(@PathVariable UUID id) {
         return interestRecordService.getInterestRecordById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteInterestRecord(@PathVariable UUID id) {
+        interestRecordService.deleteInterestRecord(id);
+    }
 }

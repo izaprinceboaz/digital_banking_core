@@ -35,6 +35,21 @@ public class AccountClient {
                 .balance();
     }
 
+    public BigDecimal checkCurrency(UUID senderAccountId, UUID receiverAccountId, BigDecimal amount) {
+        Map<String, Object> request = Map.of(
+                "senderAccountId", senderAccountId,
+                "receiverAccountId", receiverAccountId,
+                "amount", amount
+        );
+
+        return restClient.post()
+                .uri("/api/accounts/currency")
+                .body(request)
+                .retrieve()
+                .body(BigDecimal.class);
+    }
+
+
 
     public void createStatement(UUID accountId, String transactionRef, String description,
                                 BigDecimal amount, BigDecimal balanceAfter, String entryType) {

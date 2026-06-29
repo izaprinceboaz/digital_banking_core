@@ -31,4 +31,9 @@ public class TransferLimitController {
     public TransferLimit getTransferLimitById(@PathVariable UUID id) {
         return transferLimitService.getTransferLimitById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteTransferLimit(@PathVariable UUID id) {
+        transferLimitService.deleteTransferLimit(id);
+    }
 }

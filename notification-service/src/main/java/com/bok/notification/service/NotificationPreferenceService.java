@@ -32,4 +32,8 @@ public class NotificationPreferenceService {
     public NotificationPreference getNotificationPreferenceById(  UUID id) {
         return notificationPreferenceRepository.findById(id).orElseThrow(() -> new NotificationPreferenceNotFoundException());
     }
+
+    public void deleteNotificationPreference(  UUID id) {
+        notificationPreferenceRepository.deleteById(id);
+    }
 }

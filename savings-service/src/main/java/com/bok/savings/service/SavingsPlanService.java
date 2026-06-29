@@ -29,4 +29,8 @@ public class SavingsPlanService {
     public SavingsPlan getSavingsPlanById(  UUID id) {
         return savingsPlanRepository.findById(id).orElseThrow(() -> new SavingsPlanNotFoundException());
     }
+
+    public void deleteSavingsPlan(  UUID id) {
+        savingsPlanRepository.deleteById(id);
+    }
 }

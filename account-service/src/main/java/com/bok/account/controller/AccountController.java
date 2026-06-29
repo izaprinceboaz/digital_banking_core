@@ -5,6 +5,8 @@ import com.bok.account.exception.AccountNotFoundException;
 import com.bok.account.exception.InsufficientFundsException;
 import com.bok.account.service.AccountService;
 import com.bok.account.dto.AccountResponse;
+import com.bok.account.dto.CurrencyCheckRequest;
+import com.bok.account.entity.Currency;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +67,12 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public void deleteAccount(@PathVariable UUID id) {
         accountService.deleteAccount(id);
+    }
+
+    @PostMapping("/currency")
+    public BigDecimal checkCurrency(@RequestBody CurrencyCheckRequest request) {
+        BigDecimal convertedAmount = accountService.checkCurrency(request.getSenderAccountId(), request.getReceiverAccountId(), request.getAmount());
+        return convertedAmount;
     }
 
     @ExceptionHandler(AccountNotFoundException.class)

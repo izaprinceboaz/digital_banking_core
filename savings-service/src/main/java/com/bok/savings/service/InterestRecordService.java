@@ -29,4 +29,8 @@ public class InterestRecordService {
     public InterestRecord getInterestRecordById(  UUID id) {
         return interestRecordRepository.findById(id).orElseThrow(() -> new InterestRecordNotFoundException());
     }
+
+    public void deleteInterestRecord(  UUID id) {
+        interestRecordRepository.deleteById(id);
+    }
 }

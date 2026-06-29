@@ -1,11 +1,17 @@
 package com.bok.account.controller;
 
+import com.bok.account.dto.StatementResponse;
 import com.bok.account.entity.Statement;
+import com.bok.account.exception.StatementNotFoundException;
 import com.bok.account.service.StatementService;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/statements")
@@ -18,17 +24,31 @@ public class StatementController {
     }
 
     @PostMapping
-    public Statement createStatement(@RequestBody Statement statement) {
-        return statementService.createStatement(statement);
+    public StatementResponse createStatement(@RequestBody Statement statement) {
+        return StatementResponse.from(statementService.createStatement(statement));
     }
 
     @GetMapping
-    public List<Statement> listStatements() {
-        return statementService.listStatements();
+    public List<StatementResponse> listStatements() {
+        return statementService.listStatements().stream()
+                .map(StatementResponse::from)
+                .collect(Collectors.toList());
     }
 
+
     @GetMapping("/{id}")
-    public Statement getStatementById(@PathVariable UUID id) {
-        return statementService.getStatementById(id);
+    public StatementResponse getStatementById(@PathVariable UUID id) {
+        Statement statement = statementService.getStatementById(id);
+        return StatementResponse.from(statement);
+    }
+
+    @DeleteMapping
+    public void deleteStatement() {
+        statementService.deleteAllStatement();
+    }
+
+    @ExceptionHandler(StatementNotFoundException.class)
+    public ResponseEntity<String> handleNotFound(StatementNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

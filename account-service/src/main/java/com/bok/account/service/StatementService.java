@@ -31,5 +31,9 @@ public class StatementService {
     public Statement getStatementById(  UUID id) {
         return statementRepository.findById(id).orElseThrow(() -> new StatementNotFoundException());
     }
+
+    public void deleteAllStatement() {
+        statementRepository.deleteAll();
+    }
 }
 

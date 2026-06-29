@@ -32,6 +32,11 @@ public class UserController {
     public UserResponse getUserById(@PathVariable UUID id) {
         return UserResponse.from(authService.getUserById(id));
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteUser(@PathVariable UUID id) {
+        authService.getUserById(id);
+    }
     
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> handleNotFound(UserNotFoundException ex) {

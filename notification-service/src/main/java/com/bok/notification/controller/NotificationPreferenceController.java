@@ -33,4 +33,9 @@ public class NotificationPreferenceController {
     public NotificationPreference getNotificationPreferenceById(@PathVariable UUID id) {
         return notificationPreferenceService.getNotificationPreferenceById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteNotificationPreference(@PathVariable UUID id) {
+        notificationPreferenceService.deleteNotificationPreference(id);
+    }
 }

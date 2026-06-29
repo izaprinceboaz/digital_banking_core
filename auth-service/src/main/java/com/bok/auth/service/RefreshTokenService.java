@@ -24,4 +24,9 @@ public class RefreshTokenService {
     public RefreshToken getRefreshTokenById(UUID id) {
         return refreshTokenRepository.findById(id).orElseThrow(() -> new InvalidRefreshTokenException());
     }
+
+    public void deleteRefreshToken(UUID id) {
+        refreshTokenRepository.deleteById(id);
+    }
+
 }

@@ -43,6 +43,11 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
+    public void deleteTransaction(UUID id) {
+        transactionRepository.deleteById(id);
+    }
+
+
     @Transactional
     public Transaction transfer(TransferRequest transferRequest) {
         Transaction transaction = new Transaction();
@@ -56,6 +61,8 @@ public class TransactionService {
         transaction.setType(TransactionType.TRANSFER);
         transaction.setStatus(TransactionStatus.PENDING);
         transaction = transactionRepository.save(transaction);
+
+        BigDecimal convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountId(), transferRequest.getReceiverAccountId(),transferRequest.getAmount());
 
         try {
             
@@ -74,10 +81,10 @@ public class TransactionService {
 
         try {
             
-            BigDecimal receiverBalance = accountClient.credit(transaction.getReceiverAccountId(), transaction.getAmount());
+            BigDecimal receiverBalance = accountClient.credit(transaction.getReceiverAccountId(), convertedAmount);
 
             accountClient.createStatement(transaction.getReceiverAccountId(), transaction.getReferenceNumber(),
-                                            transaction.getDescription(), transaction.getAmount(), receiverBalance, "CREDIT");
+                                            transaction.getDescription(), convertedAmount, receiverBalance, "CREDIT");
 
             notificationClient.sendNotification(transaction.getReceiverAccountId(), "You have received " + transaction.getAmount() + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountId() + ". Reference: " + transaction.getReferenceNumber());
             

@@ -31,4 +31,9 @@ public class SavingsPlanController {
     public SavingsPlan getSavingsPlanById(@PathVariable UUID id) {
         return savingsPlanService.getSavingsPlanById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteSavingsPlan(@PathVariable UUID id) {
+        savingsPlanService.deleteSavingsPlan(id);
+    }
 }

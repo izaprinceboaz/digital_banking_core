@@ -32,4 +32,8 @@ public class TransferLimitService {
     public TransferLimit getTransferLimitById(  UUID id) {
         return transferLimitRepository.findById(id).orElseThrow(() -> new TransferLimitNotFoundException());
     }
+
+    public void deleteTransferLimit(  UUID id) {
+        transferLimitRepository.deleteById(id);
+    }
 }
