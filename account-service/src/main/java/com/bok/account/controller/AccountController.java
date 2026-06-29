@@ -50,7 +50,7 @@ public class AccountController {
         return AccountResponse.from(account);
     }
 
-    @PostMapping("/{id}/balance")
+    @PostMapping("/{id}/update-balance")
     public AccountResponse updateBalance(@PathVariable UUID id, @RequestBody BigDecimal newBalance) {
         Account account = accountService.updateBalance(id, newBalance);
         return AccountResponse.from(account);

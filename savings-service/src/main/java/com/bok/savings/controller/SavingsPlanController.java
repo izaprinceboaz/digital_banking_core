@@ -1,5 +1,6 @@
 package com.bok.savings.controller;
 
+import com.bok.savings.dto.InterestRecordResponse;
 import com.bok.savings.entity.SavingsPlan;
 import com.bok.savings.service.SavingsPlanService;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,11 @@ public class SavingsPlanController {
     @PostMapping
     public SavingsPlan createSavingsPlan(@RequestBody SavingsPlan savingsPlan) {
         return savingsPlanService.createSavingsPlan(savingsPlan);
+    }
+    
+    @PostMapping("/{id}/apply-interest")
+    public InterestRecordResponse applyInterest(@PathVariable UUID id) {
+        return InterestRecordResponse.from(savingsPlanService.applyInterest(id));
     }
 
     @GetMapping
