@@ -1,8 +1,11 @@
 package com.bok.savings.controller;
 
+import com.bok.savings.dto.DepositRequest;
 import com.bok.savings.dto.InterestRecordResponse;
+import com.bok.savings.dto.WithdrawRequest;
 import com.bok.savings.entity.SavingsPlan;
 import com.bok.savings.service.SavingsPlanService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +29,16 @@ public class SavingsPlanController {
     @PostMapping("/{id}/apply-interest")
     public InterestRecordResponse applyInterest(@PathVariable UUID id) {
         return InterestRecordResponse.from(savingsPlanService.applyInterest(id));
+    }
+
+    @PostMapping("/deposit")
+    public SavingsPlan deposit(@Valid @RequestBody DepositRequest request) {
+        return savingsPlanService.deposit(request);
+    }
+
+    @PostMapping("/withdraw")
+    public SavingsPlan withdraw(@Valid @RequestBody WithdrawRequest request) {
+        return savingsPlanService.withdraw(request);
     }
 
     @GetMapping

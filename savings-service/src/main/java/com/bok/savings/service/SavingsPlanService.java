@@ -10,9 +10,14 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bok.savings.client.AccountClient;
+import com.bok.savings.dto.DepositRequest;
+import com.bok.savings.dto.WithdrawRequest;
 import com.bok.savings.entity.CompoundingFrequency;
 import com.bok.savings.entity.InterestRecord;
 import com.bok.savings.entity.SavingsPlan;
+import com.bok.savings.entity.SavingsStatus;
+import com.bok.savings.exception.InsufficientSavingsBalanceException;
+import com.bok.savings.exception.InvalidSavingsStatusException;
 import com.bok.savings.exception.SavingsPlanNotFoundException;
 import com.bok.savings.repository.InterestRecordRepository;
 import com.bok.savings.repository.SavingsPlanRepository;
@@ -81,5 +86,37 @@ public class SavingsPlanService {
         record.setClosingBalance(closingBalance);
 
         return interestRecordRepository.save(record);
+    }
+
+    public SavingsPlan deposit(DepositRequest request) {
+        SavingsPlan plan = savingsPlanRepository.findById(request.getSavingsPlanId())
+                .orElseThrow(SavingsPlanNotFoundException::new);
+
+        if (plan.getStatus() != SavingsStatus.ACTIVE) {
+            throw new InvalidSavingsStatusException();
+        }
+
+        accountClient.debit(request.getAccountId(), request.getAmount());
+
+        plan.setCurrentBalance(plan.getCurrentBalance().add(request.getAmount()));
+        return savingsPlanRepository.save(plan);
+    }
+
+    public SavingsPlan withdraw(WithdrawRequest request) {
+        SavingsPlan plan = savingsPlanRepository.findById(request.getSavingsPlanId())
+                .orElseThrow(SavingsPlanNotFoundException::new);
+
+        if (plan.getStatus() != SavingsStatus.ACTIVE) {
+            throw new InvalidSavingsStatusException();
+        }
+        if (plan.getCurrentBalance().compareTo(request.getAmount()) < 0) {
+            throw new InsufficientSavingsBalanceException();
+        }
+
+        plan.setCurrentBalance(plan.getCurrentBalance().subtract(request.getAmount()));
+        savingsPlanRepository.save(plan);
+
+        accountClient.credit(request.getAccountId(), request.getAmount());
+        return plan;
     }
 }

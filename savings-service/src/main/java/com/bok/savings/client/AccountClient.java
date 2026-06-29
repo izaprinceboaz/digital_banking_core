@@ -24,4 +24,20 @@ public class AccountClient {
                 .body(AccountResponse.class)
                 .balance();
     }
+
+    public void debit(UUID accountId, BigDecimal amount) {
+        restClient.post()
+                .uri("/api/accounts/{id}/debit", accountId)
+                .body(amount)
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public void credit(UUID accountId, BigDecimal amount) {
+        restClient.post()
+                .uri("/api/accounts/{id}/credit", accountId)
+                .body(amount)
+                .retrieve()
+                .toBodilessEntity();
+    }
 }
