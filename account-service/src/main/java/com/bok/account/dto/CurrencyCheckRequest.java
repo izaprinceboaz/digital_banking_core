@@ -1,11 +1,21 @@
 package com.bok.account.dto;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public class CurrencyCheckRequest {
+
+    @NotNull(message = "Sender account id is required")
     private UUID senderAccountId;
+
+    @NotNull(message = "Receiver account id is required")
     private UUID receiverAccountId;
+
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
 
     public UUID getSenderAccountId() { 

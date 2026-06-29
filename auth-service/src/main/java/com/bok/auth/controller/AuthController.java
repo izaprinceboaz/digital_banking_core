@@ -10,9 +10,14 @@ import com.bok.auth.dto.LoginRequest;
 import com.bok.auth.dto.RefreshTokenRequest;
 import com.bok.auth.dto.RegisterRequest;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -26,17 +31,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public AuthResponse createUser(@RequestBody RegisterRequest user) {
+    public AuthResponse createUser(@Valid @RequestBody RegisterRequest user) {
         return authService.register(user);
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@RequestBody LoginRequest loginRequest) {
+    public AuthResponse login(@Valid @RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 
     @PostMapping("/refresh")
-    public AuthResponse refresh(@RequestBody RefreshTokenRequest request) {
+    public AuthResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
         return authService.refreshAccessToken(request.getRefreshToken());
     }
 
@@ -65,6 +70,14 @@ public class AuthController {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<String> handleInvalidCredentials(InvalidCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
 }

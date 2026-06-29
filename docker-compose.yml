@@ -1,0 +1,128 @@
+services:
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: bk_auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+
+  account-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: bk_account_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - account-db-data:/var/lib/postgresql/data
+
+  transaction-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: bk_transaction_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - transaction-db-data:/var/lib/postgresql/data
+
+  savings-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: bk_savings_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - savings-db-data:/var/lib/postgresql/data
+
+  notification-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: bk_notification_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - auth-db
+    environment:
+      DB_URL: jdbc:postgresql://auth-db:5432/bk_auth_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  account-service:
+    build: ./account-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - account-db
+    environment:
+      DB_URL: jdbc:postgresql://account-db:5432/bk_account_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  transaction-service:
+    build: ./transaction-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - transaction-db
+      - account-service
+      - notification-service
+    environment:
+      DB_URL: jdbc:postgresql://transaction-db:5432/bk_transaction_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      ACCOUNT_SERVICE_URL: http://account-service:8082
+      NOTIFICATION_SERVICE_URL: http://notification-service:8085
+
+  savings-service:
+    build: ./savings-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - savings-db
+    environment:
+      DB_URL: jdbc:postgresql://savings-db:5432/bk_savings_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - notification-db
+    environment:
+      DB_URL: jdbc:postgresql://notification-db:5432/bk_notification_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - account-service
+      - transaction-service
+      - savings-service
+      - notification-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      ACCOUNT_SERVICE_URL: http://account-service:8082
+      TRANSACTION_SERVICE_URL: http://transaction-service:8083
+      SAVINGS_SERVICE_URL: http://savings-service:8084
+      NOTIFICATION_SERVICE_URL: http://notification-service:8085
+
+volumes:
+  auth-db-data:
+  account-db-data:
+  transaction-db-data:
+  savings-db-data:
+  notification-db-data:

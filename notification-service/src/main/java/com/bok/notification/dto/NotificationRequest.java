@@ -1,13 +1,25 @@
 package com.bok.notification.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
 
 public class NotificationRequest {
-    
-    private UUID userId;    
+
+    @NotNull(message = "User id is required")
+    private UUID userId;
+
+    @NotBlank(message = "Event type is required")
     private String eventType;
+
+    @NotBlank(message = "Channel is required")
     private String channel;
+
+    @NotBlank(message = "Title is required")
     private String title;
+
+    @NotBlank(message = "Message is required")
     private String message;
 
     public UUID getUserId() {
