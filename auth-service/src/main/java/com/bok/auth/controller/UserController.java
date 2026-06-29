@@ -1,7 +1,6 @@
 package com.bok.auth.controller;
 
 import com.bok.auth.dto.UserResponse;
-import com.bok.auth.entity.User;
 import com.bok.auth.service.AuthService;
 import com.bok.auth.exception.UserNotFoundException;
 
@@ -35,7 +34,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable UUID id) {
-        authService.getUserById(id);
+        authService.deleteUser(id);
     }
     
     @ExceptionHandler(UserNotFoundException.class)
