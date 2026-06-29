@@ -1,9 +1,0 @@
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\controller\TransactionController.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\controller\TransferLimitController.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\entity\Transaction.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\entity\TransactionStatus.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\entity\TransactionType.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\entity\TransferLimit.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\repository\TransactionRepository.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\repository\TransferLimitRepository.java
-C:\Users\irige\Downloads\digital_banking_core\transaction-service\src\main\java\com\bok\transaction\TransactionServiceApplication.java
