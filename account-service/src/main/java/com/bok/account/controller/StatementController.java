@@ -2,11 +2,8 @@ package com.bok.account.controller;
 
 import com.bok.account.dto.StatementResponse;
 import com.bok.account.entity.Statement;
-import com.bok.account.exception.StatementNotFoundException;
 import com.bok.account.service.StatementService;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,10 +42,5 @@ public class StatementController {
     @DeleteMapping
     public void deleteStatement() {
         statementService.deleteAllStatement();
-    }
-
-    @ExceptionHandler(StatementNotFoundException.class)
-    public ResponseEntity<String> handleNotFound(StatementNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

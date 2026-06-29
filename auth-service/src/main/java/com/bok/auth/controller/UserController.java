@@ -2,10 +2,7 @@ package com.bok.auth.controller;
 
 import com.bok.auth.dto.UserResponse;
 import com.bok.auth.service.AuthService;
-import com.bok.auth.exception.UserNotFoundException;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,10 +32,5 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable UUID id) {
         authService.deleteUser(id);
-    }
-    
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<String> handleNotFound(UserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }
