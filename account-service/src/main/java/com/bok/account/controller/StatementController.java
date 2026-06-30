@@ -1,9 +1,12 @@
 package com.bok.account.controller;
 
+import com.bok.account.dto.CreateStatementRequest;
 import com.bok.account.dto.StatementResponse;
+import com.bok.account.entity.Account;
 import com.bok.account.entity.Statement;
 import com.bok.account.service.StatementService;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +24,18 @@ public class StatementController {
     }
 
     @PostMapping
-    public StatementResponse createStatement(@RequestBody Statement statement) {
+    public StatementResponse createStatement(@Valid @RequestBody CreateStatementRequest request) {
+        Account account = new Account();
+        account.setAccountNumber(request.getAccountNumber());
+
+        Statement statement = new Statement();
+        statement.setAccount(account);
+        statement.setTransactionRef(request.getTransactionRef());
+        statement.setDescription(request.getDescription());
+        statement.setAmount(request.getAmount());
+        statement.setBalanceAfter(request.getBalanceAfter());
+        statement.setEntryType(request.getEntryType());
+
         return StatementResponse.from(statementService.createStatement(statement));
     }
 

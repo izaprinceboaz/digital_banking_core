@@ -1,5 +1,6 @@
 package com.bok.transaction.controller;
 
+import com.bok.transaction.dto.CreateTransactionRequest;
 import com.bok.transaction.dto.TransferRequest;
 import com.bok.transaction.dto.TransferResponse;
 import com.bok.transaction.entity.Transaction;
@@ -23,7 +24,16 @@ public class TransactionController {
     }
 
     @PostMapping
-    public TransferResponse createTransaction(@RequestBody Transaction transaction) {
+    public TransferResponse createTransaction(@Valid @RequestBody CreateTransactionRequest request) {
+        Transaction transaction = new Transaction();
+        transaction.setReferenceNumber(request.getReferenceNumber());
+        transaction.setSenderAccountNumber(request.getSenderAccountNumber());
+        transaction.setReceiverAccountNumber(request.getReceiverAccountNumber());
+        transaction.setAmount(request.getAmount());
+        transaction.setCurrency(request.getCurrency());
+        transaction.setType(request.getType());
+        transaction.setDescription(request.getDescription());
+
         return TransferResponse.from(transactionService.createTransaction(transaction));
     }
 

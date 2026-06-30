@@ -1,5 +1,6 @@
 package com.bok.savings.controller;
 
+import com.bok.savings.dto.CreateSavingsPlanRequest;
 import com.bok.savings.dto.DepositRequest;
 import com.bok.savings.dto.InterestRecordResponse;
 import com.bok.savings.dto.WithdrawRequest;
@@ -22,7 +23,17 @@ public class SavingsPlanController {
     }
 
     @PostMapping
-    public SavingsPlan createSavingsPlan(@RequestBody SavingsPlan savingsPlan) {
+    public SavingsPlan createSavingsPlan(@Valid @RequestBody CreateSavingsPlanRequest request) {
+        SavingsPlan savingsPlan = new SavingsPlan();
+        savingsPlan.setAccountNumber(request.getAccountNumber());
+        savingsPlan.setPlanName(request.getPlanName());
+        savingsPlan.setInterestRate(request.getInterestRate());
+        savingsPlan.setCompounding(request.getCompounding());
+        savingsPlan.setPrincipalAmount(request.getPrincipalAmount());
+        savingsPlan.setCurrentBalance(request.getPrincipalAmount());
+        savingsPlan.setStartDate(request.getStartDate());
+        savingsPlan.setMaturityDate(request.getMaturityDate());
+
         return savingsPlanService.createSavingsPlan(savingsPlan);
     }
     

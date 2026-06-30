@@ -3,6 +3,7 @@ package com.bok.account.controller;
 import com.bok.account.entity.Account;
 import com.bok.account.service.AccountService;
 import com.bok.account.dto.AccountResponse;
+import com.bok.account.dto.CreateAccountRequest;
 import com.bok.account.dto.CurrencyCheckRequest;
 
 import jakarta.validation.Valid;
@@ -23,7 +24,14 @@ public class AccountController {
     }
 
     @PostMapping("/create")
-    public AccountResponse createAccount(@RequestBody Account account) {
+    public AccountResponse createAccount(@Valid @RequestBody CreateAccountRequest request) {
+        Account account = new Account();
+        account.setUserId(request.getUserId());
+        account.setAccountNumber(request.getAccountNumber());
+        account.setAccountType(request.getAccountType());
+        account.setCurrency(request.getCurrency());
+        account.setBalance(request.getBalance());
+
         Account createdAccount = accountService.createAccount(account);
         return AccountResponse.from(createdAccount);
     }

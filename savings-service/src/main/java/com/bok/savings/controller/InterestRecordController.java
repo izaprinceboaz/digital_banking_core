@@ -1,7 +1,9 @@
 package com.bok.savings.controller;
 
+import com.bok.savings.dto.CreateInterestRecordRequest;
 import com.bok.savings.entity.InterestRecord;
 import com.bok.savings.service.InterestRecordService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,8 @@ public class InterestRecordController {
     }
 
     @PostMapping
-    public InterestRecord createInterestRecord(@RequestBody InterestRecord interestRecord) {
-        return interestRecordService.createInterestRecord(interestRecord);
+    public InterestRecord createInterestRecord(@Valid @RequestBody CreateInterestRecordRequest request) {
+        return interestRecordService.createInterestRecord(request);
     }
 
     @GetMapping
