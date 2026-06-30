@@ -17,7 +17,7 @@ public class Statement {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_number", referencedColumnName = "account_number", nullable = false)
     private Account account;
 
     @Column(name = "transaction_ref", nullable = false, length = 50)

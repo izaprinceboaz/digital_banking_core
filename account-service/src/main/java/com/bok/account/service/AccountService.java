@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import java.util.List;
 
 @Service
@@ -23,9 +22,9 @@ public class AccountService {
     }
 
     @Transactional
-    public Account debit(UUID accountId, BigDecimal amount) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException(accountId));
+    public Account debit(String accountNumber, BigDecimal amount) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         if (account.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException(account.getBalance());
@@ -36,20 +35,20 @@ public class AccountService {
     }
 
     @Transactional
-    public Account credit(UUID accountId, BigDecimal amount) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException(accountId));
+    public Account credit(String accountNumber, BigDecimal amount) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         account.setBalance(account.getBalance().add(amount));
         return accountRepository.save(account);
     }
 
-    public BigDecimal checkCurrency(UUID senderAccountId, UUID receiverAccountId, BigDecimal amount) {
-        Account sender = accountRepository.findById(senderAccountId)
-                .orElseThrow(() -> new AccountNotFoundException(senderAccountId));
+    public BigDecimal checkCurrency(String senderAccountNumber, String receiverAccountNumber, BigDecimal amount) {
+        Account sender = accountRepository.findByAccountNumber(senderAccountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(senderAccountNumber));
 
-        Account receiver = accountRepository.findById(receiverAccountId)
-                        .orElseThrow(() -> new AccountNotFoundException(receiverAccountId));
+        Account receiver = accountRepository.findByAccountNumber(receiverAccountNumber)
+                        .orElseThrow(() -> new AccountNotFoundException(receiverAccountNumber));
 
         BigDecimal result = amount;
 
@@ -80,22 +79,27 @@ public class AccountService {
     }
 
     @Transactional
-    public void deleteAccount(UUID accountId) {
-        accountRepository.deleteById(accountId);
+    public void deleteAccount(String accountNumber) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+        accountRepository.delete(account);
     }
 
+
     @Transactional
-    public Account updateBalance(UUID accountId, BigDecimal newBalance) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException(accountId));
+    public Account updateBalance(String accountNumber, BigDecimal newBalance) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         account.setBalance(newBalance);
         return accountRepository.save(account);
     }
 
-    public Account getAccountById(UUID accountId) {
-        return accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
+    public Account getAccountByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
     }
+
 
     public Account createAccount(Account account) {
         return accountRepository.save(account);

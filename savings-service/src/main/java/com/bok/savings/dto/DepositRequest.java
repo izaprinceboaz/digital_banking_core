@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class DepositRequest {
 
-    @NotNull(message = "Account id is required")
-    private UUID accountId;
+    @NotNull(message = "Account number is required")
+    private String accountNumber;
 
     @NotNull(message = "Savings plan id is required")
     private UUID savingsPlanId;
@@ -18,12 +18,12 @@ public class DepositRequest {
     @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
 
-    public UUID getAccountId(){
-        return accountId;
+    public String getAccountNumber(){
+        return accountNumber;
     }
 
-    public void setAccountId(UUID accountId) {
-        this.accountId = accountId;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public UUID getSavingsPlanId(){

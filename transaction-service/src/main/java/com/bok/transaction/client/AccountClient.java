@@ -17,36 +17,36 @@ public class AccountClient {
         this.restClient = RestClient.builder().baseUrl(accountServiceUrl).build();
     }
 
-    public BigDecimal debit(UUID accountId, BigDecimal amount) {
+    public BigDecimal debit(String accountNumber, BigDecimal amount) {
         return restClient.post()
-                .uri("/api/accounts/{id}/debit", accountId)
+                .uri("/api/accounts/{accountNumber}/debit", accountNumber)
                 .body(amount)
                 .retrieve()
                 .body(AccountResponse.class)
                 .balance();
     }
 
-    public BigDecimal credit(UUID accountId, BigDecimal amount) {
+    public BigDecimal credit(String accountNumber, BigDecimal amount) {
         return restClient.post()
-                .uri("/api/accounts/{id}/credit", accountId)
+                .uri("/api/accounts/{accountNumber}/credit", accountNumber)
                 .body(amount)
                 .retrieve()
                 .body(AccountResponse.class)
                 .balance();
     }
 
-    public UUID getUserId(UUID accountId) {
+    public UUID getUserId(String accountNumber) {
         return restClient.get()
-                .uri("/api/accounts/{id}", accountId)
+                .uri("/api/accounts/{accountNumber}", accountNumber)
                 .retrieve()
                 .body(AccountResponse.class)
                 .userId();
     }
 
-    public BigDecimal checkCurrency(UUID senderAccountId, UUID receiverAccountId, BigDecimal amount) {
+    public BigDecimal checkCurrency(String senderAccountNumber, String receiverAccountNumber, BigDecimal amount) {
         Map<String, Object> request = Map.of(
-                "senderAccountId", senderAccountId,
-                "receiverAccountId", receiverAccountId,
+                "senderAccountNumber", senderAccountNumber,
+                "receiverAccountNumber", receiverAccountNumber,
                 "amount", amount
         );
 
@@ -59,10 +59,10 @@ public class AccountClient {
 
 
 
-    public void createStatement(UUID accountId, String transactionRef, String description,
+    public void createStatement(String accountNumber, String transactionRef, String description,
                                 BigDecimal amount, BigDecimal balanceAfter, String entryType) {
         Map<String, Object> statement = Map.of(
-                "account", Map.of("id", accountId),
+                "account", Map.of("accountNumber", accountNumber),
                 "transactionRef", transactionRef,
                 "description", description,
                 "amount", amount,

@@ -96,7 +96,7 @@ public class SavingsPlanService {
             throw new InvalidSavingsStatusException();
         }
 
-        accountClient.debit(request.getAccountId(), request.getAmount());
+        accountClient.debit(request.getAccountNumber(), request.getAmount());
 
         plan.setCurrentBalance(plan.getCurrentBalance().add(request.getAmount()));
         return savingsPlanRepository.save(plan);
@@ -116,7 +116,7 @@ public class SavingsPlanService {
         plan.setCurrentBalance(plan.getCurrentBalance().subtract(request.getAmount()));
         savingsPlanRepository.save(plan);
 
-        accountClient.credit(request.getAccountId(), request.getAmount());
+        accountClient.credit(request.getAccountNumber(), request.getAmount());
         return plan;
     }
 }

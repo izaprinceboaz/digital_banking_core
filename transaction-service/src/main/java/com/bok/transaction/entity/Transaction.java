@@ -19,11 +19,11 @@ public class Transaction {
     @Column(name = "reference_number", nullable = false, unique = true, length = 50)
     private String referenceNumber;
 
-    @Column(name = "sender_account_id", nullable = false)
-    private UUID senderAccountId;
+    @Column(name = "sender_account_number", nullable = false)
+    private String senderAccountNumber;
 
-    @Column(name = "receiver_account_id", nullable = false)
-    private UUID receiverAccountId;
+    @Column(name = "receiver_account_number", nullable = false)
+    private String receiverAccountNumber;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
@@ -76,20 +76,20 @@ public class Transaction {
         this.referenceNumber = referenceNumber;
     }
 
-    public UUID getSenderAccountId() {
-        return senderAccountId;
+    public String getSenderAccountNumber() {
+        return senderAccountNumber;
     }
 
-    public void setSenderAccountId(UUID senderAccountId) {
-        this.senderAccountId = senderAccountId;
+    public void setSenderAccountNumber(String senderAccountNumber) {
+        this.senderAccountNumber = senderAccountNumber;
     }
 
-    public UUID getReceiverAccountId() {
-        return receiverAccountId;
+    public String getReceiverAccountNumber() {
+        return receiverAccountNumber;
     }
 
-    public void setReceiverAccountId(UUID receiverAccountId) {
-        this.receiverAccountId = receiverAccountId;
+    public void setReceiverAccountNumber(String receiverAccountNumber) {
+        this.receiverAccountNumber = receiverAccountNumber;
     }
 
     public BigDecimal getAmount() {

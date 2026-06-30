@@ -20,7 +20,7 @@ public class Account {
     @Column(name = "user_id", nullable = false)
     private UUID userId;    
 
-    @Column(name = "account_number", nullable = false)
+    @Column(name = "account_number", nullable = false, unique = true)
     private String accountNumber;
 
     @Enumerated(EnumType.STRING)

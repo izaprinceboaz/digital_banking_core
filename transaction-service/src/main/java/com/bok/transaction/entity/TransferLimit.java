@@ -15,8 +15,8 @@ public class TransferLimit {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "account_id", nullable = false, unique = true)
-    private UUID accountId;
+    @Column(name = "account_number", nullable = false, unique = true)
+    private String accountNumber;
 
     @Column(name = "daily_limit", nullable = false, precision = 15, scale = 2)
     private BigDecimal dailyLimit = new BigDecimal("1000000.00");
@@ -48,12 +48,12 @@ public class TransferLimit {
         return id;
     }
 
-    public UUID getAccountId() {
-        return accountId;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
-    public void setAccountId(UUID accountId) {
-        this.accountId = accountId;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public BigDecimal getDailyLimit() {

@@ -4,13 +4,11 @@ import com.bok.account.entity.Account;
 import com.bok.account.service.AccountService;
 import com.bok.account.dto.AccountResponse;
 import com.bok.account.dto.CurrencyCheckRequest;
-import com.bok.account.entity.Currency;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
@@ -37,38 +35,39 @@ public class AccountController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
-    public AccountResponse getAccountById(@PathVariable UUID id) {
-        Account account = accountService.getAccountById(id);
+    @GetMapping("/{accountNumber}")
+    public AccountResponse getAccountByAccountNumber(@PathVariable String accountNumber) {
+        Account account = accountService.getAccountByAccountNumber(accountNumber);
         return AccountResponse.from(account);
     }
 
-    @PostMapping("/{id}/update-balance")
-    public AccountResponse updateBalance(@PathVariable UUID id, @RequestBody BigDecimal newBalance) {
-        Account account = accountService.updateBalance(id, newBalance);
+
+    @PostMapping("/{accountNumber}/update-balance")
+    public AccountResponse updateBalance(@PathVariable String accountNumber, @RequestBody BigDecimal newBalance) {
+        Account account = accountService.updateBalance(accountNumber, newBalance);
         return AccountResponse.from(account);
     }
 
-    @PostMapping("/{id}/debit")
-    public AccountResponse debitAccount(@PathVariable UUID id, @RequestBody BigDecimal amount) {
-        Account account = accountService.debit(id, amount);
+    @PostMapping("/{accountNumber}/debit")
+    public AccountResponse debitAccount(@PathVariable String accountNumber, @RequestBody BigDecimal amount) {
+        Account account = accountService.debit(accountNumber, amount);
         return AccountResponse.from(account);
     }
 
-    @PostMapping("/{id}/credit")
-    public AccountResponse creditAccount(@PathVariable UUID id, @RequestBody BigDecimal amount) {
-        Account account = accountService.credit(id, amount);
+    @PostMapping("/{accountNumber}/credit")
+    public AccountResponse creditAccount(@PathVariable String accountNumber, @RequestBody BigDecimal amount) {
+        Account account = accountService.credit(accountNumber, amount);
         return AccountResponse.from(account);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteAccount(@PathVariable UUID id) {
-        accountService.deleteAccount(id);
+    @DeleteMapping("/{accountNumber}")
+    public void deleteAccount(@PathVariable String accountNumber) {
+        accountService.deleteAccount(accountNumber);
     }
 
     @PostMapping("/currency")
     public BigDecimal checkCurrency(@Valid @RequestBody CurrencyCheckRequest request) {
-        BigDecimal convertedAmount = accountService.checkCurrency(request.getSenderAccountId(), request.getReceiverAccountId(), request.getAmount());
+        BigDecimal convertedAmount = accountService.checkCurrency(request.getSenderAccountNumber(), request.getReceiverAccountNumber(), request.getAmount());
         return convertedAmount;
     }
 

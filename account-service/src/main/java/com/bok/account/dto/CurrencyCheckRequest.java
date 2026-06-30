@@ -9,29 +9,29 @@ import java.util.UUID;
 public class CurrencyCheckRequest {
 
     @NotNull(message = "Sender account id is required")
-    private UUID senderAccountId;
+    private String senderAccountNumber;
 
     @NotNull(message = "Receiver account id is required")
-    private UUID receiverAccountId;
+    private String receiverAccountNumber;
 
     @NotNull(message = "Amount is required")
     @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
 
-    public UUID getSenderAccountId() { 
-        return senderAccountId; 
+    public String getSenderAccountNumber() { 
+        return senderAccountNumber; 
     }
 
-    public void setSenderAccountId(UUID senderAccountId) { 
-        this.senderAccountId = senderAccountId; 
+    public void setSenderAccountNumber(String senderAccountNumber) { 
+        this.senderAccountNumber = senderAccountNumber; 
     }
 
-    public UUID getReceiverAccountId() { 
-        return receiverAccountId; 
+    public String getReceiverAccountNumber() { 
+        return receiverAccountNumber; 
     }
 
-    public void setReceiverAccountId(UUID receiverAccountId) { 
-        this.receiverAccountId = receiverAccountId; 
+    public void setReceiverAccountNumber(String receiverAccountNumber) { 
+        this.receiverAccountNumber = receiverAccountNumber; 
     }
 
     public BigDecimal getAmount() { 

@@ -17,8 +17,8 @@ public class SavingsPlan {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "account_id", nullable = false)
-    private UUID accountId;
+    @Column(name = "account_number", nullable = false)
+    private String accountNumber;
 
     @Column(name = "plan_name", nullable = false, length = 100)
     private String planName;
@@ -70,12 +70,12 @@ public class SavingsPlan {
         return id;
     }
 
-    public UUID getAccountId() {
-        return accountId;
+    public String getAccountNumber() {
+        return accountNumber;
     }
 
-    public void setAccountId(UUID accountId) {
-        this.accountId = accountId;
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public String getPlanName() {
