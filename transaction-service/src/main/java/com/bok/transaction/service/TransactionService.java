@@ -71,7 +71,8 @@ public class TransactionService {
             accountClient.createStatement(transaction.getSenderAccountId(), transaction.getReferenceNumber(),
                                             transaction.getDescription(), transaction.getAmount(), senderBalance, "DEBIT");
             
-            notificationClient.sendNotification(transaction.getSenderAccountId(), "Transfer of " + transaction.getAmount() + " " + transaction.getCurrency() + " to account " + transaction.getReceiverAccountId() + " is successful. Reference: " + transaction.getReferenceNumber());
+            UUID senderUserId = accountClient.getUserId(transaction.getSenderAccountId());
+            notificationClient.sendNotification(senderUserId, "Transfer of " + transaction.getAmount() + " " + transaction.getCurrency() + " to account " + transaction.getReceiverAccountId() + " is successful. Reference: " + transaction.getReferenceNumber());
 
         } catch (RuntimeException ex) {
             transaction.setStatus(TransactionStatus.FAILED);
@@ -86,7 +87,8 @@ public class TransactionService {
             accountClient.createStatement(transaction.getReceiverAccountId(), transaction.getReferenceNumber(),
                                             transaction.getDescription(), convertedAmount, receiverBalance, "CREDIT");
 
-            notificationClient.sendNotification(transaction.getReceiverAccountId(), "You have received " + transaction.getAmount() + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountId() + ". Reference: " + transaction.getReferenceNumber());
+            UUID receiverUserId = accountClient.getUserId(transaction.getReceiverAccountId());
+            notificationClient.sendNotification(receiverUserId, "You have received " + transaction.getAmount() + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountId() + ". Reference: " + transaction.getReferenceNumber());
             
         } catch (RuntimeException ex) {
             accountClient.credit(transaction.getSenderAccountId(), transaction.getAmount());

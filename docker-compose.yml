@@ -98,10 +98,16 @@ services:
       - "8085:8085"
     depends_on:
       - notification-db
+      - auth-service
     environment:
       DB_URL: jdbc:postgresql://notification-db:5432/bk_notification_db
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+      AUTH_SERVICE_URL: http://auth-service:8081
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
 
   api-gateway:
     build: ./api-gateway

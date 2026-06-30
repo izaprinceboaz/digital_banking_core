@@ -35,6 +35,14 @@ public class AccountClient {
                 .balance();
     }
 
+    public UUID getUserId(UUID accountId) {
+        return restClient.get()
+                .uri("/api/accounts/{id}", accountId)
+                .retrieve()
+                .body(AccountResponse.class)
+                .userId();
+    }
+
     public BigDecimal checkCurrency(UUID senderAccountId, UUID receiverAccountId, BigDecimal amount) {
         Map<String, Object> request = Map.of(
                 "senderAccountId", senderAccountId,

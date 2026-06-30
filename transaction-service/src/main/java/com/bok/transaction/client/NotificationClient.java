@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,13 +24,16 @@ public class NotificationClient {
 
     private void createNotification(UUID userId, String channel, String title,
                                  String message, boolean isRead, String eventType) {
-        Map<String, Object> notification = Map.of(
-                "userId", userId,
-                "channel", channel,
-                "title", title,
-                "message", message,
-                "eventType", eventType
-        );
+        if (userId == null) {
+            return;
+        }
+
+        Map<String, Object> notification = new HashMap<>();
+        notification.put("userId", userId);
+        notification.put("channel", channel);
+        notification.put("title", title);
+        notification.put("message", message);
+        notification.put("eventType", eventType);
 
         restClient.post()
                 .uri("/api/notifications")

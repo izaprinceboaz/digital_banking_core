@@ -10,10 +10,19 @@ import com.bok.account.entity.Currency;
 public class AccountResponse {
 
     private UUID id;
+    private UUID userId;
     private String accountNumber;
-    private BigDecimal balance;    
+    private BigDecimal balance;
     private Currency currency;
     private AccountStatus status;
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
 
     public String getAccountNumber() {
         return accountNumber;
@@ -58,6 +67,7 @@ public class AccountResponse {
     public static AccountResponse from(Account account) {
         AccountResponse response = new AccountResponse();
         response.setId(account.getId());
+        response.setUserId(account.getUserId());
         response.setAccountNumber(account.getAccountNumber());
         response.setBalance(account.getBalance());
         response.setCurrency(account.getCurrency());
