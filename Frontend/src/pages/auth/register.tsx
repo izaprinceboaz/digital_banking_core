@@ -57,7 +57,7 @@ export default function Register() {
           </ul>
         </div>
         <p className="auth-disclaimer">
-          Educational demo — not affiliated with or endorsed by Bank of Kigali.
+          Demo
         </p>
       </aside>
 
@@ -150,7 +150,7 @@ export default function Register() {
         </div>
 
         <p className="auth-disclaimer">
-          Educational demo — not affiliated with or endorsed by Bank of Kigali.
+          Demo
         </p>
       </main>
     </div>

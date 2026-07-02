@@ -46,7 +46,7 @@ export default function Login() {
           </ul>
         </div>
         <p className="auth-disclaimer">
-          Educational demo — not affiliated with or endorsed by Bank of Kigali.
+          Demo
         </p>
       </aside>
 
@@ -99,7 +99,7 @@ export default function Login() {
         </div>
 
         <p className="auth-disclaimer">
-          Educational demo — not affiliated with or endorsed by Bank of Kigali.
+          Demo
         </p>
       </main>
     </div>
