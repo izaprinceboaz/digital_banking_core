@@ -6,7 +6,7 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
   return res.data;
 }
 
-export async function register(data: RegisterRequest) {
-  const res = await api.post("/api/auth/register", data);
+export async function register(data: RegisterRequest): Promise<AuthResponse> {
+  const res = await api.post<AuthResponse>("/api/auth/register", data);
   return res.data;
 }

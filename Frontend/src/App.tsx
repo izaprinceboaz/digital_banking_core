@@ -1,5 +1,5 @@
 import './App.css'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import Login from './pages/auth/login'
 import Register from './pages/auth/register'
 import Dashboard from './pages/Dashboard'
@@ -12,8 +12,9 @@ function App() {
   return (
     <>
       <Routes>
-        <Route 
-          path="/login" 
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route
+          path="/login"
           element={
             <PublicRoute>
               <Login/>
@@ -36,6 +37,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
   )
