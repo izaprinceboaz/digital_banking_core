@@ -62,7 +62,7 @@ public class AccountClient {
     public void createStatement(String accountNumber, String transactionRef, String description,
                                 BigDecimal amount, BigDecimal balanceAfter, String entryType) {
         Map<String, Object> statement = Map.of(
-                "account", Map.of("accountNumber", accountNumber),
+                "accountNumber", accountNumber,
                 "transactionRef", transactionRef,
                 "description", description,
                 "amount", amount,
