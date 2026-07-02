@@ -18,3 +18,6 @@ jwt:
   access-token-expiration-ms: 900000
   enabled: false
 
+services:
+  notification:
+    base-url: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}

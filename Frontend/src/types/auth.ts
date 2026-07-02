@@ -24,3 +24,7 @@ export interface RegisterRequest {
     phoneNumber: string;
     passwordHash: string;
 }
+
+export interface RefreshTokenRequest {
+    refreshToken: string;
+}

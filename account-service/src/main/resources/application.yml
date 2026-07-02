@@ -16,3 +16,7 @@ spring:
 jwt:
   secret: ${JWT_SECRET:digital-banking-core-super-secret-key-change-in-production-0123456789}
   enabled: false
+
+services:
+  notification:
+    base-url: ${NOTIFICATION_SERVICE_BASE_URL:http://localhost:8085}

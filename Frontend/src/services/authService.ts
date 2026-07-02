@@ -10,3 +10,7 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
   const res = await api.post<AuthResponse>("/api/auth/register", data);
   return res.data;
 }
+
+export async function logout(refreshToken: string): Promise<void> {
+  await api.post("/api/auth/logout", { refreshToken });
+}

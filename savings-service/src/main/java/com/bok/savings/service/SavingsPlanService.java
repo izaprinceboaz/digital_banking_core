@@ -21,6 +21,7 @@ import com.bok.savings.exception.InvalidSavingsStatusException;
 import com.bok.savings.exception.SavingsPlanNotFoundException;
 import com.bok.savings.repository.InterestRecordRepository;
 import com.bok.savings.repository.SavingsPlanRepository;
+import com.bok.savings.client.NotificationClient;
 
 @Service
 public class SavingsPlanService {
@@ -34,13 +35,16 @@ public class SavingsPlanService {
     private final SavingsPlanRepository savingsPlanRepository;
     private final InterestRecordRepository interestRecordRepository;
     private final AccountClient accountClient;
+    private final NotificationClient notificationClient;
 
     public SavingsPlanService(SavingsPlanRepository savingsPlanRepository,
                                InterestRecordRepository interestRecordRepository,
-                               AccountClient accountClient) {
+                               AccountClient accountClient,
+                               NotificationClient notificationClient) {
         this.savingsPlanRepository = savingsPlanRepository;
         this.interestRecordRepository = interestRecordRepository;
         this.accountClient = accountClient;
+        this.notificationClient = notificationClient;
     }
 
     public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan) {
@@ -85,7 +89,15 @@ public class SavingsPlanService {
         record.setInterestEarned(interestEarned);
         record.setClosingBalance(closingBalance);
 
-        return interestRecordRepository.save(record);
+        InterestRecord savedRecord = interestRecordRepository.save(record);
+
+        try {
+            UUID userId = accountClient.getUserId(plan.getAccountNumber());
+            notificationClient.sendNotification(userId,  "Your savings plan has earned interest of " + interestEarned + ".");
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+        return savedRecord;
     }
 
     public SavingsPlan deposit(DepositRequest request) {
@@ -99,7 +111,16 @@ public class SavingsPlanService {
         accountClient.debit(request.getAccountNumber(), request.getAmount());
 
         plan.setCurrentBalance(plan.getCurrentBalance().add(request.getAmount()));
-        return savingsPlanRepository.save(plan);
+
+        SavingsPlan updatedPlan = savingsPlanRepository.save(plan);
+
+        try {
+            UUID userId = accountClient.getUserId(plan.getAccountNumber());
+            notificationClient.sendNotification(userId,  "Your have deposited " + request.getAmount() + " into your savings plan. Your new balance is " + plan.getCurrentBalance() + ".");
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+        return updatedPlan;
     }
 
     public SavingsPlan withdraw(WithdrawRequest request) {
@@ -114,9 +135,16 @@ public class SavingsPlanService {
         }
 
         plan.setCurrentBalance(plan.getCurrentBalance().subtract(request.getAmount()));
-        savingsPlanRepository.save(plan);
+        SavingsPlan updatedPlan = savingsPlanRepository.save(plan);
 
         accountClient.credit(request.getAccountNumber(), request.getAmount());
-        return plan;
+
+        try {
+            UUID userId = accountClient.getUserId(plan.getAccountNumber());
+            notificationClient.sendNotification(userId, "Your have withdrawn " + request.getAmount() + " from your savings plan. Your new balance is " + plan.getCurrentBalance() + ".");
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+        return updatedPlan;
     }
 }

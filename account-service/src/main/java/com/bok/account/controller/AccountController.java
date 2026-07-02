@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
@@ -66,6 +67,13 @@ public class AccountController {
     public AccountResponse creditAccount(@PathVariable String accountNumber, @RequestBody BigDecimal amount) {
         Account account = accountService.credit(accountNumber, amount);
         return AccountResponse.from(account);
+    }
+
+    @GetMapping("/accounts/{userId}")
+    public List<AccountResponse> listAccountsByUserId(@PathVariable UUID userId) {
+        return accountService.listAccountsByUserId(userId).stream()
+                .map(AccountResponse::from)
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping("/{accountNumber}")

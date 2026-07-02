@@ -8,10 +8,15 @@ import com.bok.transaction.client.AccountClient;
 import com.bok.transaction.client.NotificationClient;
 import com.bok.transaction.dto.TransferRequest;
 import com.bok.transaction.exception.TransactionNotFoundException;
+import com.bok.transaction.exception.TransferLimitExceededException;
+import com.bok.transaction.repository.TransferLimitRepository;
+import com.bok.transaction.entity.TransferLimit;
+
 
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,11 +29,13 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final AccountClient accountClient;
     private final NotificationClient notificationClient;
+    private final TransferLimitRepository transferLimitRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, AccountClient accountClient, NotificationClient notificationClient) {
+    public TransactionService(TransactionRepository transactionRepository, AccountClient accountClient, NotificationClient notificationClient, TransferLimitRepository transferLimitRepository) {
         this.transactionRepository = transactionRepository;
         this.accountClient = accountClient;
         this.notificationClient = notificationClient;
+        this.transferLimitRepository = transferLimitRepository;
     }
 
     public Transaction createTransaction(Transaction transaction) {
@@ -61,6 +68,34 @@ public class TransactionService {
         transaction.setType(TransactionType.TRANSFER);
         transaction.setStatus(TransactionStatus.PENDING);
         transaction = transactionRepository.save(transaction);
+
+        TransferLimit limit = transferLimitRepository.findByAccountNumber(
+                transferRequest.getSenderAccountNumber())
+            .orElseGet(() -> {
+                TransferLimit newLimit = new TransferLimit();
+                newLimit.setAccountNumber(transferRequest.getSenderAccountNumber());
+                return transferLimitRepository.save(newLimit);
+            });
+
+        if (limit.getLastResetDate() == null || limit.getLastResetDate().isBefore(LocalDate.now())) {
+            limit.setDailyUsed(BigDecimal.ZERO);
+            limit.setLastResetDate(LocalDate.now());
+        }
+
+        if (transferRequest.getAmount().compareTo(limit.getPerTxnLimit()) > 0) {
+            transaction.setStatus(TransactionStatus.FAILED);
+            transaction.setFailureReason("Transfer amount exceeds per transaction limit.");
+            transactionRepository.save(transaction);
+            throw new TransferLimitExceededException();
+        }
+
+        if ( limit.getDailyUsed().add(transferRequest.getAmount()).compareTo(limit.getDailyLimit()) > 0) {
+            transaction.setStatus(TransactionStatus.FAILED);
+            transaction.setFailureReason("Exceeds daily limit of " + limit.getDailyLimit());
+            transactionRepository.save(transaction);
+            throw new TransferLimitExceededException();
+        }
+
 
         BigDecimal convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountNumber(), transferRequest.getReceiverAccountNumber(),transferRequest.getAmount());
 
@@ -98,8 +133,10 @@ public class TransactionService {
         }
 
         transaction.setStatus(TransactionStatus.COMPLETED);
+
+        limit.setDailyUsed(limit.getDailyUsed().add(transferRequest.getAmount()));
+        transferLimitRepository.save(limit);
+
         return transactionRepository.save(transaction);
     }
-    
-    
 }

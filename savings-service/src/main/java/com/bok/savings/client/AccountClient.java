@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Component
 public class AccountClient {
@@ -38,5 +39,13 @@ public class AccountClient {
                 .body(amount)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    public UUID getUserId(String accountNumber) {
+        return restClient.get()
+                .uri("/api/accounts/{accountNumber}", accountNumber)
+                .retrieve()
+                .body(AccountResponse.class)
+                .userId();
     }
 }

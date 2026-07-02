@@ -5,20 +5,24 @@ import com.bok.account.exception.AccountNotFoundException;
 import com.bok.account.exception.InsufficientFundsException;
 import com.bok.account.repository.AccountRepository;
 import com.bok.account.entity.Currency;
+import com.bok.account.client.NotificationClient;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final NotificationClient notificationClient;
 
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, NotificationClient notificationClient) {
         this.accountRepository = accountRepository;
+        this.notificationClient = notificationClient;
     }
 
     @Transactional
@@ -31,7 +35,14 @@ public class AccountService {
         }
 
         account.setBalance(account.getBalance().subtract(amount));
-        return accountRepository.save(account);
+        Account updatedAccount = accountRepository.save(account);
+
+        try {
+            notificationClient.sendDebitNotification(account.getUserId(), "Your account has been debited with " + amount + " " + account.getCurrency() + ". New balance: " + account.getBalance() + " " + account.getCurrency());
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+        return updatedAccount;
     }
 
     @Transactional
@@ -40,7 +51,15 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         account.setBalance(account.getBalance().add(amount));
-        return accountRepository.save(account);
+
+        Account updatedAccount = accountRepository.save(account);
+
+        try {
+            notificationClient.sendCreditNotification(account.getUserId(), "Your account has been credited with " + amount + " " + account.getCurrency() + ". New balance: " + account.getBalance() + " " + account.getCurrency());
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+        return updatedAccount;
     }
 
     public BigDecimal checkCurrency(String senderAccountNumber, String receiverAccountNumber, BigDecimal amount) {
@@ -92,12 +111,23 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
         account.setBalance(newBalance);
-        return accountRepository.save(account);
+
+        Account updatedAccount = accountRepository.save(account);
+        try {
+            notificationClient.sendUpdateBalanceNotification(account.getUserId(), "Your account balance has been updated to " + newBalance + " " + account.getCurrency());
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+        return updatedAccount;
     }
 
     public Account getAccountByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+    }
+
+    public List<Account> listAccountsByUserId(UUID userId) {
+        return accountRepository.listAccountsByUserId(userId);
     }
 
 
