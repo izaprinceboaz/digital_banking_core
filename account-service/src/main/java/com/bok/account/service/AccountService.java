@@ -1,11 +1,14 @@
 package com.bok.account.service;
 
 import com.bok.account.entity.Account;
+import com.bok.account.entity.AccountStatus;
+import com.bok.account.exception.AccountNotActiveException;
 import com.bok.account.exception.AccountNotFoundException;
 import com.bok.account.exception.InsufficientFundsException;
 import com.bok.account.repository.AccountRepository;
 import com.bok.account.entity.Currency;
 import com.bok.account.client.NotificationClient;
+import com.bok.account.service.AccountNumberGenerator;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,16 +22,22 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final NotificationClient notificationClient;
+    private final AccountNumberGenerator accountNumberGenerator;
 
-    public AccountService(AccountRepository accountRepository, NotificationClient notificationClient) {
+    public AccountService(AccountRepository accountRepository, NotificationClient notificationClient, AccountNumberGenerator accountNumberGenerator) {
         this.accountRepository = accountRepository;
         this.notificationClient = notificationClient;
+        this.accountNumberGenerator = accountNumberGenerator;
     }
 
     @Transactional
     public Account debit(String accountNumber, BigDecimal amount) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountNotActiveException();
+        }
 
         if (account.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException(account.getBalance());
@@ -49,6 +58,10 @@ public class AccountService {
     public Account credit(String accountNumber, BigDecimal amount) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountNotActiveException();
+        }
 
         account.setBalance(account.getBalance().add(amount));
 
@@ -110,6 +123,10 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountNotActiveException();
+        }
+
         account.setBalance(newBalance);
 
         Account updatedAccount = accountRepository.save(account);
@@ -126,12 +143,14 @@ public class AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
     }
 
-    public List<Account> listAccountsByUserId(UUID userId) {
-        return accountRepository.listAccountsByUserId(userId);
+    public List<Account> findAccountsByUserId(UUID userId) {
+        return accountRepository.findAccountsByUserId(userId);
     }
 
 
     public Account createAccount(Account account) {
+        String accountNumber = accountNumberGenerator.generate(account.getAccountType());
+        account.setAccountNumber(accountNumber);
         return accountRepository.save(account);
     }
 

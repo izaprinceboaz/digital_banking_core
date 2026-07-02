@@ -12,10 +12,13 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  sql:
+    init:
+      mode: always
 
 jwt:
   secret: ${JWT_SECRET:digital-banking-core-super-secret-key-change-in-production-0123456789}
-  enabled: false
+  enabled: true
 
 services:
   notification:

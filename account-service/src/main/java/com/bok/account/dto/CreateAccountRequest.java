@@ -12,12 +12,6 @@ import java.util.UUID;
 
 public class CreateAccountRequest {
 
-    @NotNull(message = "User id is required")
-    private UUID userId;
-
-    @NotBlank(message = "Account number is required")
-    private String accountNumber;
-
     @NotNull(message = "Account type is required")
     private AccountType accountType;
 
@@ -27,22 +21,6 @@ public class CreateAccountRequest {
     @NotNull(message = "Opening balance is required")
     @DecimalMin(value = "0.00", message = "Opening balance cannot be negative")
     private BigDecimal balance;
-
-    public UUID getUserId() {
-        return userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
 
     public AccountType getAccountType() {
         return accountType;

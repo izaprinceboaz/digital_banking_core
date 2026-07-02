@@ -17,14 +17,6 @@ public class AccountClient {
         this.restClient = RestClient.builder().baseUrl(accountServiceUrl).build();
     }
 
-    public BigDecimal getBalance(String accountNumber) {
-        return restClient.get()
-                .uri("/api/accounts/{accountNumber}", accountNumber)
-                .retrieve()
-                .body(AccountResponse.class)
-                .balance();
-    }
-
     public void debit(String accountNumber, BigDecimal amount) {
         restClient.post()
                 .uri("/api/accounts/{accountNumber}/debit", accountNumber)
@@ -47,5 +39,12 @@ public class AccountClient {
                 .retrieve()
                 .body(AccountResponse.class)
                 .userId();
+    }
+
+    public AccountResponse getAccount(String accountNumber) {
+        return restClient.get()
+                .uri("/api/accounts/{accountNumber}", accountNumber)
+                .retrieve()
+                .body(AccountResponse.class);
     }
 }

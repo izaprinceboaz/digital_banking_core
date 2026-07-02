@@ -6,4 +6,4 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record AccountResponse(UUID id, UUID userId, BigDecimal balance) {}
+public record AccountResponse(UUID id, UUID userId, BigDecimal balance, String accountType) {}

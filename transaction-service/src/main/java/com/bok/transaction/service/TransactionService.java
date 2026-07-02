@@ -13,7 +13,7 @@ import com.bok.transaction.repository.TransferLimitRepository;
 import com.bok.transaction.entity.TransferLimit;
 
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,7 +55,7 @@ public class TransactionService {
     }
 
 
-    @Transactional
+    @Transactional(noRollbackFor = TransferLimitExceededException.class)
     public Transaction transfer(TransferRequest transferRequest) {
         Transaction transaction = new Transaction();
         transaction.setSenderAccountNumber(transferRequest.getSenderAccountNumber());

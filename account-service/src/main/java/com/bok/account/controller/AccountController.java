@@ -7,6 +7,8 @@ import com.bok.account.dto.CreateAccountRequest;
 import com.bok.account.dto.CurrencyCheckRequest;
 
 import jakarta.validation.Valid;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,10 +27,11 @@ public class AccountController {
     }
 
     @PostMapping("/create")
-    public AccountResponse createAccount(@Valid @RequestBody CreateAccountRequest request) {
+    public AccountResponse createAccount(@Valid @RequestBody CreateAccountRequest request,
+                                         @AuthenticationPrincipal String userId
+    ) {
         Account account = new Account();
-        account.setUserId(request.getUserId());
-        account.setAccountNumber(request.getAccountNumber());
+        account.setUserId(UUID.fromString(userId));
         account.setAccountType(request.getAccountType());
         account.setCurrency(request.getCurrency());
         account.setBalance(request.getBalance());
@@ -70,8 +73,8 @@ public class AccountController {
     }
 
     @GetMapping("/accounts/{userId}")
-    public List<AccountResponse> listAccountsByUserId(@PathVariable UUID userId) {
-        return accountService.listAccountsByUserId(userId).stream()
+    public List<AccountResponse> findAccountsByUserId(@PathVariable UUID userId) {
+        return accountService.findAccountsByUserId(userId).stream()
                 .map(AccountResponse::from)
                 .collect(Collectors.toList());
     }

@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bok.savings.client.AccountClient;
+import com.bok.savings.client.AccountResponse;
 import com.bok.savings.dto.DepositRequest;
 import com.bok.savings.dto.WithdrawRequest;
 import com.bok.savings.entity.CompoundingFrequency;
@@ -17,6 +18,7 @@ import com.bok.savings.entity.InterestRecord;
 import com.bok.savings.entity.SavingsPlan;
 import com.bok.savings.entity.SavingsStatus;
 import com.bok.savings.exception.InsufficientSavingsBalanceException;
+import com.bok.savings.exception.InvalidAccountTypeException;
 import com.bok.savings.exception.InvalidSavingsStatusException;
 import com.bok.savings.exception.SavingsPlanNotFoundException;
 import com.bok.savings.repository.InterestRecordRepository;
@@ -48,6 +50,10 @@ public class SavingsPlanService {
     }
 
     public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan) {
+        AccountResponse account = accountClient.getAccount(savingsPlan.getAccountNumber());
+        if (!"SAVINGS".equalsIgnoreCase(account.accountType())) {
+            throw new InvalidAccountTypeException(savingsPlan.getAccountNumber());
+        }
         return savingsPlanRepository.save(savingsPlan);
     }
 
