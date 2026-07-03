@@ -36,7 +36,12 @@ export default function Accounts() {
     const [accounts, setAccounts] = useState<any[]>([]);
 
     useEffect(() => {
-        getMyAccounts().then(setAccounts).catch(console.error);
+        getMyAccounts().then((data) => {
+            setAccounts(data);
+            if (data.length > 0) {
+                localStorage.setItem("accountNumber", data[0].accountNumber);
+            }
+        }).catch(console.error);
     }, []);
     
 

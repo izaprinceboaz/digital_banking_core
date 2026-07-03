@@ -16,7 +16,7 @@ spring:
 jwt:
   secret: ${JWT_SECRET:digital-banking-core-super-secret-key-change-in-production-0123456789}
   access-token-expiration-ms: 900000
-  enabled: false
+  enabled: true
 
 services:
   notification:
