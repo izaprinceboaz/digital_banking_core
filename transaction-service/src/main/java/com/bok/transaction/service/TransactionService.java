@@ -97,9 +97,11 @@ public class TransactionService {
         }
 
 
-        BigDecimal convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountNumber(), transferRequest.getReceiverAccountNumber(),transferRequest.getAmount());
+        BigDecimal convertedAmount;
 
         try {
+
+            convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountNumber(), transferRequest.getReceiverAccountNumber(),transferRequest.getAmount());
             
             BigDecimal senderBalance = accountClient.debit(transaction.getSenderAccountNumber(), transaction.getAmount());
 
@@ -123,7 +125,7 @@ public class TransactionService {
                                             transaction.getDescription(), convertedAmount, receiverBalance, "CREDIT");
 
             UUID receiverUserId = accountClient.getUserId(transaction.getReceiverAccountNumber());
-            notificationClient.sendNotification(receiverUserId, "You have received " + transaction.getAmount() + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountNumber() + ". Reference: " + transaction.getReferenceNumber());
+            notificationClient.sendNotification(receiverUserId, "You have received " + convertedAmount + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountNumber() + ". Reference: " + transaction.getReferenceNumber());
             
         } catch (RuntimeException ex) {
             accountClient.credit(transaction.getSenderAccountNumber(), transaction.getAmount());
