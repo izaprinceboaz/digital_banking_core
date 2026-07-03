@@ -55,6 +55,10 @@ public class NotificationService {
         return notificationRepository.findAll();
     }
 
+    public List<Notification> findNotificationsByUserId(UUID userId) {
+        return notificationRepository.findNotificationsByUserId(userId);
+    }
+
     public Notification getNotificationById(UUID id) {
         return notificationRepository.findById(id).orElseThrow(() -> new NotificationNotFoundException());
     }

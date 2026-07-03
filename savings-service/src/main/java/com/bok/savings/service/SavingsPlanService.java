@@ -65,6 +65,10 @@ public class SavingsPlanService {
         return savingsPlanRepository.findById(id).orElseThrow(() -> new SavingsPlanNotFoundException());
     }
 
+    public List<SavingsPlan> findSavingsPlansByAccountNumber(String accountNumber) {
+        return savingsPlanRepository.findSavingsPlansByAccountNumber(accountNumber);
+    }
+
     public void deleteSavingsPlan(UUID id) {
         savingsPlanRepository.deleteById(id);
     }

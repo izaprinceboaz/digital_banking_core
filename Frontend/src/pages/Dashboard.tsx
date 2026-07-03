@@ -20,6 +20,8 @@ export default function Dashboard() {
   return (
     <div>
       <h2>Dashboard</h2>
+      <button onClick={() => navigate("/transactions")}>Transactions</button>
+      <button onClick={() => navigate("/accounts")}>Accounts</button>
       <button onClick={handleLogout}>Log out</button>
     </div>
   );

@@ -5,6 +5,8 @@ import com.bok.notification.service.NotificationService;
 import com.bok.notification.dto.NotificationRequest;
 
 import jakarta.validation.Valid;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,6 +36,12 @@ public class NotificationController {
     public Notification getNotificationById(@PathVariable UUID id) {
         return notificationService.getNotificationById(id);
     }
+
+    @GetMapping("/my-notifications")
+    public List<Notification> findNotificationsByUserId(@AuthenticationPrincipal String userId) {
+        return notificationService.findNotificationsByUserId(UUID.fromString(userId));
+    }
+
 
     @DeleteMapping("/{id}")
     public void deleteNotification(@PathVariable UUID id) {

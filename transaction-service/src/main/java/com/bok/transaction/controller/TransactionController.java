@@ -7,6 +7,8 @@ import com.bok.transaction.entity.Transaction;
 import com.bok.transaction.service.TransactionService;
 
 import jakarta.validation.Valid;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +25,7 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public TransferResponse createTransaction(@Valid @RequestBody CreateTransactionRequest request) {
         Transaction transaction = new Transaction();
         transaction.setReferenceNumber(request.getReferenceNumber());
@@ -44,11 +46,17 @@ public class TransactionController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/my-transactions/{accountNumber}")
+    public List<TransferResponse> findTransactionsByAccountNumber(@PathVariable String accountNumber) {
+        return transactionService.findTransactionsByAccountNumber(accountNumber).stream()
+                .map(TransferResponse::from)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
     public TransferResponse getTransactionById(@PathVariable UUID id) {
         return TransferResponse.from(transactionService.getTransactionById(id));
     }
-
     @PostMapping("/transfer")
     public TransferResponse transfer(@Valid @RequestBody TransferRequest transferRequest) {
         return TransferResponse.from(transactionService.transfer(transferRequest));

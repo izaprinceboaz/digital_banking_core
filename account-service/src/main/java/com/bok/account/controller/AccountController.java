@@ -72,9 +72,9 @@ public class AccountController {
         return AccountResponse.from(account);
     }
 
-    @GetMapping("/accounts/{userId}")
-    public List<AccountResponse> findAccountsByUserId(@PathVariable UUID userId) {
-        return accountService.findAccountsByUserId(userId).stream()
+    @GetMapping("/my-accounts")
+    public List<AccountResponse> findAccountsByUserId(@AuthenticationPrincipal String userId) {
+        return accountService.findAccountsByUserId(UUID.fromString(userId)).stream()
                 .map(AccountResponse::from)
                 .collect(Collectors.toList());
     }

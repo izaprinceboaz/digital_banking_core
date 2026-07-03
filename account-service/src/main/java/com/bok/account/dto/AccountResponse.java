@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.bok.account.entity.Account;
 import com.bok.account.entity.AccountStatus;
+import com.bok.account.entity.AccountType;
 import com.bok.account.entity.Currency;
 
 public class AccountResponse {
@@ -15,6 +16,7 @@ public class AccountResponse {
     private BigDecimal balance;
     private Currency currency;
     private AccountStatus status;
+    private AccountType accountType;
 
     public UUID getUserId() {
         return userId;
@@ -64,11 +66,21 @@ public class AccountResponse {
         this.status = status;
     }
 
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+
     public static AccountResponse from(Account account) {
         AccountResponse response = new AccountResponse();
         response.setId(account.getId());
         response.setUserId(account.getUserId());
         response.setAccountNumber(account.getAccountNumber());
+        response.setAccountType(account.getAccountType());
         response.setBalance(account.getBalance());
         response.setCurrency(account.getCurrency());
         response.setStatus(account.getStatus());

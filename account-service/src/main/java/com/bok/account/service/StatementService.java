@@ -43,6 +43,10 @@ public class StatementService {
         return statementRepository.findById(id).orElseThrow(() -> new StatementNotFoundException());
     }
 
+    public List<Statement> findStatementsByAccountNumber(String accountNumber) {
+        return statementRepository.findStatementsByAccount_AccountNumber(accountNumber);
+    }
+
     public void deleteAllStatement() {
         statementRepository.deleteAll();
     }

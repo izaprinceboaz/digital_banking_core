@@ -53,6 +53,13 @@ public class StatementController {
         return StatementResponse.from(statement);
     }
 
+    @GetMapping("/my-statements/{accountNumber}")
+    public List<StatementResponse> findStatementsByAccountNumber(@PathVariable String accountNumber) {
+        return statementService.findStatementsByAccountNumber(accountNumber).stream()
+                .map(StatementResponse::from)
+                .collect(Collectors.toList());
+    }
+
     @DeleteMapping
     public void deleteStatement() {
         statementService.deleteAllStatement();

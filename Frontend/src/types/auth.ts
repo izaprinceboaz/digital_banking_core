@@ -15,6 +15,8 @@ export interface UserResponse {
     firstName: string;
     lastName: string;
     email: string;
+    phoneNumber: string;
+    roles: string;
 }
 
 export interface RegisterRequest {

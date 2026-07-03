@@ -46,6 +46,10 @@ public class TransactionService {
         return transactionRepository.findById(id).orElseThrow(() -> new TransactionNotFoundException());
     }
 
+    public List<Transaction> findTransactionsByAccountNumber(String accountNumber) {
+        return transactionRepository.findBySenderAccountNumber(accountNumber);
+    }
+
     public List<Transaction> listTransactions() {
         return transactionRepository.findAll();
     }

@@ -7,6 +7,8 @@ import com.bok.savings.dto.WithdrawRequest;
 import com.bok.savings.entity.SavingsPlan;
 import com.bok.savings.service.SavingsPlanService;
 import jakarta.validation.Valid;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,6 +62,11 @@ public class SavingsPlanController {
     @GetMapping("/{id}")
     public SavingsPlan getSavingsPlanById(@PathVariable UUID id) {
         return savingsPlanService.getSavingsPlanById(id);
+    }
+
+    @GetMapping("/my-savings-plans/{accountNumber}")
+    public List<SavingsPlan> findSavingsPlansByAccountNumber(@PathVariable String accountNumber) {
+        return savingsPlanService.findSavingsPlansByAccountNumber(accountNumber);
     }
 
     @DeleteMapping("/{id}")

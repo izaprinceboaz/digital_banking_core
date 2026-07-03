@@ -5,6 +5,8 @@ import Register from './pages/auth/register'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
+import Transactions from './pages/transactions/Transactions'
+import Accounts from './pages/accounts/Accounts'
 
 
 function App() {
@@ -34,6 +36,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transactions"
+          element={
+            <ProtectedRoute>
+              <Transactions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/accounts"
+          element={
+            <ProtectedRoute>
+              <Accounts />
             </ProtectedRoute>
           }
         />

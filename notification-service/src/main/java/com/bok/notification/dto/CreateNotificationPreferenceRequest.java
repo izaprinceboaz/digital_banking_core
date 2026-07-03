@@ -1,12 +1,9 @@
 package com.bok.notification.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.util.UUID;
 
 public class CreateNotificationPreferenceRequest {
 
-    @NotNull(message = "User id is required")
     private UUID userId;
 
     private boolean emailEnabled = true;
