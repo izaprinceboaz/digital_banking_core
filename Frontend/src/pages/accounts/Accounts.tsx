@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { logout } from '../../services/authService'
 import { createAccount, getMyAccounts } from '../../services/accountService'
 
 
 
 export default function Accounts() {
-    const navigate = useNavigate();
-
     const [balance, setBalance] = useState(0);
     const [currency, setCurrency] = useState("");
     const [accountType, setAccountType] = useState("");
@@ -20,18 +16,6 @@ export default function Accounts() {
         };
         await createAccount(data);
     };
-
-    function handleLogout() {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          logout(refreshToken).catch((err) => {
-            console.error("Logout failed:", err);
-          });
-        }
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        navigate("/login");
-    }
 
     const [accounts, setAccounts] = useState<any[]>([]);
 
@@ -87,7 +71,6 @@ export default function Accounts() {
                         ))}
                 </tbody>
             </table>
-            <button onClick={handleLogout}>Log out</button>
         </div>
         
     )
