@@ -31,7 +31,7 @@ export default function Login() {
     <div className="auth-page">
       <aside className="auth-brand">
         <div className="auth-wordmark">
-          <span>DB</span> Demo Bank
+          <span>M</span> Meridian
         </div>
         <div>
           <h1>Banking that moves at your speed.</h1>
@@ -46,13 +46,13 @@ export default function Login() {
           </ul>
         </div>
         <p className="auth-disclaimer">
-          Demo
+          Meridian
         </p>
       </aside>
 
       <main className="auth-form-side">
         <div className="auth-wordmark">
-          <span>DB</span> Demo Bank
+          <span>M</span> Meridian
         </div>
 
         <div className="auth-card">
@@ -94,12 +94,12 @@ export default function Login() {
           </form>
 
           <p className="auth-switch">
-            New to Demo Bank? <Link to="/register">Open an account</Link>
+            New to Meridian? <Link to="/register">Create an account</Link>
           </p>
         </div>
 
         <p className="auth-disclaimer">
-          Demo
+          Meridian
         </p>
       </main>
     </div>

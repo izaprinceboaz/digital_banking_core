@@ -42,12 +42,12 @@ export default function Register() {
     <div className="auth-page">
       <aside className="auth-brand">
         <div className="auth-wordmark">
-          <span>DB</span> Demo Bank
+          <span>M</span> Meridian
         </div>
         <div>
           <h1>Open an account in minutes.</h1>
           <p className="auth-brand-tagline">
-            Join Demo Bank to send money, pay bills, and stay on top of your
+            Join Meridian to send money, pay bills, and stay on top of your
             finances.
           </p>
           <ul>
@@ -57,13 +57,13 @@ export default function Register() {
           </ul>
         </div>
         <p className="auth-disclaimer">
-          Demo
+          Meridian
         </p>
       </aside>
 
       <main className="auth-form-side">
         <div className="auth-wordmark">
-          <span>DB</span> Demo Bank
+          <span>M</span> Meridian
         </div>
 
         <div className="auth-card">
@@ -150,7 +150,7 @@ export default function Register() {
         </div>
 
         <p className="auth-disclaimer">
-          Demo
+          Meridian
         </p>
       </main>
     </div>
