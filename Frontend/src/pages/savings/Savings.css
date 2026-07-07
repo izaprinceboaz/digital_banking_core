@@ -8,7 +8,7 @@
 
 .savings-form-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1.4fr 1fr 1fr auto;
+  grid-template-columns: 1.4fr 1.4fr 1fr 1fr 1fr auto;
   gap: 12px;
   align-items: end;
 }
@@ -79,6 +79,17 @@
   height: 100%;
   border-radius: 999px;
   background: var(--ink);
+}
+
+.savings-progress-fill--matured {
+  background: var(--success);
+}
+
+.savings-matured-notice {
+  font-size: 12px;
+  color: var(--success);
+  font-weight: 500;
+  margin: 0;
 }
 
 .savings-card-actions {

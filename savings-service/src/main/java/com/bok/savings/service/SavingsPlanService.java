@@ -50,6 +50,8 @@ public class SavingsPlanService {
     }
 
     public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan) {
+        // Fix 1: debit the linked account so money is actually moved into the plan
+        accountClient.debit(savingsPlan.getAccountNumber(), savingsPlan.getPrincipalAmount());
         return savingsPlanRepository.save(savingsPlan);
     }
 
@@ -85,6 +87,15 @@ public class SavingsPlanService {
         BigDecimal closingBalance = openingBalance.add(interestEarned);
 
         plan.setCurrentBalance(closingBalance);
+
+        // Fix 4: if plan has matured, credit full balance back to account and close it
+        boolean matured = plan.getMaturityDate() != null && !LocalDate.now().isBefore(plan.getMaturityDate());
+        if (matured) {
+            accountClient.credit(plan.getAccountNumber(), closingBalance);
+            plan.setCurrentBalance(BigDecimal.ZERO);
+            plan.setStatus(SavingsStatus.MATURED);
+        }
+
         savingsPlanRepository.save(plan);
 
         InterestRecord record = new InterestRecord();
@@ -99,7 +110,10 @@ public class SavingsPlanService {
 
         try {
             UUID userId = accountClient.getUserId(plan.getAccountNumber());
-            notificationClient.sendNotification(userId,  "Your savings plan has earned interest of " + interestEarned + ".");
+            String message = matured
+                ? "Your savings plan has matured! " + closingBalance + " has been credited to your account."
+                : "Your savings plan has earned interest of " + interestEarned + ".";
+            notificationClient.sendNotification(userId, message);
         } catch (Exception e) {
             System.err.println("Failed to send notification: " + e.getMessage());
         }
@@ -133,8 +147,15 @@ public class SavingsPlanService {
         SavingsPlan plan = savingsPlanRepository.findById(request.getSavingsPlanId())
                 .orElseThrow(SavingsPlanNotFoundException::new);
 
+        if (plan.getStatus() == SavingsStatus.MATURED) {
+            throw new InvalidSavingsStatusException("Plan has matured and the balance was already credited to your account.");
+        }
         if (plan.getStatus() != SavingsStatus.ACTIVE) {
             throw new InvalidSavingsStatusException();
+        }
+        if (plan.getMaturityDate() != null && LocalDate.now().isBefore(plan.getMaturityDate())) {
+            throw new InvalidSavingsStatusException(
+                "Plan has not matured yet. Earliest withdrawal date: " + plan.getMaturityDate());
         }
         if (plan.getCurrentBalance().compareTo(request.getAmount()) < 0) {
             throw new InsufficientSavingsBalanceException();
