@@ -29,7 +29,6 @@ public class SavingsPlanController {
         SavingsPlan savingsPlan = new SavingsPlan();
         savingsPlan.setAccountNumber(request.getAccountNumber());
         savingsPlan.setPlanName(request.getPlanName());
-        savingsPlan.setInterestRate(request.getInterestRate());
         savingsPlan.setCompounding(request.getCompounding());
         savingsPlan.setPrincipalAmount(request.getPrincipalAmount());
         savingsPlan.setCurrentBalance(request.getPrincipalAmount());

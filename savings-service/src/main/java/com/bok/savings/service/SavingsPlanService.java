@@ -50,10 +50,6 @@ public class SavingsPlanService {
     }
 
     public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan) {
-        AccountResponse account = accountClient.getAccount(savingsPlan.getAccountNumber());
-        if (!"SAVINGS".equalsIgnoreCase(account.accountType())) {
-            throw new InvalidAccountTypeException(savingsPlan.getAccountNumber());
-        }
         return savingsPlanRepository.save(savingsPlan);
     }
 

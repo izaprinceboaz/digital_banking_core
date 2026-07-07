@@ -8,7 +8,7 @@
 
 .savings-form-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr auto;
+  grid-template-columns: 1.6fr 1.4fr 1fr 1fr auto;
   gap: 12px;
   align-items: end;
 }
@@ -90,6 +90,46 @@
   flex: 1;
   height: 40px;
   font-size: 13px;
+}
+
+/* Inline deposit / withdraw */
+
+.savings-action-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.savings-action-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.savings-action-error {
+  margin: 0;
+}
+
+.savings-action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.savings-action-input {
+  flex: 1;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  outline: none;
+}
+
+.savings-action-input:focus {
+  border-color: var(--ink);
 }
 
 /* Interest history */

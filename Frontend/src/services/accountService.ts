@@ -35,3 +35,16 @@ export async function deleteAccount(accountNumber: String): Promise<any> {
   const res = await api.delete(`/api/accounts/${accountNumber}`);
   return res.data;
 }
+
+export interface StatementRow {
+  transactionRef: string;
+  description: string;
+  amount: number;
+  balanceAfter: number;
+  entryType: "DEBIT" | "CREDIT";
+}
+
+export async function getMyStatements(accountNumber: string): Promise<StatementRow[]> {
+  const res = await api.get<StatementRow[]>(`/api/statements/my-statements/${accountNumber}`);
+  return res.data;
+}

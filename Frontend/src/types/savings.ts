@@ -16,7 +16,6 @@ export interface SavingsPlanResponse {
 export interface CreateSavingsPlanRequest {
   accountNumber: string;
   planName: string;
-  interestRate: number;
   compounding: string;
   principalAmount: number;
   startDate?: string;
@@ -25,11 +24,13 @@ export interface CreateSavingsPlanRequest {
 
 export interface DepositRequest {
   savingsPlanId: string;
+  accountNumber: string;
   amount: number;
 }
 
 export interface WithdrawRequest {
   savingsPlanId: string;
+  accountNumber: string;
   amount: number;
 }
 

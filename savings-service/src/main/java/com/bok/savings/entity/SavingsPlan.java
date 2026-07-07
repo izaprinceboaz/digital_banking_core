@@ -24,7 +24,7 @@ public class SavingsPlan {
     private String planName;
 
     @Column(name = "interest_rate", nullable = false, precision = 5, scale = 4)
-    private BigDecimal interestRate;
+    private BigDecimal interestRate = new BigDecimal("0.0750");
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)

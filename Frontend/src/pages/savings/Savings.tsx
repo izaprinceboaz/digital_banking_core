@@ -7,12 +7,22 @@ import {
   withdraw,
   listInterestRecords,
 } from "../../services/savingsService";
+import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import type { SavingsPlanResponse, InterestRecordResponse } from "../../types/savings";
 import "./Savings.css";
 
-function formatRwf(amount: number): string {
-  return "RWF " + Math.round(amount).toLocaleString();
+function formatMoney(currency: string, amount: number): string {
+  try {
+    return new Intl.NumberFormat("en", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: currency === "RWF" ? 0 : 2,
+      maximumFractionDigits: currency === "RWF" ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return "RWF " + Math.round(amount).toLocaleString();
+  }
 }
 
 function formatDate(iso: string | null): string {
@@ -20,7 +30,6 @@ function formatDate(iso: string | null): string {
   return new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 }
 
-/** Progress from startDate to maturityDate, clamped 0–100. */
 function progressPct(plan: SavingsPlanResponse): number {
   if (!plan.maturityDate) return 0;
   const start = new Date(plan.startDate).getTime();
@@ -29,17 +38,28 @@ function progressPct(plan: SavingsPlanResponse): number {
   return Math.min(100, Math.max(0, ((Date.now() - start) / (end - start)) * 100));
 }
 
+interface ActionState {
+  planId: string;
+  mode: "deposit" | "withdraw";
+  amount: string;
+  loading: boolean;
+  error: string | null;
+}
+
 export default function Savings() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
+  const [savingsAccounts, setSavingsAccounts] = useState<AccountResponse[]>([]);
   const [plans, setPlans] = useState<SavingsPlanResponse[]>([]);
   const [records, setRecords] = useState<InterestRecordResponse[]>([]);
 
   const [showForm, setShowForm] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState("");
   const [planName, setPlanName] = useState("");
   const [principal, setPrincipal] = useState("");
-  const [rate, setRate] = useState("");
   const [compounding, setCompounding] = useState("MONTHLY");
-  const [error, setError] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  const [action, setAction] = useState<ActionState | null>(null);
 
   async function loadPlans(accs: AccountResponse[]) {
     const all = await Promise.all(
@@ -52,6 +72,9 @@ export default function Savings() {
     getMyAccounts()
       .then((accs) => {
         setAccounts(accs);
+        const savings = accs.filter((a) => a.accountType === "SAVINGS");
+        setSavingsAccounts(savings);
+        if (savings.length > 0) setSelectedAccount(savings[0].accountNumber);
         return loadPlans(accs);
       })
       .catch(console.error);
@@ -60,13 +83,12 @@ export default function Savings() {
 
   async function handleCreate() {
     const amt = parseFloat(principal) || 0;
-    if (!planName || amt <= 0 || accounts.length === 0) return;
-    setError(null);
+    if (!planName || amt <= 0 || !selectedAccount) return;
+    setCreateError(null);
     try {
       await createSavingsPlan({
-        accountNumber: accounts[0].accountNumber,
+        accountNumber: selectedAccount,
         planName,
-        interestRate: (parseFloat(rate) || 5) / 100,
         compounding,
         principalAmount: amt,
       });
@@ -75,25 +97,30 @@ export default function Savings() {
       setPrincipal("");
       setRate("");
       loadPlans(accounts);
-    } catch {
-      setError("Couldn't create the plan. Try again.");
+    } catch (err) {
+      setCreateError(getApiErrorMessage(err, "Couldn't create the plan. Try again."));
     }
   }
 
-  async function handleDeposit(plan: SavingsPlanResponse) {
-    const raw = window.prompt("Amount to deposit into " + plan.planName + ":");
-    const amt = parseFloat(raw || "");
-    if (!amt || amt <= 0) return;
-    await deposit({ savingsPlanId: plan.id, amount: amt }).catch(console.error);
-    loadPlans(accounts);
-  }
+  async function handleAction() {
+    if (!action) return;
+    const amt = parseFloat(action.amount) || 0;
+    if (amt <= 0) return;
+    const plan = plans.find((p) => p.id === action.planId);
+    if (!plan) return;
 
-  async function handleWithdraw(plan: SavingsPlanResponse) {
-    const raw = window.prompt("Amount to withdraw from " + plan.planName + ":");
-    const amt = parseFloat(raw || "");
-    if (!amt || amt <= 0) return;
-    await withdraw({ savingsPlanId: plan.id, amount: amt }).catch(console.error);
-    loadPlans(accounts);
+    setAction((a) => a && { ...a, loading: true, error: null });
+    try {
+      if (action.mode === "deposit") {
+        await deposit({ savingsPlanId: plan.id, accountNumber: plan.accountNumber, amount: amt });
+      } else {
+        await withdraw({ savingsPlanId: plan.id, accountNumber: plan.accountNumber, amount: amt });
+      }
+      setAction(null);
+      loadPlans(accounts);
+    } catch (err) {
+      setAction((a) => a && { ...a, loading: false, error: getApiErrorMessage(err, "Action failed. Try again.") });
+    }
   }
 
   const planName4 = (id: string) =>
@@ -118,8 +145,30 @@ export default function Savings() {
       {showForm && (
         <div className="card card--pad">
           <div className="card-title savings-form-title">Create a savings plan</div>
-          {error && <p className="banner banner--danger savings-form-error">{error}</p>}
-          <div className="savings-form-grid">
+          {savingsAccounts.length === 0 ? (
+            <p className="banner banner--danger savings-form-error">
+              You need a SAVINGS account to create a plan. Open one in the Accounts tab first.
+            </p>
+          ) : (
+            <>
+              {createError && (
+                <p className="banner banner--danger savings-form-error">{createError}</p>
+              )}
+              <div className="savings-form-grid">
+            <div className="field">
+              <label htmlFor="savingsAccount">Account</label>
+              <select
+                id="savingsAccount"
+                value={selectedAccount}
+                onChange={(e) => setSelectedAccount(e.target.value)}
+              >
+                {savingsAccounts.map((a) => (
+                  <option key={a.accountNumber} value={a.accountNumber}>
+                    {a.accountNumber} ({a.currency})
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="field">
               <label htmlFor="planName">Plan name</label>
               <input
@@ -130,23 +179,13 @@ export default function Savings() {
               />
             </div>
             <div className="field">
-              <label htmlFor="principal">Principal (RWF)</label>
+              <label htmlFor="principal">Principal</label>
               <input
                 id="principal"
                 type="number"
                 placeholder="0"
                 value={principal}
                 onChange={(e) => setPrincipal(e.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="rate">Rate (% p.a.)</label>
-              <input
-                id="rate"
-                type="number"
-                placeholder="7.5"
-                value={rate}
-                onChange={(e) => setRate(e.target.value)}
               />
             </div>
             <div className="field">
@@ -164,7 +203,9 @@ export default function Savings() {
             <button className="btn savings-form-submit" onClick={handleCreate}>
               Create
             </button>
-          </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -174,6 +215,9 @@ export default function Savings() {
         )}
         {plans.map((p) => {
           const earned = Math.max(0, p.currentBalance - p.principalAmount);
+          const isActive = action?.planId === p.id;
+          const acc = accounts.find((a) => a.accountNumber === p.accountNumber);
+          const currency = acc?.currency ?? "RWF";
           return (
             <div className="card savings-card" key={p.id}>
               <div className="savings-card-top">
@@ -187,10 +231,12 @@ export default function Savings() {
                 <span className="pill pill--success">{p.status}</span>
               </div>
               <div>
-                <div className="savings-card-balance num">{formatRwf(p.currentBalance)}</div>
+                <div className="savings-card-balance num">
+                  {formatMoney(currency, p.currentBalance)}
+                </div>
                 <div className="savings-card-meta">
-                  of {formatRwf(p.principalAmount)} principal · {formatRwf(earned)} interest
-                  earned
+                  of {formatMoney(currency, p.principalAmount)} principal ·{" "}
+                  {formatMoney(currency, earned)} interest earned
                 </div>
               </div>
               <div className="savings-progress">
@@ -199,17 +245,61 @@ export default function Savings() {
                   style={{ width: progressPct(p) + "%" }}
                 />
               </div>
-              <div className="savings-card-actions">
-                <button className="btn savings-action" onClick={() => handleDeposit(p)}>
-                  Deposit
-                </button>
-                <button
-                  className="btn btn--outline savings-action"
-                  onClick={() => handleWithdraw(p)}
-                >
-                  Withdraw
-                </button>
-              </div>
+
+              {isActive ? (
+                <div className="savings-action-inline">
+                  <span className="savings-action-label">
+                    {action!.mode === "deposit" ? "Deposit into" : "Withdraw from"} {p.planName}
+                  </span>
+                  {action!.error && (
+                    <p className="banner banner--danger savings-action-error">{action!.error}</p>
+                  )}
+                  <div className="savings-action-row">
+                    <input
+                      className="savings-action-input"
+                      type="number"
+                      placeholder="0.00"
+                      value={action!.amount}
+                      onChange={(e) =>
+                        setAction((a) => a && { ...a, amount: e.target.value })
+                      }
+                    />
+                    <button
+                      className="btn"
+                      onClick={handleAction}
+                      disabled={action!.loading}
+                    >
+                      {action!.loading ? "…" : "Confirm"}
+                    </button>
+                    <button
+                      className="btn btn--outline"
+                      onClick={() => setAction(null)}
+                      disabled={action!.loading}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="savings-card-actions">
+                  <button
+                    className="btn savings-action"
+                    onClick={() =>
+                      setAction({ planId: p.id, mode: "deposit", amount: "", loading: false, error: null })
+                    }
+                  >
+                    Deposit
+                  </button>
+                  <button
+                    className="btn btn--outline savings-action"
+                    onClick={() =>
+                      setAction({ planId: p.id, mode: "withdraw", amount: "", loading: false, error: null })
+                    }
+                  >
+                    Withdraw
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -234,7 +324,7 @@ export default function Savings() {
                 })}
               </div>
             </div>
-            <div className="savings-record-amount num">+{formatRwf(r.interestEarned)}</div>
+            <div className="savings-record-amount num">+{r.interestEarned.toLocaleString()}</div>
           </div>
         ))}
       </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { createAccount, getMyAccounts } from "../../services/accountService";
+import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import BankCard from "../../components/BankCard";
 import "./Accounts.css";
@@ -49,8 +50,8 @@ export default function Accounts() {
       setShowForm(false);
       setBalance("");
       load();
-    } catch {
-      setError("Couldn't create the account. Try again.");
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Couldn't create the account. Try again."));
     }
   }
   return (

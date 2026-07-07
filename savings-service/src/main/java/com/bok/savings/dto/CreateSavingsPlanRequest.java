@@ -17,10 +17,6 @@ public class CreateSavingsPlanRequest {
     @NotBlank(message = "Plan name is required")
     private String planName;
 
-    @NotNull(message = "Interest rate is required")
-    @DecimalMin(value = "0.0000", message = "Interest rate cannot be negative")
-    private BigDecimal interestRate;
-
     @NotNull(message = "Compounding frequency is required")
     private CompoundingFrequency compounding;
 
@@ -45,14 +41,6 @@ public class CreateSavingsPlanRequest {
 
     public void setPlanName(String planName) {
         this.planName = planName;
-    }
-
-    public BigDecimal getInterestRate() {
-        return interestRate;
-    }
-
-    public void setInterestRate(BigDecimal interestRate) {
-        this.interestRate = interestRate;
     }
 
     public CompoundingFrequency getCompounding() {
