@@ -1,48 +1,45 @@
-/* ---------------------------------------------------------------------------
-   Global design tokens & base styles
-   Bank of Kigali–inspired palette: deep royal blue + white + gold accent.
---------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Brand */
-  --bk-blue-900: #051f4d;
-  --bk-blue-800: #082b69;
-  --bk-blue-700: #0d3a8c;
-  --bk-blue-600: #144baf;
-  --bk-blue-500: #1d5ecf;
-  --bk-blue-100: #dbe6f9;
-  --bk-blue-50: #eef3fb;
-  --bk-gold-500: #e9b13b;
-  --bk-gold-600: #c9932a;
+  /* Ink & neutrals */
+  --ink: #111111;
+  --ink-hover: #374151;
+  --text: #111111;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
 
-  /* Surfaces & text */
+  /* Surfaces */
   --surface: #ffffff;
-  --surface-muted: #f4f6fa;
-  --border: #d9e0ec;
-  --text: #23324d;
-  --text-muted: #5b6b87;
-  --text-heading: #0d1f3c;
+  --surface-page: #f4f6f9;
+  --surface-hover: #fafafa;
+  --surface-chip: #f3f4f6;
+  --border: #e5e7eb;
+  --divider: #f3f4f6;
 
   /* Feedback */
-  --danger: #c02b37;
-  --danger-bg: #fbeaec;
   --success: #1a7f4e;
   --success-bg: #e7f5ee;
+  --warning: #946200;
+  --warning-bg: #fdf3dc;
+  --danger: #c02b37;
+  --danger-bg: #fbeaec;
 
-  /* Shape & motion */
+  /* Brand accent (auth checkmarks only) */
+  --gold: #e9b13b;
+
+  /* Shape */
   --radius-sm: 8px;
-  --radius-md: 12px;
+  --radius-md: 10px;
   --radius-lg: 16px;
-  --shadow-card: 0 10px 30px -12px rgba(8, 43, 105, 0.25);
-  --focus-ring: 0 0 0 3px rgba(29, 94, 207, 0.35);
+  --shadow-card: 0 10px 30px -12px rgba(17, 17, 17, 0.15);
 
-  --sans: 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --sans: 'Instrument Sans', 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.5;
   color: var(--text);
-  background: var(--surface-muted);
+  background: var(--surface-page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -69,8 +66,8 @@ body {
 h1,
 h2,
 h3 {
-  color: var(--text-heading);
-  font-weight: 600;
+  color: var(--text);
+  font-weight: 700;
   margin: 0;
 }
 
@@ -79,12 +76,8 @@ p {
 }
 
 a {
-  color: var(--bk-blue-600);
+  color: var(--ink);
   text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 button {

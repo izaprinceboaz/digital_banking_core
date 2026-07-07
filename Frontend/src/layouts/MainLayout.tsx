@@ -13,17 +13,24 @@ export default function MainLayout() {
     navigate("/login");
   }
 
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    isActive ? "sidebar-link active" : "sidebar-link";
+
   return (
     <div className="layout">
       <nav className="sidebar">
-        <div className="sidebar-brand">Meridian</div>
+        <div className="sidebar-brand">
+          <span className="sidebar-brand-mark">M</span>
+          Meridian
+        </div>
 
         <div className="sidebar-links">
-          <NavLink to="/dashboard" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>Dashboard</NavLink>
-          <NavLink to="/accounts" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>Accounts</NavLink>
-          <NavLink to="/transactions" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>Transactions</NavLink>
-          <NavLink to="/savings" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>Savings</NavLink>
-          <NavLink to="/notifications" className={({ isActive }) => isActive ? "sidebar-link active" : "sidebar-link"}>Notifications</NavLink>
+          <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>
+          <NavLink to="/accounts" className={linkClass}>Accounts</NavLink>
+          <NavLink to="/transactions" className={linkClass}>Transactions</NavLink>
+          <NavLink to="/savings" className={linkClass}>Savings</NavLink>
+          <NavLink to="/statements" className={linkClass}>Statements</NavLink>
+          <NavLink to="/notifications" className={linkClass}>Notifications</NavLink>
         </div>
 
         <button className="sidebar-logout" onClick={handleLogout}>Log out</button>

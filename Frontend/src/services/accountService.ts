@@ -1,5 +1,5 @@
 import api from "./api";
-import type { AccountResponse, AccountRequest } from "../types/account";
+import type { AccountResponse, CreateAccountRequest } from "../types/account";
 
 export async function getMyAccounts(): Promise<AccountResponse[]> {
   const res = await api.get<AccountResponse[]>(`/api/accounts/my-accounts`);
@@ -11,7 +11,7 @@ export async function getAccount(accountNumber: String): Promise<AccountResponse
   return res.data;
 }
 
-export async function createAccount(data: AccountRequest): Promise<AccountResponse> {
+export async function createAccount(data: CreateAccountRequest): Promise<AccountResponse> {
   const res = await api.post<AccountResponse>(`/api/accounts/create`, data);
   return res.data;
 }

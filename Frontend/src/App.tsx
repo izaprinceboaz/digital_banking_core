@@ -4,7 +4,10 @@ import Login from './pages/auth/login'
 import Register from './pages/auth/register'
 import Dashboard from './pages/Dashboard'
 import Accounts from './pages/accounts/Accounts'
+import Statements from './pages/accounts/Statements'
 import Transactions from './pages/transactions/Transactions'
+import Savings from './pages/savings/Savings'
+import Notifications from './pages/notifications/Notifications'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
 import MainLayout from './layouts/MainLayout'
@@ -36,6 +39,9 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/transactions" element={<Transactions />} />
+        <Route path="/savings" element={<Savings />} />
+        <Route path="/statements" element={<Statements />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />

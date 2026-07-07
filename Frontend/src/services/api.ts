@@ -16,8 +16,6 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     const isAuthCall = error.config?.url?.startsWith("/api/auth/");
-    // An expired session gets kicked back to login, but a failed login/register
-    // attempt must surface its error on the page instead of reloading it away.
     if (error.response?.status === 401 && !isAuthCall) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
@@ -27,10 +25,6 @@ api.interceptors.response.use(
   }
 );
 
-/**
- * Turn an unknown error into a user-facing message. Uses the backend's
- * message when one is present, otherwise the provided fallback.
- */
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     if (!error.response) {

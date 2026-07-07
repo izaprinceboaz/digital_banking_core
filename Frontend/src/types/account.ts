@@ -1,15 +1,16 @@
 export interface AccountResponse {
-    id: string;
-    userId: string;
-    accountNumber: string;
-    balance: string;
-    currency: string;
-    accountType: string;
-    status: string;
+  id: string;
+  userId: string;
+  accountNumber: string;
+  accountType: string;
+  currency: string;
+  balance: string;
+  status: string;
+  createdAt: string;
 }
 
-export interface AccountRequest {
-    accountType: string;
-    currency: string;
-    balance: number;
+export interface CreateAccountRequest {
+  accountType: string;
+  currency: string;
+  balance: number;
 }

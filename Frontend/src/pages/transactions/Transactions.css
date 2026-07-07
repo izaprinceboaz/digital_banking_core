@@ -1,0 +1,97 @@
+.txn-form-title {
+  margin-bottom: 16px;
+}
+
+.txn-form-banner {
+  margin-bottom: 14px;
+}
+
+.txn-form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+}
+
+.txn-form-grid--bottom {
+  margin-top: 12px;
+  align-items: end;
+}
+
+.txn-form-submit {
+  height: 44px;
+}
+
+/* History table */
+
+.txn-table {
+  overflow: hidden;
+}
+
+.txn-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.txn-table-account {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.txn-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 0.8fr 1.2fr 0.6fr 0.8fr;
+  gap: 12px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--divider);
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.txn-row:hover:not(.txn-row--head) {
+  background: var(--surface-hover);
+}
+
+.txn-row--head {
+  padding: 12px 24px;
+  background: var(--surface-hover);
+}
+
+.txn-row--head span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.txn-cell {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.txn-cell-dark {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.txn-cell-right {
+  text-align: right;
+}
+
+.txn-amount {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.txn-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.txn-empty {
+  padding: 16px 24px;
+  font-size: 13px;
+  color: var(--text-muted);
+}

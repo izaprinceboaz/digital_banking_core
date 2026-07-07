@@ -1,34 +1,56 @@
-import { getMyAccounts } from "../../services/accountService";
-import { findTransactionsByAccountNumber, transfer } from "../../services/transactionService";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { logout } from "../../services/authService";
+import { getMyAccounts } from "../../services/accountService";
+import {
+  findTransactionsByAccountNumber,
+  transfer,
+} from "../../services/transactionService";
+import { getApiErrorMessage } from "../../services/api";
+import type { AccountResponse } from "../../types/account";
+import "./Transactions.css";
+
+function formatMoney(currency: string, amount: number): string {
+  try {
+    return new Intl.NumberFormat("en", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: currency === "RWF" ? 0 : 2,
+      maximumFractionDigits: currency === "RWF" ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return currency + " " + amount.toLocaleString();
+  }
+}
+
+function statusPill(status: string): string {
+  if (status === "COMPLETED") return "pill pill--success";
+  if (status === "FAILED") return "pill pill--danger";
+  return "pill pill--warning";
+}
 
 export default function Transactions() {
-  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [selectedAccount, setSelectedAccount] = useState("");
   const [transactions, setTransactions] = useState<any[]>([]);
 
-  const [senderAccountNumber, setSenderAccountNumber] = useState("");
   const [receiverAccountNumber, setReceiverAccountNumber] = useState("");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState("");
-  const [currency, setCurrency] = useState("");
+  const [type, setType] = useState("TRANSFER");
+  const [currency, setCurrency] = useState("RWF");
 
-  const navigate = useNavigate();
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
-  // load user's accounts on mount
   useEffect(() => {
-    getMyAccounts().then((data) => {
-      setAccounts(data);
-      if (data.length > 0) {
-        setSelectedAccount(data[0].accountNumber); // auto-select first account
-      }
-    }).catch(console.error);
+    getMyAccounts()
+      .then((data) => {
+        setAccounts(data);
+        if (data.length > 0) setSelectedAccount(data[0].accountNumber);
+      })
+      .catch(console.error);
   }, []);
 
-  // load transactions whenever selected account changes
   useEffect(() => {
     if (selectedAccount) {
       findTransactionsByAccountNumber(selectedAccount)
@@ -37,63 +59,153 @@ export default function Transactions() {
     }
   }, [selectedAccount]);
 
-  const handleTransfer = async () => {
-    await transfer({ senderAccountNumber: selectedAccount, receiverAccountNumber, amount, type, description, currency });
-    findTransactionsByAccountNumber(selectedAccount).then(setTransactions);
-  };
-
-  function handleLogout() {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (refreshToken) logout(refreshToken).catch(console.error);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    navigate("/login");
+  async function handleTransfer() {
+    const amt = parseFloat(amount) || 0;
+    if (!receiverAccountNumber || amt <= 0) return;
+    setError(null);
+    setSent(false);
+    setSending(true);
+    try {
+      await transfer({
+        senderAccountNumber: selectedAccount,
+        receiverAccountNumber,
+        amount: amt,
+        type,
+        description,
+        currency,
+      });
+      setSent(true);
+      setReceiverAccountNumber("");
+      setAmount("");
+      setDescription("");
+      findTransactionsByAccountNumber(selectedAccount).then(setTransactions);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "The transfer couldn't be sent. Try again."));
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
-    <div>
-      <h1>Transactions</h1>
-
-      {/* Account selector */}
-      <select value={selectedAccount} onChange={(e) => setSelectedAccount(e.target.value)}>
-        {accounts.map((a) => (
-          <option key={a.accountNumber} value={a.accountNumber}>
-            {a.accountNumber} ({a.currency} — {a.accountType})
-          </option>
-        ))}
-      </select>
-
-      {/* Transfer form */}
-      <h2>New Transfer</h2>
-      <input placeholder="Receiver Account Number" value={receiverAccountNumber} onChange={(e) => setReceiverAccountNumber(e.target.value)} />
-      <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value))} />
-      <input placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-      <input placeholder="Currency" value={currency} onChange={(e) => setCurrency(e.target.value)} />
-      <input placeholder="Type" value={type} onChange={(e) => setType(e.target.value)} />
-      <button onClick={handleTransfer}>Send</button>
-
-      {/* Transaction history */}
-      <h2>My Transactions</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Sender</th><th>Receiver</th><th>Amount</th><th>Description</th><th>Currency</th><th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t) => (
-            <tr key={t.id}>
-              <td>{t.senderAccountNumber}</td>
-              <td>{t.receiverAccountNumber}</td>
-              <td>{t.amount}</td>
-              <td>{t.description}</td>
-              <td>{t.currency}</td>
-              <td>{t.status}</td>
-            </tr>
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h2 className="page-title">Transactions</h2>
+          <p className="page-sub">Send money and review your history</p>
+        </div>
+        <select
+          className="select-inline"
+          value={selectedAccount}
+          onChange={(e) => setSelectedAccount(e.target.value)}
+        >
+          {accounts.map((a) => (
+            <option key={a.accountNumber} value={a.accountNumber}>
+              {a.accountNumber} ({a.currency} — {a.accountType})
+            </option>
           ))}
-        </tbody>
-      </table>
-      <button onClick={handleLogout}>Log out</button>
+        </select>
+      </div>
+
+      <div className="card card--pad">
+        <div className="card-title txn-form-title">New transfer</div>
+        {sent && (
+          <p className="banner banner--success txn-form-banner">
+            Transfer sent — it will appear in your history below.
+          </p>
+        )}
+        {error && <p className="banner banner--danger txn-form-banner">{error}</p>}
+        <div className="txn-form-grid">
+          <div className="field">
+            <label htmlFor="receiver">Receiver account number</label>
+            <input
+              id="receiver"
+              placeholder="4021 0000 0000 0000"
+              value={receiverAccountNumber}
+              onChange={(e) => setReceiverAccountNumber(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="amount">Amount</label>
+            <input
+              id="amount"
+              type="number"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="txnCurrency">Currency</label>
+            <select
+              id="txnCurrency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              <option value="RWF">RWF</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+        </div>
+        <div className="txn-form-grid txn-form-grid--bottom">
+          <div className="field">
+            <label htmlFor="txnDescription">Description</label>
+            <input
+              id="txnDescription"
+              placeholder="What's it for?"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="txnType">Type</label>
+            <select id="txnType" value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="TRANSFER">TRANSFER</option>
+              <option value="PAYMENT">PAYMENT</option>
+            </select>
+          </div>
+          <button className="btn txn-form-submit" onClick={handleTransfer} disabled={sending}>
+            {sending ? "Sending…" : "Send"}
+          </button>
+        </div>
+      </div>
+
+      <div className="card txn-table">
+        <div className="txn-table-head">
+          <span className="card-title">History</span>
+          <span className="txn-table-account num">Account {selectedAccount}</span>
+        </div>
+        <div className="txn-row txn-row--head">
+          <span>Receiver</span>
+          <span className="txn-cell-right">Amount</span>
+          <span>Description</span>
+          <span>Currency</span>
+          <span>Status</span>
+        </div>
+        {transactions.length === 0 && (
+          <p className="txn-empty">No transactions on this account yet.</p>
+        )}
+        {transactions.map((t) => {
+          const incoming = t.receiverAccountNumber === selectedAccount;
+          return (
+            <div className="txn-row" key={t.id}>
+              <span className="txn-cell num txn-ellipsis">{t.receiverAccountNumber}</span>
+              <span
+                className="txn-amount txn-cell-right num"
+                style={{ color: incoming ? "var(--success)" : "var(--text)" }}
+              >
+                {incoming ? "+" : "−"}
+                {formatMoney(t.currency, Math.abs(t.amount))}
+              </span>
+              <span className="txn-cell-dark txn-ellipsis">{t.description}</span>
+              <span className="txn-cell">{t.currency}</span>
+              <span>
+                <span className={statusPill(t.status)}>{t.status}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

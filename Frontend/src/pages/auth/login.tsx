@@ -39,11 +39,6 @@ export default function Login() {
             Sign in to check balances, send money, and pay bills — anywhere,
             any time.
           </p>
-          <ul>
-            <li>Send money to any bank or mobile money wallet</li>
-            <li>Pay bills and buy airtime in seconds</li>
-            <li>Track your spending with clear statements</li>
-          </ul>
         </div>
         <p className="auth-disclaimer">
           Meridian

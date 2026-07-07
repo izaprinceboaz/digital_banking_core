@@ -50,11 +50,6 @@ export default function Register() {
             Join Meridian to send money, pay bills, and stay on top of your
             finances.
           </p>
-          <ul>
-            <li>Send money to any bank or mobile money wallet</li>
-            <li>Pay bills and buy airtime in seconds</li>
-            <li>Track your spending with clear statements</li>
-          </ul>
         </div>
         <p className="auth-disclaimer">
           Meridian
