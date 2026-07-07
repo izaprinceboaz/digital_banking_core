@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createAccount, getMyAccounts } from "../../services/accountService";
 import type { AccountResponse } from "../../types/account";
+import BankCard from "../../components/BankCard";
 import "./Accounts.css";
 
 function formatMoney(currency: string, amount: number): string {
@@ -52,18 +53,11 @@ export default function Accounts() {
       setError("Couldn't create the account. Try again.");
     }
   }
-
-  const currencies = new Set(accounts.map((a) => a.currency)).size;
-
   return (
     <div className="page">
       <div className="page-head">
         <div>
           <h2 className="page-title">Accounts</h2>
-          <p className="page-sub">
-            {accounts.length} account{accounts.length === 1 ? "" : "s"} · {currencies}{" "}
-            currenc{currencies === 1 ? "y" : "ies"}
-          </p>
         </div>
         <button className="btn" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Close" : "+ New account"}
@@ -117,22 +111,8 @@ export default function Accounts() {
       )}
 
       <div className="accounts-cards">
-        {accounts.map((acc) => (
-          <div className="card accounts-card" key={acc.accountNumber}>
-            <div className="accounts-card-top">
-              <span className="accounts-chip">{acc.currency}</span>
-              <span className="accounts-status">
-                <span className="accounts-status-dot" />
-                {acc.status}
-              </span>
-            </div>
-            <div>
-              <div className="accounts-card-balance num">
-                {formatMoney(acc.currency, parseFloat(acc.balance))}
-              </div>
-              <div className="accounts-card-type">{acc.accountType}</div>
-            </div>
-          </div>
+        {accounts.map((acc, i) => (
+          <BankCard key={acc.accountNumber} account={acc} index={i} />
         ))}
       </div>
 

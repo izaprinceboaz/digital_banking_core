@@ -52,12 +52,13 @@ export default function Transactions() {
   }, []);
 
   useEffect(() => {
-    if (selectedAccount) {
-      findTransactionsByAccountNumber(selectedAccount)
-        .then(setTransactions)
-        .catch(console.error);
-    }
-  }, [selectedAccount]);
+    if (!selectedAccount) return;
+    const acc = accounts.find((a) => a.accountNumber === selectedAccount);
+    if (acc) setCurrency(acc.currency);
+    findTransactionsByAccountNumber(selectedAccount)
+      .then(setTransactions)
+      .catch(console.error);
+  }, [selectedAccount, accounts]);
 
   async function handleTransfer() {
     const amt = parseFloat(amount) || 0;
@@ -91,7 +92,6 @@ export default function Transactions() {
       <div className="page-head">
         <div>
           <h2 className="page-title">Transactions</h2>
-          <p className="page-sub">Send money and review your history</p>
         </div>
         <select
           className="select-inline"
@@ -110,7 +110,7 @@ export default function Transactions() {
         <div className="card-title txn-form-title">New transfer</div>
         {sent && (
           <p className="banner banner--success txn-form-banner">
-            Transfer sent — it will appear in your history below.
+            Transfer sent.
           </p>
         )}
         {error && <p className="banner banner--danger txn-form-banner">{error}</p>}
@@ -119,7 +119,7 @@ export default function Transactions() {
             <label htmlFor="receiver">Receiver account number</label>
             <input
               id="receiver"
-              placeholder="4021 0000 0000 0000"
+              placeholder="ACC-----"
               value={receiverAccountNumber}
               onChange={(e) => setReceiverAccountNumber(e.target.value)}
             />
@@ -136,15 +136,11 @@ export default function Transactions() {
           </div>
           <div className="field">
             <label htmlFor="txnCurrency">Currency</label>
-            <select
-              id="txnCurrency"
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
+            <span
+              className="txn-form-currency"
             >
-              <option value="RWF">RWF</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-            </select>
+              {currency}
+            </span>
           </div>
         </div>
         <div className="txn-form-grid txn-form-grid--bottom">

@@ -60,7 +60,7 @@ public class TransactionService {
 
 
     @Transactional(noRollbackFor = TransferLimitExceededException.class)
-    public Transaction transfer(TransferRequest transferRequest) {
+    public Transaction transfer(TransferRequest transferRequest, String authHeader) {
         Transaction transaction = new Transaction();
         transaction.setSenderAccountNumber(transferRequest.getSenderAccountNumber());
         transaction.setReceiverAccountNumber(transferRequest.getReceiverAccountNumber());
@@ -105,14 +105,14 @@ public class TransactionService {
 
         try {
 
-            convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountNumber(), transferRequest.getReceiverAccountNumber(),transferRequest.getAmount());
-            
-            BigDecimal senderBalance = accountClient.debit(transaction.getSenderAccountNumber(), transaction.getAmount());
+            convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountNumber(), transferRequest.getReceiverAccountNumber(), transferRequest.getAmount(), authHeader);
+
+            BigDecimal senderBalance = accountClient.debit(transaction.getSenderAccountNumber(), transaction.getAmount(), authHeader);
 
             accountClient.createStatement(transaction.getSenderAccountNumber(), transaction.getReferenceNumber(),
                                             transaction.getDescription(), transaction.getAmount(), senderBalance, "DEBIT");
-            
-            UUID senderUserId = accountClient.getUserId(transaction.getSenderAccountNumber());
+
+            UUID senderUserId = accountClient.getUserId(transaction.getSenderAccountNumber(), authHeader);
             notificationClient.sendNotification(senderUserId, "Transfer of " + transaction.getAmount() + " " + transaction.getCurrency() + " to account " + transaction.getReceiverAccountNumber() + " is successful. Reference: " + transaction.getReferenceNumber());
 
         } catch (RuntimeException ex) {
@@ -123,16 +123,16 @@ public class TransactionService {
 
         try {
             
-            BigDecimal receiverBalance = accountClient.credit(transaction.getReceiverAccountNumber(), convertedAmount);
+            BigDecimal receiverBalance = accountClient.credit(transaction.getReceiverAccountNumber(), convertedAmount, authHeader);
 
             accountClient.createStatement(transaction.getReceiverAccountNumber(), transaction.getReferenceNumber(),
                                             transaction.getDescription(), convertedAmount, receiverBalance, "CREDIT");
 
-            UUID receiverUserId = accountClient.getUserId(transaction.getReceiverAccountNumber());
+            UUID receiverUserId = accountClient.getUserId(transaction.getReceiverAccountNumber(), authHeader);
             notificationClient.sendNotification(receiverUserId, "You have received " + convertedAmount + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountNumber() + ". Reference: " + transaction.getReferenceNumber());
-            
+
         } catch (RuntimeException ex) {
-            accountClient.credit(transaction.getSenderAccountNumber(), transaction.getAmount());
+            accountClient.credit(transaction.getSenderAccountNumber(), transaction.getAmount(), authHeader);
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setFailureReason("Credit failed, rolled back: " + ex.getMessage());
             return transactionRepository.save(transaction);

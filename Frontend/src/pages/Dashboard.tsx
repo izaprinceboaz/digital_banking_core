@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getMyAccounts } from "../services/accountService";
 import { findTransactionsByAccountNumber } from "../services/transactionService";
 import type { AccountResponse } from "../types/account";
+import BankCard from "../components/BankCard";
 import "./Dashboard.css";
 
 function formatMoney(currency: string, amount: number): string {
@@ -23,91 +24,65 @@ function greeting(): string {
   return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
 }
 
+interface TxnWithAccount {
+  txn: any;
+  account: AccountResponse;
+}
+
 export default function Dashboard() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<AccountResponse | null>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [hidden, setHidden] = useState(false);
+  const [allTxns, setAllTxns] = useState<TxnWithAccount[]>([]);
 
   useEffect(() => {
-    getMyAccounts()
-      .then((data) => {
-        setAccounts(data);
-        setSelectedAccount(data.length > 0 ? data[0] : null);
-        if (data.length > 0) {
-          localStorage.setItem("accountNumber", data[0].accountNumber);
-          findTransactionsByAccountNumber(data[0].accountNumber)
-            .then(setTransactions)
-            .catch(console.error);
-        }
-      })
-      .catch(console.error);
+    getMyAccounts().then((data) => {
+      setAccounts(data);
+      // fetch transactions for every account in parallel
+      Promise.all(
+        data.map((acc) =>
+          findTransactionsByAccountNumber(acc.accountNumber)
+            .then((txns) => txns.map((t) => ({ txn: t, account: acc })))
+            .catch(() => [] as TxnWithAccount[])
+        )
+      ).then((results) => {
+        const flat = results.flat().sort((a, b) =>
+          (b.txn.createdAt || "").localeCompare(a.txn.createdAt || "")
+        );
+        setAllTxns(flat);
+      });
+    }).catch(console.error);
   }, []);
-
-  
-
-  const primary = accounts[0];
-  // TODO: converting RWF/USD/EUR into one total needs an FX-rate source;
-  // until then the headline shows the primary account's balance.
-  const headline = primary
-    ? formatMoney(primary.currency, parseFloat(primary.balance))
-    : "—";
-  const mask = (v: string) => (hidden ? "••••••••" : v);
 
   return (
     <div className="page dashboard">
       <div className="page-head">
         <div>
           <h2 className="page-title">{greeting()}</h2>
+          <p className="page-sub">Here's your account overview</p>
         </div>
         <div className="dash-avatar">M</div>
       </div>
 
-      <div className="dash-hero">
-        <div>
-          <div className="dash-balance-label">
-            Total balance
-            <button className="dash-hide" onClick={() => setHidden(!hidden)}>
-              {hidden ? "Show" : "Hide"}
-            </button>
-          </div>
-          <div className="dash-balance num">{mask(headline)}</div>
-          <div className="dash-balance-sub">
-            across {accounts.length} account{accounts.length === 1 ? "" : "s"}
-          </div>
-        </div>
-      </div>
-
+      {/* Bank cards */}
       <div className="dash-cards">
-        {accounts.map((account) => (
-          <Link to="/accounts" key={account.accountNumber} className="dash-card card">
-            <div className="dash-card-top">
-              <span>{account === selectedAccount ? "Current Account" : ""}</span>
-              <span className="dash-chip">{account.currency}</span>
-              <span className="dash-card-type">{account.accountType}</span>
-            </div>
-            <div>
-              <div className="dash-card-balance num">
-                {mask(formatMoney(account.currency, parseFloat(account.balance)))}
-              </div>
-              <div className="dash-card-number num">
-                •••• {account.accountNumber.slice(-4)}
-              </div>
-            </div>
-          </Link>
+        {accounts.length === 0 && (
+          <p className="dash-empty">No accounts yet. <Link to="/accounts">Open one</Link></p>
+        )}
+        {accounts.map((account, i) => (
+          <BankCard key={account.accountNumber} account={account} index={i} linkTo="/accounts" />
         ))}
       </div>
 
+      {/* All transactions */}
       <div className="card dash-txns">
         <div className="dash-txns-head">
           <span className="card-title">Recent transactions</span>
           <Link to="/transactions" className="dash-see-all">See all</Link>
         </div>
-        {transactions.length === 0 && (
+        {allTxns.length === 0 && (
           <p className="dash-empty">No transactions yet.</p>
         )}
-        {transactions.slice(0, 6).map((t) => {
-          const incoming = primary && t.receiverAccountNumber === primary.accountNumber;
+        {allTxns.slice(0, 10).map(({ txn: t, account }) => {
+          const incoming = t.receiverAccountNumber === account.accountNumber;
           return (
             <div className="dash-txn" key={t.id}>
               <div className="dash-txn-icon">
@@ -115,15 +90,13 @@ export default function Dashboard() {
               </div>
               <div className="dash-txn-main">
                 <div className="dash-txn-name">{t.description || t.type}</div>
-                <div className="dash-txn-sub">{t.type}</div>
+                <div className="dash-txn-sub">
+                  {account.accountType} •••• {account.accountNumber.slice(-4)} · {t.type}
+                </div>
               </div>
               <div className="dash-txn-right">
-                <div
-                  className="dash-txn-amount num"
-                  style={{ color: incoming ? "var(--success)" : "var(--text)" }}
-                >
-                  {incoming ? "+" : "−"}
-                  {mask(formatMoney(t.currency, Math.abs(t.amount)))}
+                <div className="dash-txn-amount num" style={{ color: incoming ? "var(--success)" : "var(--text)" }}>
+                  {incoming ? "+" : "−"}{formatMoney(t.currency, Math.abs(t.amount))}
                 </div>
                 <div className="dash-txn-status">{t.status}</div>
               </div>

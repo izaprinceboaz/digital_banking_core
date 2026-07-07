@@ -1,0 +1,84 @@
+.bank-card {
+  width: 300px;
+  height: 180px;
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  transition: transform 0.18s, box-shadow 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.bank-card::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.bank-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+.bank-card--0 { background: linear-gradient(135deg, #111111 0%, #2d2d2d 100%); }
+.bank-card--1 { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+.bank-card--2 { background: linear-gradient(135deg, #0f2027 0%, #203a43 100%); }
+
+.bank-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bank-card-brand {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.bank-card-type {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bank-card-balance {
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.bank-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bank-card-number {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  letter-spacing: 2px;
+  font-family: monospace;
+}
+
+.bank-card-currency {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+}

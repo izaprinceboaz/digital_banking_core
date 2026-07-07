@@ -58,8 +58,9 @@ public class TransactionController {
         return TransferResponse.from(transactionService.getTransactionById(id));
     }
     @PostMapping("/transfer")
-    public TransferResponse transfer(@Valid @RequestBody TransferRequest transferRequest) {
-        return TransferResponse.from(transactionService.transfer(transferRequest));
+    public TransferResponse transfer(@Valid @RequestBody TransferRequest transferRequest,
+                                     @RequestHeader("Authorization") String authHeader) {
+        return TransferResponse.from(transactionService.transfer(transferRequest, authHeader));
     }
 
     @DeleteMapping("/{id}")
