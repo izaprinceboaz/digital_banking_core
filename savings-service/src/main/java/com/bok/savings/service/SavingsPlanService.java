@@ -49,9 +49,8 @@ public class SavingsPlanService {
         this.notificationClient = notificationClient;
     }
 
-    public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan) {
-        // Fix 1: debit the linked account so money is actually moved into the plan
-        accountClient.debit(savingsPlan.getAccountNumber(), savingsPlan.getPrincipalAmount());
+    public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan, String authHeader) {
+        accountClient.debit(savingsPlan.getAccountNumber(), savingsPlan.getPrincipalAmount(), authHeader);
         return savingsPlanRepository.save(savingsPlan);
     }
 
@@ -71,7 +70,7 @@ public class SavingsPlanService {
         savingsPlanRepository.deleteById(id);
     }
 
-    public InterestRecord applyInterest(UUID id) {
+    public InterestRecord applyInterest(UUID id, String authHeader) {
         SavingsPlan plan = savingsPlanRepository.findById(id)
                 .orElseThrow(() -> new SavingsPlanNotFoundException());
 
@@ -88,10 +87,9 @@ public class SavingsPlanService {
 
         plan.setCurrentBalance(closingBalance);
 
-        // Fix 4: if plan has matured, credit full balance back to account and close it
         boolean matured = plan.getMaturityDate() != null && !LocalDate.now().isBefore(plan.getMaturityDate());
         if (matured) {
-            accountClient.credit(plan.getAccountNumber(), closingBalance);
+            accountClient.credit(plan.getAccountNumber(), closingBalance, authHeader);
             plan.setCurrentBalance(BigDecimal.ZERO);
             plan.setStatus(SavingsStatus.MATURED);
         }
@@ -109,18 +107,18 @@ public class SavingsPlanService {
         InterestRecord savedRecord = interestRecordRepository.save(record);
 
         try {
-            UUID userId = accountClient.getUserId(plan.getAccountNumber());
+            UUID userId = accountClient.getUserId(plan.getAccountNumber(), authHeader);
             String message = matured
                 ? "Your savings plan has matured! " + closingBalance + " has been credited to your account."
                 : "Your savings plan has earned interest of " + interestEarned + ".";
-            notificationClient.sendNotification(userId, message);
+            notificationClient.sendNotification(userId, message, authHeader);
         } catch (Exception e) {
             System.err.println("Failed to send notification: " + e.getMessage());
         }
         return savedRecord;
     }
 
-    public SavingsPlan deposit(DepositRequest request) {
+    public SavingsPlan deposit(DepositRequest request, String authHeader) {
         SavingsPlan plan = savingsPlanRepository.findById(request.getSavingsPlanId())
                 .orElseThrow(SavingsPlanNotFoundException::new);
 
@@ -128,22 +126,22 @@ public class SavingsPlanService {
             throw new InvalidSavingsStatusException();
         }
 
-        accountClient.debit(request.getAccountNumber(), request.getAmount());
+        accountClient.debit(request.getAccountNumber(), request.getAmount(), authHeader);
 
         plan.setCurrentBalance(plan.getCurrentBalance().add(request.getAmount()));
 
         SavingsPlan updatedPlan = savingsPlanRepository.save(plan);
 
         try {
-            UUID userId = accountClient.getUserId(plan.getAccountNumber());
-            notificationClient.sendNotification(userId,  "Your have deposited " + request.getAmount() + " into your savings plan. Your new balance is " + plan.getCurrentBalance() + ".");
+            UUID userId = accountClient.getUserId(plan.getAccountNumber(), authHeader);
+            notificationClient.sendNotification(userId, "You have deposited " + request.getAmount() + " into your savings plan. Your new balance is " + plan.getCurrentBalance() + ".", authHeader);
         } catch (Exception e) {
             System.err.println("Failed to send notification: " + e.getMessage());
         }
         return updatedPlan;
     }
 
-    public SavingsPlan withdraw(WithdrawRequest request) {
+    public SavingsPlan withdraw(WithdrawRequest request, String authHeader) {
         SavingsPlan plan = savingsPlanRepository.findById(request.getSavingsPlanId())
                 .orElseThrow(SavingsPlanNotFoundException::new);
 
@@ -164,11 +162,11 @@ public class SavingsPlanService {
         plan.setCurrentBalance(plan.getCurrentBalance().subtract(request.getAmount()));
         SavingsPlan updatedPlan = savingsPlanRepository.save(plan);
 
-        accountClient.credit(request.getAccountNumber(), request.getAmount());
+        accountClient.credit(request.getAccountNumber(), request.getAmount(), authHeader);
 
         try {
-            UUID userId = accountClient.getUserId(plan.getAccountNumber());
-            notificationClient.sendNotification(userId, "Your have withdrawn " + request.getAmount() + " from your savings plan. Your new balance is " + plan.getCurrentBalance() + ".");
+            UUID userId = accountClient.getUserId(plan.getAccountNumber(), authHeader);
+            notificationClient.sendNotification(userId, "You have withdrawn " + request.getAmount() + " from your savings plan. Your new balance is " + plan.getCurrentBalance() + ".", authHeader);
         } catch (Exception e) {
             System.err.println("Failed to send notification: " + e.getMessage());
         }

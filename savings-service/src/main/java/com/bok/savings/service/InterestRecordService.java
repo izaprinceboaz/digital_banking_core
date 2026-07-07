@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bok.savings.dto.CreateInterestRecordRequest;
+import com.bok.savings.dto.InterestRecordResponse;
 import com.bok.savings.entity.InterestRecord;
 import com.bok.savings.entity.SavingsPlan;
 import com.bok.savings.exception.InterestRecordNotFoundException;
@@ -40,8 +41,10 @@ public class InterestRecordService {
         return interestRecordRepository.save(interestRecord);
     }
 
-    public List<InterestRecord> listInterestRecords() {
-        return interestRecordRepository.findAll();
+    public List<InterestRecordResponse> listInterestRecords() {
+        return interestRecordRepository.findAll().stream()
+                .map(InterestRecordResponse::from)
+                .toList();
     }
 
     public InterestRecord getInterestRecordById(  UUID id) {

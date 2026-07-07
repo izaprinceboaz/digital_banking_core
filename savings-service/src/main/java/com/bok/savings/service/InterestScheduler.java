@@ -24,7 +24,7 @@ public class InterestScheduler {
                 .filter(p -> p.getStatus() == SavingsStatus.ACTIVE)
                 .forEach(p -> {
                     try {
-                        savingsPlanService.applyInterest(p.getId());
+                        savingsPlanService.applyInterest(p.getId(), null);
                     } catch (Exception e) {
                         System.err.println("Failed to apply interest for plan " + p.getId() + ": " + e.getMessage());
                     }

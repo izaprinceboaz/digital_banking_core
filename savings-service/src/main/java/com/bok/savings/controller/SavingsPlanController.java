@@ -8,7 +8,6 @@ import com.bok.savings.entity.SavingsPlan;
 import com.bok.savings.service.SavingsPlanService;
 import jakarta.validation.Valid;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +24,8 @@ public class SavingsPlanController {
     }
 
     @PostMapping
-    public SavingsPlan createSavingsPlan(@Valid @RequestBody CreateSavingsPlanRequest request) {
+    public SavingsPlan createSavingsPlan(@Valid @RequestBody CreateSavingsPlanRequest request,
+                                         @RequestHeader("Authorization") String authHeader) {
         SavingsPlan savingsPlan = new SavingsPlan();
         savingsPlan.setAccountNumber(request.getAccountNumber());
         savingsPlan.setPlanName(request.getPlanName());
@@ -35,22 +35,25 @@ public class SavingsPlanController {
         savingsPlan.setStartDate(request.getStartDate());
         savingsPlan.setMaturityDate(request.getMaturityDate());
 
-        return savingsPlanService.createSavingsPlan(savingsPlan);
+        return savingsPlanService.createSavingsPlan(savingsPlan, authHeader);
     }
-    
+
     @PostMapping("/{id}/apply-interest")
-    public InterestRecordResponse applyInterest(@PathVariable UUID id) {
-        return InterestRecordResponse.from(savingsPlanService.applyInterest(id));
+    public InterestRecordResponse applyInterest(@PathVariable UUID id,
+                                                @RequestHeader("Authorization") String authHeader) {
+        return InterestRecordResponse.from(savingsPlanService.applyInterest(id, authHeader));
     }
 
     @PostMapping("/deposit")
-    public SavingsPlan deposit(@Valid @RequestBody DepositRequest request) {
-        return savingsPlanService.deposit(request);
+    public SavingsPlan deposit(@Valid @RequestBody DepositRequest request,
+                               @RequestHeader("Authorization") String authHeader) {
+        return savingsPlanService.deposit(request, authHeader);
     }
 
     @PostMapping("/withdraw")
-    public SavingsPlan withdraw(@Valid @RequestBody WithdrawRequest request) {
-        return savingsPlanService.withdraw(request);
+    public SavingsPlan withdraw(@Valid @RequestBody WithdrawRequest request,
+                                @RequestHeader("Authorization") String authHeader) {
+        return savingsPlanService.withdraw(request, authHeader);
     }
 
     @GetMapping

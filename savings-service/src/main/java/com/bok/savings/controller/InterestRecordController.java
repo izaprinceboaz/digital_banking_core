@@ -1,6 +1,7 @@
 package com.bok.savings.controller;
 
 import com.bok.savings.dto.CreateInterestRecordRequest;
+import com.bok.savings.dto.InterestRecordResponse;
 import com.bok.savings.entity.InterestRecord;
 import com.bok.savings.service.InterestRecordService;
 import jakarta.validation.Valid;
@@ -25,7 +26,7 @@ public class InterestRecordController {
     }
 
     @GetMapping
-    public List<InterestRecord> listInterestRecords() {
+    public List<InterestRecordResponse> listInterestRecords() {
         return interestRecordService.listInterestRecords();
     }
 
