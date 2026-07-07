@@ -6,37 +6,41 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static Map<String, String> msg(String message) {
+        return Map.of("message", message);
+    }
+
     @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<String> handleAccountNotFound(AccountNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleAccountNotFound(AccountNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(StatementNotFoundException.class)
-    public ResponseEntity<String> handleStatementNotFound(StatementNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleStatementNotFound(StatementNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(InsufficientFundsException.class)
-    public ResponseEntity<String> handleInsufficientFunds(InsufficientFundsException ex) {
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleInsufficientFunds(InsufficientFundsException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(AccountNotActiveException.class)
-    public ResponseEntity<String> handleAccountNotActive(AccountNotActiveException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleAccountNotActive(AccountNotActiveException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        String combined = ex.getBindingResult().getFieldErrors().stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(combined));
     }
 }

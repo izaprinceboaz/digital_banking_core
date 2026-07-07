@@ -6,27 +6,31 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static Map<String, String> msg(String message) {
+        return Map.of("message", message);
+    }
+
     @ExceptionHandler(NotificationNotFoundException.class)
-    public ResponseEntity<String> handleNotificationNotFound(NotificationNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleNotificationNotFound(NotificationNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(NotificationPreferenceNotFoundException.class)
-    public ResponseEntity<String> handleNotificationPreferenceNotFound(NotificationPreferenceNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleNotificationPreferenceNotFound(NotificationPreferenceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        String combined = ex.getBindingResult().getFieldErrors().stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(combined));
     }
 }

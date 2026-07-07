@@ -111,10 +111,10 @@ export default function Statements() {
               </div>
             </div>
             <div className="stmt-balance">
+              <div className="stmt-balance-label">current balance</div>
               <div className="stmt-balance-value num">
                 {account ? formatMoney(account.currency, parseFloat(account.balance)) : "—"}
               </div>
-              <div className="stmt-balance-label">current balance</div>
             </div>
             <button className="stmt-pdf" onClick={() => handleDownload(s.period)}>
               PDF

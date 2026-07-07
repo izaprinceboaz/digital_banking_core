@@ -6,42 +6,46 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static Map<String, String> msg(String message) {
+        return Map.of("message", message);
+    }
+
     @ExceptionHandler(SavingsPlanNotFoundException.class)
-    public ResponseEntity<String> handleSavingsPlanNotFound(SavingsPlanNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleSavingsPlanNotFound(SavingsPlanNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(InterestRecordNotFoundException.class)
-    public ResponseEntity<String> handleInterestRecordNotFound(InterestRecordNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleInterestRecordNotFound(InterestRecordNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(InvalidSavingsStatusException.class)
-    public ResponseEntity<String> handleInvalidStatus(InvalidSavingsStatusException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleInvalidStatus(InvalidSavingsStatusException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(InsufficientSavingsBalanceException.class)
-    public ResponseEntity<String> handleInsufficientBalance(InsufficientSavingsBalanceException ex) {
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleInsufficientBalance(InsufficientSavingsBalanceException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(InvalidAccountTypeException.class)
-    public ResponseEntity<String> handleInvalidAccountType(InvalidAccountTypeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    public ResponseEntity<Map<String, String>> handleInvalidAccountType(InvalidAccountTypeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(ex.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        String combined = ex.getBindingResult().getFieldErrors().stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(combined));
     }
 }
