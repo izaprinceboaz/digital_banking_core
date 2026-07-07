@@ -10,6 +10,7 @@ import com.bok.transaction.entity.TransactionType;
 public class TransferResponse {
     
     private UUID id;
+    private String receiverAccountNumber;
     private BigDecimal amount;
     private String description;
     private TransactionType type;
@@ -24,6 +25,15 @@ public class TransferResponse {
     public void setId(UUID id) {
         this.id = id;
     }
+
+    public String getReceiverAccountNumber() {
+        return receiverAccountNumber;
+    }
+
+    public void setReceiverAccountNumber(String receiverAccountNumber) {
+        this.receiverAccountNumber = receiverAccountNumber;
+    }
+
 
     public BigDecimal getAmount() {
         return amount;
@@ -76,6 +86,7 @@ public class TransferResponse {
     public static TransferResponse from(Transaction transaction) {
         TransferResponse response = new TransferResponse();
         response.id = transaction.getId();
+        response.receiverAccountNumber = transaction.getReceiverAccountNumber();
         response.amount = transaction.getAmount();
         response.description = transaction.getDescription();
         response.type = transaction.getType();

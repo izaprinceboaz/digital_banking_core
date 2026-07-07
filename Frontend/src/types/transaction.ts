@@ -1,5 +1,6 @@
 export interface TransactionResponse {
     id: string;
+    receiverAccountNumber: string;
     amount: number;
     description: string;
     type: string;

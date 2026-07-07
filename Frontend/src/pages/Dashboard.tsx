@@ -5,13 +5,6 @@ import { findTransactionsByAccountNumber } from "../services/transactionService"
 import type { AccountResponse } from "../types/account";
 import "./Dashboard.css";
 
-const ACTIONS = [
-  { glyph: "↗", label: "Send", to: "/transactions" },
-  { glyph: "+", label: "Top up", to: "/accounts" },
-  { glyph: "≡", label: "Pay bills", to: "/transactions" },
-  { glyph: "◷", label: "Save", to: "/savings" },
-];
-
 function formatMoney(currency: string, amount: number): string {
   try {
     return new Intl.NumberFormat("en", {
@@ -32,6 +25,7 @@ function greeting(): string {
 
 export default function Dashboard() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<AccountResponse | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [hidden, setHidden] = useState(false);
 
@@ -39,6 +33,7 @@ export default function Dashboard() {
     getMyAccounts()
       .then((data) => {
         setAccounts(data);
+        setSelectedAccount(data.length > 0 ? data[0] : null);
         if (data.length > 0) {
           localStorage.setItem("accountNumber", data[0].accountNumber);
           findTransactionsByAccountNumber(data[0].accountNumber)
@@ -49,6 +44,8 @@ export default function Dashboard() {
       .catch(console.error);
   }, []);
 
+  
+
   const primary = accounts[0];
   // TODO: converting RWF/USD/EUR into one total needs an FX-rate source;
   // until then the headline shows the primary account's balance.
@@ -57,19 +54,11 @@ export default function Dashboard() {
     : "—";
   const mask = (v: string) => (hidden ? "••••••••" : v);
 
-  const dateStr = new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
   return (
     <div className="page dashboard">
       <div className="page-head">
         <div>
           <h2 className="page-title">{greeting()}</h2>
-          <p className="page-sub">{dateStr}</p>
         </div>
         <div className="dash-avatar">M</div>
       </div>
@@ -87,21 +76,13 @@ export default function Dashboard() {
             across {accounts.length} account{accounts.length === 1 ? "" : "s"}
           </div>
         </div>
-
-        <div className="dash-actions">
-          {ACTIONS.map((a) => (
-            <Link to={a.to} key={a.label} className="dash-action">
-              <span className="dash-action-circle">{a.glyph}</span>
-              <span className="dash-action-label">{a.label}</span>
-            </Link>
-          ))}
-        </div>
       </div>
 
       <div className="dash-cards">
         {accounts.map((account) => (
           <Link to="/accounts" key={account.accountNumber} className="dash-card card">
             <div className="dash-card-top">
+              <span>{account === selectedAccount ? "Current Account" : ""}</span>
               <span className="dash-chip">{account.currency}</span>
               <span className="dash-card-type">{account.accountType}</span>
             </div>
