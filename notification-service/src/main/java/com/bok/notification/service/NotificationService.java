@@ -66,4 +66,10 @@ public class NotificationService {
     public void deleteNotification(UUID id) {
         notificationRepository.deleteById(id);
     }
+
+    public void markNotificationAsRead(UUID id) {
+        Notification notification = notificationRepository.findById(id).orElseThrow(() -> new NotificationNotFoundException());
+        notification.setIsRead(true);
+        notificationRepository.save(notification);
+    }
 }

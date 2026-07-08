@@ -48,4 +48,9 @@ public class NotificationController {
         notificationService.deleteNotification(id);
     }
 
+    @PatchMapping("/{id}/mark-as-read")
+    public void markNotificationAsRead(@PathVariable UUID id) {
+        notificationService.markNotificationAsRead(id);
+    }
+
 }
