@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import { getMyAccounts } from "../../services/accountService";
-import {
-  createSavingsPlan,
-  findSavingsPlansByAccountNumber,
-  deposit,
-  withdraw,
-  listInterestRecords,
-} from "../../services/savingsService";
+import { createSavingsPlan, findSavingsPlansByAccountNumber, deposit, withdraw, listInterestRecords } from "../../services/savingsService";
 import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import type { SavingsPlanResponse, InterestRecordResponse } from "../../types/savings";

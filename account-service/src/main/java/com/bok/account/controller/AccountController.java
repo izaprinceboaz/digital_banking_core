@@ -90,4 +90,12 @@ public class AccountController {
         return convertedAmount;
     }
 
+    @PatchMapping("/{accountNumber}/status")
+    public AccountResponse updateAccountStatus(@PathVariable String accountNumber, 
+                                               @RequestBody String status,
+                                               @AuthenticationPrincipal String userId) {
+        Account account = accountService.updateAccountStatus(accountNumber, status, userId);
+        return AccountResponse.from(account);
+    }
+
 }

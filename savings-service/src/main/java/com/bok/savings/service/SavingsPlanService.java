@@ -51,7 +51,17 @@ public class SavingsPlanService {
 
     public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan, String authHeader) {
         accountClient.debit(savingsPlan.getAccountNumber(), savingsPlan.getPrincipalAmount(), authHeader);
-        return savingsPlanRepository.save(savingsPlan);
+        SavingsPlan savedPlan = savingsPlanRepository.save(savingsPlan);
+
+        try {
+            UUID userId = accountClient.getUserId(savingsPlan.getAccountNumber(), authHeader);
+            notificationClient.sendNotification(userId,
+            "Your savings plan '" + savedPlan.getPlanName() + "' has been opened with " +
+            savedPlan.getPrincipalAmount() + " at " + savedPlan.getInterestRate() + " interest rate.", authHeader);
+        } catch (Exception e) {
+            System.err.println("Failed to send notification: " + e.getMessage());
+        }
+        return savedPlan;
     }
 
     public List<SavingsPlan> listSavingsPlans() {

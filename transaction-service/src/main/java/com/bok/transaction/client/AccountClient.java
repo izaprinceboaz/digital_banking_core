@@ -17,24 +17,22 @@ public class AccountClient {
         this.restClient = RestClient.builder().baseUrl(accountServiceUrl).build();
     }
 
-    public BigDecimal debit(String accountNumber, BigDecimal amount, String authHeader) {
-        return restClient.post()
+    public void debit(String accountNumber, BigDecimal amount, String authHeader) {
+        restClient.post()
                 .uri("/api/accounts/{accountNumber}/debit", accountNumber)
                 .header("Authorization", authHeader)
                 .body(amount)
                 .retrieve()
-                .body(AccountResponse.class)
-                .balance();
+                .toBodilessEntity();
     }
 
-    public BigDecimal credit(String accountNumber, BigDecimal amount, String authHeader) {
-        return restClient.post()
+    public void credit(String accountNumber, BigDecimal amount, String authHeader) {
+        restClient.post()
                 .uri("/api/accounts/{accountNumber}/credit", accountNumber)
                 .header("Authorization", authHeader)
                 .body(amount)
                 .retrieve()
-                .body(AccountResponse.class)
-                .balance();
+                .toBodilessEntity();
     }
 
     public UUID getUserId(String accountNumber, String authHeader) {
@@ -63,22 +61,5 @@ public class AccountClient {
 
 
 
-    public void createStatement(String accountNumber, String transactionRef, String description,
-                                BigDecimal amount, BigDecimal balanceAfter, String entryType) {
-        Map<String, Object> statement = Map.of(
-                "accountNumber", accountNumber,
-                "transactionRef", transactionRef,
-                "description", description,
-                "amount", amount,
-                "balanceAfter", balanceAfter,
-                "entryType", entryType
-        );
-
-        restClient.post()
-                .uri("/api/statements")
-                .body(statement)
-                .retrieve()
-                .toBodilessEntity();
-    }
 }
 

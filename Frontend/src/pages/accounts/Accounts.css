@@ -86,7 +86,7 @@
 
 .accounts-row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 0.7fr 1fr 0.8fr;
+  grid-template-columns: 1.4fr 1fr 0.7fr 1fr 0.8fr auto;
   gap: 12px;
   padding: 15px 24px;
   border-bottom: 1px solid var(--divider);
@@ -122,4 +122,44 @@
 
 .accounts-cell-right {
   text-align: right;
+}
+
+.accounts-edit-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.accounts-edit-btn:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.accounts-edit-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--divider);
+  background: var(--surface-hover);
+}
+
+.accounts-edit-field {
+  min-width: 160px;
+}
+
+.accounts-edit-save {
+  height: 40px;
+  padding: 0 20px;
+}
+
+.accounts-edit-cancel {
+  height: 40px;
+  padding: 0 16px;
 }

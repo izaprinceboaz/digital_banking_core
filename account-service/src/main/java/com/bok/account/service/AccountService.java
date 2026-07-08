@@ -2,13 +2,15 @@ package com.bok.account.service;
 
 import com.bok.account.entity.Account;
 import com.bok.account.entity.AccountStatus;
+import com.bok.account.entity.EntryType;
+import com.bok.account.entity.Statement;
 import com.bok.account.exception.AccountNotActiveException;
 import com.bok.account.exception.AccountNotFoundException;
 import com.bok.account.exception.InsufficientFundsException;
 import com.bok.account.repository.AccountRepository;
+import com.bok.account.repository.StatementRepository;
 import com.bok.account.entity.Currency;
 import com.bok.account.client.NotificationClient;
-import com.bok.account.service.AccountNumberGenerator;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +23,14 @@ import java.util.UUID;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final StatementRepository statementRepository;
     private final NotificationClient notificationClient;
     private final AccountNumberGenerator accountNumberGenerator;
 
-    public AccountService(AccountRepository accountRepository, NotificationClient notificationClient, AccountNumberGenerator accountNumberGenerator) {
+    public AccountService(AccountRepository accountRepository, StatementRepository statementRepository,
+                          NotificationClient notificationClient, AccountNumberGenerator accountNumberGenerator) {
         this.accountRepository = accountRepository;
+        this.statementRepository = statementRepository;
         this.notificationClient = notificationClient;
         this.accountNumberGenerator = accountNumberGenerator;
     }
@@ -45,6 +50,15 @@ public class AccountService {
 
         account.setBalance(account.getBalance().subtract(amount));
         Account updatedAccount = accountRepository.save(account);
+
+        Statement statement = new Statement();
+        statement.setAccount(updatedAccount);
+        statement.setTransactionRef("DBT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase());
+        statement.setDescription("Account debit");
+        statement.setAmount(amount);
+        statement.setBalanceAfter(updatedAccount.getBalance());
+        statement.setEntryType(EntryType.DEBIT);
+        statementRepository.save(statement);
 
         try {
             notificationClient.sendDebitNotification(account.getUserId(), "Your account has been debited with " + amount + " " + account.getCurrency() + ". New balance: " + account.getBalance() + " " + account.getCurrency());
@@ -66,6 +80,15 @@ public class AccountService {
         account.setBalance(account.getBalance().add(amount));
 
         Account updatedAccount = accountRepository.save(account);
+
+        Statement statement = new Statement();
+        statement.setAccount(updatedAccount);
+        statement.setTransactionRef("CRT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase());
+        statement.setDescription("Account credit");
+        statement.setAmount(amount);
+        statement.setBalanceAfter(updatedAccount.getBalance());
+        statement.setEntryType(EntryType.CREDIT);
+        statementRepository.save(statement);
 
         try {
             notificationClient.sendCreditNotification(account.getUserId(), "Your account has been credited with " + amount + " " + account.getCurrency() + ". New balance: " + account.getBalance() + " " + account.getCurrency());
@@ -127,15 +150,37 @@ public class AccountService {
             throw new AccountNotActiveException();
         }
 
+        BigDecimal oldBalance = account.getBalance();
+
         account.setBalance(newBalance);
 
         Account updatedAccount = accountRepository.save(account);
+
+        Statement statement = new Statement();
+        statement.setAccount(updatedAccount);
+        statement.setTransactionRef("DBT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase());
+        statement.setDescription("Updated account balance");
+        statement.setAmount(newBalance.subtract(oldBalance).abs());
+        statement.setBalanceAfter(updatedAccount.getBalance());
+        statement.setEntryType(EntryType.DEBIT);
+        statementRepository.save(statement);
+
         try {
             notificationClient.sendUpdateBalanceNotification(account.getUserId(), "Your account balance has been updated to " + newBalance + " " + account.getCurrency());
         } catch (Exception e) {
             System.err.println("Failed to send notification: " + e.getMessage());
         }
         return updatedAccount;
+    }
+
+    public Account updateAccountStatus(String accountNumber, String newStatus, String userId) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+        if (!account.getUserId().toString().equals(userId)) {
+            throw new AccountNotFoundException(accountNumber);
+        }
+        account.setStatus(AccountStatus.valueOf(newStatus));
+        return accountRepository.save(account);
     }
 
     public Account getAccountByAccountNumber(String accountNumber) {

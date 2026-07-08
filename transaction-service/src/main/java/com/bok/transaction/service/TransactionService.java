@@ -107,13 +107,10 @@ public class TransactionService {
 
             convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountNumber(), transferRequest.getReceiverAccountNumber(), transferRequest.getAmount(), authHeader);
 
-            BigDecimal senderBalance = accountClient.debit(transaction.getSenderAccountNumber(), transaction.getAmount(), authHeader);
-
-            accountClient.createStatement(transaction.getSenderAccountNumber(), transaction.getReferenceNumber(),
-                                            transaction.getDescription(), transaction.getAmount(), senderBalance, "DEBIT");
+            accountClient.debit(transaction.getSenderAccountNumber(), transaction.getAmount(), authHeader);
 
             UUID senderUserId = accountClient.getUserId(transaction.getSenderAccountNumber(), authHeader);
-            notificationClient.sendNotification(senderUserId, "Transfer of " + transaction.getAmount() + " " + transaction.getCurrency() + " to account " + transaction.getReceiverAccountNumber() + " is successful. Reference: " + transaction.getReferenceNumber());
+            notificationClient.sendNotification(senderUserId, "Transfer of " + transaction.getAmount() + " " + transaction.getCurrency() + " to account " + transaction.getReceiverAccountNumber() + " is successful. Reference: " + transaction.getReferenceNumber(), authHeader);
 
         } catch (RuntimeException ex) {
             transaction.setStatus(TransactionStatus.FAILED);
@@ -123,13 +120,10 @@ public class TransactionService {
 
         try {
             
-            BigDecimal receiverBalance = accountClient.credit(transaction.getReceiverAccountNumber(), convertedAmount, authHeader);
-
-            accountClient.createStatement(transaction.getReceiverAccountNumber(), transaction.getReferenceNumber(),
-                                            transaction.getDescription(), convertedAmount, receiverBalance, "CREDIT");
+            accountClient.credit(transaction.getReceiverAccountNumber(), convertedAmount, authHeader);
 
             UUID receiverUserId = accountClient.getUserId(transaction.getReceiverAccountNumber(), authHeader);
-            notificationClient.sendNotification(receiverUserId, "You have received " + convertedAmount + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountNumber() + ". Reference: " + transaction.getReferenceNumber());
+            notificationClient.sendNotification(receiverUserId, "You have received " + convertedAmount + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountNumber() + ". Reference: " + transaction.getReferenceNumber(), authHeader);
 
         } catch (RuntimeException ex) {
             accountClient.credit(transaction.getSenderAccountNumber(), transaction.getAmount(), authHeader);

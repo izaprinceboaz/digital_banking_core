@@ -36,6 +36,13 @@ export async function deleteAccount(accountNumber: String): Promise<any> {
   return res.data;
 }
 
+export async function updateAccountStatus(accountNumber: string, status: string): Promise<AccountResponse> {
+  const res = await api.patch<AccountResponse>(`/api/accounts/${accountNumber}/status`, status, {
+    headers: { "Content-Type": "text/plain" },
+  });
+  return res.data;
+}
+
 export interface StatementRow {
   transactionRef: string;
   description: string;
