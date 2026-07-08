@@ -6,6 +6,7 @@ import BankCard from "../../components/BankCard";
 import "./Accounts.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
+import Button from "../../components/Button";
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -80,9 +81,10 @@ export default function Accounts() {
     <div className="page">
       <PageHeader 
         title="Accounts" 
-        action={<button className="btn" onClick={() => setShowForm(!showForm)}>
-                  {showForm ? "Close" : "+ New account"} 
-                </button>}
+        action={<Button 
+                  className="btn"  
+                  onClick={() => setShowForm(!showForm)}
+                   message={showForm ? "Close" : "+ New account"}/>}
       />
 
       {showForm && (
@@ -124,9 +126,11 @@ export default function Accounts() {
                 onChange={(e) => setBalance(e.target.value)}
               />
             </div>
-            <button className="btn accounts-form-submit" onClick={handleCreateAccount}>
-              Create
-            </button>
+            <Button 
+                  className="btn accounts-form-submit" 
+                  onClick={handleCreateAccount} 
+                  message="Create" 
+            />
           </div>
         </div>
       )}
@@ -160,12 +164,11 @@ export default function Accounts() {
               </span>
               <span>
                 {editingAccount !== acc.accountNumber && (
-                  <button
-                    className="accounts-edit-btn"
-                    onClick={() => openEdit(acc)}
-                  >
-                    Edit
-                  </button>
+                  <Button 
+                        className="accounts-edit-btn" 
+                        onClick={() => openEdit(acc)} 
+                        message="Edit" 
+                  />
                 )}
               </span>
             </div>
@@ -183,12 +186,21 @@ export default function Accounts() {
                     <option value="CLOSED">CLOSE</option>
                   </select>
                 </div>
-                <button className="btn accounts-edit-save" onClick={saveEdit} disabled={saving}>
-                  {saving ? "Saving…" : "Save"}
-                </button>
-                <button className="btn btn--outline accounts-edit-cancel" onClick={cancelEdit} disabled={saving}>
-                  Cancel
-                </button>
+                
+                <Button 
+                      className="btn accounts-edit-save" 
+                      onClick={saveEdit} 
+                      message={saving ? "Saving…" : "Save"} 
+                      disabled={saving}
+                />
+
+                <Button 
+                      className="btn btn--outline accounts-edit-cancel" 
+                      onClick={cancelEdit} 
+                      message="Cancel" 
+                      disabled={saving}
+                />
+
               </div>
             )}
           </div>

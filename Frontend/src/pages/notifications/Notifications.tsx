@@ -4,6 +4,7 @@ import type { NotificationResponse } from "../../types/notification";
 import { markNotificationAsRead } from "../../services/notificationService";
 import "./Notifications.css";
 import PageHeader from "../../components/PageHeader";
+import Button from "../../components/Button"
 
 const GLYPHS: Record<string, string> = {
   TRANSFER: "↗",
@@ -54,9 +55,11 @@ export default function Notifications() {
       <PageHeader 
         title="Notifications" 
         subtitle={unread > 0 ? unread + " unread" : "You're all caught up"}
-        action={<button className="btn btn--outline notif-mark-read" onClick={markAllRead}>
-                  Mark all as read
-                </button>}
+        action={<Button 
+                  className="btn btn--outline notif-mark-read"
+                  message="Mark all as read"
+                  onClick={markAllRead}
+                />}
       />
 
       <div className="card notif-list">
@@ -78,9 +81,11 @@ export default function Notifications() {
             </div>
             <span className="notif-time">{timeLabel(n.createdAt)}</span>
             {isUnread(n) && (
-              <button onClick={() => markRead(n.id)} className="btn">
-                Mark as read
-              </button>
+              <Button 
+                  className="btn"
+                  message="Mark as read"
+                  onClick={() => markRead(n.id)}
+                />
             )}
           </div>
         ))}

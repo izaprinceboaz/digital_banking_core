@@ -43,14 +43,6 @@ export default function Dashboard() {
 
   return (
     <div className="page dashboard">
-      <div className="page-head">
-        <div>
-          <h2 className="page-title">{greeting()}</h2>
-          <p className="page-sub">Here's your account overview</p>
-        </div>
-        <div className="dash-avatar">M</div>
-      </div>
-
       <PageHeader 
         title={greeting()} 
         subtitle="Here's your account overview"

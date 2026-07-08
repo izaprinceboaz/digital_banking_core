@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../services/authService";
 import { getApiErrorMessage } from "../../services/api";
 import "./auth.css";
+import Button from "../../components/Button";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
@@ -133,10 +134,11 @@ export default function Register() {
                 required
               />
             </div>
-
-            <button type="submit" disabled={loading}>
-              {loading ? "Opening account…" : "Open account"}
-            </button>
+            <Button
+                  type="submit" 
+                  message={loading ? "Opening account…" : "Open account"}
+                  disabled={loading}
+            />
           </form>
 
           <p className="auth-switch">

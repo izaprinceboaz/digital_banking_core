@@ -7,6 +7,8 @@ import type { SavingsPlanResponse, InterestRecordResponse } from "../../types/sa
 import "./Savings.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
+import Button from "../../components/Button";
+
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—";
@@ -124,9 +126,11 @@ export default function Savings() {
       <PageHeader 
         title="Savings" 
         subtitle={`${active} active plan${active === 1 ? "" : "s"} · interest compounds automatically`}
-        action={<button className="btn" onClick={() => setShowForm(!showForm)}>
-                  {showForm ? "Close" : "+ New plan"} 
-                </button>}
+        action={<Button 
+                  className="btn"
+                  message={showForm ? "Close" : "+ New plan"} 
+                  onClick={() => setShowForm(!showForm)}
+                />}
       />
 
       {showForm && (
@@ -197,9 +201,11 @@ export default function Savings() {
                     onChange={(e) => setMaturityDate(e.target.value)}
                   />
                 </div>
-                <button className="btn savings-form-submit" onClick={handleCreate}>
-                  Create
-                </button>
+                <Button
+                  className="btn savings-form-submit"
+                  message="Create"
+                  onClick={handleCreate}
+                />
               </div>
             </>
           )}
@@ -256,22 +262,20 @@ export default function Savings() {
 
               {isActive && !isActionOpen && (
                 <div className="savings-card-actions">
-                  <button
+                  <Button 
                     className="btn savings-action"
+                    message="Deposit"
                     onClick={() =>
                       setAction({ planId: p.id, mode: "deposit", amount: "", loading: false, error: null })
                     }
-                  >
-                    Deposit
-                  </button>
-                  <button
+                  />
+                  <Button 
                     className="btn btn--outline savings-action"
+                    message="Withdraw"
                     onClick={() =>
                       setAction({ planId: p.id, mode: "withdraw", amount: "", loading: false, error: null })
                     }
-                  >
-                    Withdraw
-                  </button>
+                  />
                 </div>
               )}
 
@@ -293,16 +297,18 @@ export default function Savings() {
                         setAction((a) => a && { ...a, amount: e.target.value })
                       }
                     />
-                    <button className="btn" onClick={handleAction} disabled={action!.loading}>
-                      {action!.loading ? "…" : "Confirm"}
-                    </button>
-                    <button
-                      className="btn btn--outline"
-                      onClick={() => setAction(null)}
-                      disabled={action!.loading}
-                    >
-                      Cancel
-                    </button>
+                    <Button 
+                          className="btn"
+                          message={action!.loading ? "…" : "Confirm"}
+                          onClick={handleAction}
+                          disabled={action!.loading}
+                    />
+                    <Button 
+                          className="btn btn--outline"
+                          message="Cancel"
+                          onClick={() => setAction(null)}
+                          disabled={action!.loading}
+                    />
                   </div>
                 </div>
               )}

@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../services/authService";
 import { getApiErrorMessage } from "../../services/api";
 import "./auth.css";
+import Button from "../../components/Button";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -82,10 +84,11 @@ export default function Login() {
                 required
               />
             </div>
-
-            <button type="submit" disabled={loading}>
-              {loading ? "Signing in…" : "Sign in"}
-            </button>
+            <Button
+                  type="submit" 
+                  message={loading ? "Signing in…" : "Sign in"}
+                  disabled={loading}
+            />
           </form>
 
           <p className="auth-switch">

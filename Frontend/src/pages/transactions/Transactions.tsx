@@ -9,6 +9,7 @@ import type { AccountResponse } from "../../types/account";
 import "./Transactions.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
+import Button from "../../components/Button";
 
 function statusPill(status: string): string {
   if (status === "COMPLETED") return "pill pill--success";
@@ -148,9 +149,12 @@ export default function Transactions() {
               <option value="PAYMENT">PAYMENT</option>
             </select>
           </div>
-          <button className="btn txn-form-submit" onClick={handleTransfer} disabled={sending}>
-            {sending ? "Sending…" : "Send"}
-          </button>
+          <Button
+                className="btn txn-form-submit"
+                message={sending ? "Sending…" : "Send"}
+                onClick={handleTransfer}
+                disabled={sending}
+          />
         </div>
       </div>
 
