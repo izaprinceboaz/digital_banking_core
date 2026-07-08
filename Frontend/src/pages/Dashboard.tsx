@@ -7,6 +7,7 @@ import BankCard from "../components/BankCard";
 import "./Dashboard.css";
 import formatMoney from "../utils/format";
 import PageHeader from "../components/PageHeader";
+import Table from "../components/Table"
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -64,31 +65,30 @@ export default function Dashboard() {
           <span className="card-title">Recent transactions</span>
           <Link to="/transactions" className="dash-see-all">See all</Link>
         </div>
-        {allTxns.length === 0 && (
+        {allTxns.length === 0 ? (
           <p className="dash-empty">No transactions yet.</p>
-        )}
-        {allTxns.slice(0, 10).map(({ txn: t, account }) => {
-          const incoming = t.receiverAccountNumber === account.accountNumber;
-          return (
-            <div className="dash-txn" key={t.id}>
-              <div className="dash-txn-icon">
-                {(t.description || t.type || "?").slice(0, 1).toUpperCase()}
-              </div>
-              <div className="dash-txn-main">
-                <div className="dash-txn-name">{t.description || t.type}</div>
-                <div className="dash-txn-sub">
-                  {account.accountType} •••• {account.accountNumber.slice(-4)} · {t.type}
-                </div>
-              </div>
-              <div className="dash-txn-right">
-                <div className="dash-txn-amount num" style={{ color: incoming ? "var(--success)" : "var(--text)" }}>
+        ) : (
+          <Table headers={["Description", "Account", "Type", "Amount", "Status"]}>
+          {allTxns.slice(0, 10).map(({ txn: t, account }) => {
+            const incoming = t.receiverAccountNumber === account.accountNumber;
+            return (
+              <tr key={t.id}>
+                <td>{t.description || t.type}</td>
+                <td className="num">{account.accountType} •••• {account.accountNumber.slice(-4)}</td>
+                <td>{t.type}</td>
+                <td className="num" style={{ color: incoming ? "var(--success)" : "var(--text)" }}>
                   {incoming ? "+" : "−"}{formatMoney(t.currency, Math.abs(t.amount))}
-                </div>
-                <div className="dash-txn-status">{t.status}</div>
-              </div>
-            </div>
-          );
-        })}
+                </td>
+                <td>
+                  <span className={`pill pill--${t.status === "COMPLETED" ? "success" : t.status === "FAILED" ? "danger" : "warn"}`}>
+                    {t.status}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </Table>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import "./Accounts.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
+import Table from "../../components/Table"
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -141,71 +142,28 @@ export default function Accounts() {
         ))}
       </div>
 
-      <div className="card accounts-table">
-        <div className="accounts-row accounts-row--head">
-          <span>Account number</span>
-          <span className="accounts-cell-right">Balance</span>
-          <span>Currency</span>
-          <span>Type</span>
-          <span>Status</span>
-          <span></span>
-        </div>
-        {accounts.map((acc) => (
-          <div key={acc.accountNumber}>
-            <div className="accounts-row">
-              <span className="accounts-cell-strong num">{acc.accountNumber}</span>
-              <span className="accounts-cell-strong accounts-cell-right num">
-                {formatMoney(acc.currency, parseFloat(acc.balance))}
-              </span>
-              <span className="accounts-cell">{acc.currency}</span>
-              <span className="accounts-cell">{acc.accountType}</span>
-              <span>
-                <span className={statusPill(acc.status)}>{acc.status}</span>
-              </span>
-              <span>
-                {editingAccount !== acc.accountNumber && (
-                  <Button 
-                        className="accounts-edit-btn" 
-                        onClick={() => openEdit(acc)} 
-                        message="Edit" 
-                  />
-                )}
-              </span>
-            </div>
-
-            {editingAccount === acc.accountNumber && (
-              <div className="accounts-edit-row">
-                <div className="field accounts-edit-field">
-                  <label>Status</label>
-                  <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)}>
-                    <option value="ACTIVE">ACTIVE</option>
-                    <option value="INACTIVE">INACTIVE</option>
-                    <option value="SUSPENDED">SUSPENDED</option>
-                    <option value="FROZEN">FREEZE</option>
-                    <option value="SUSPENDED">SUSPEND</option>
-                    <option value="CLOSED">CLOSE</option>
-                  </select>
-                </div>
-                
-                <Button 
-                      className="btn accounts-edit-save" 
-                      onClick={saveEdit} 
-                      message={saving ? "Saving…" : "Save"} 
-                      disabled={saving}
-                />
-
-                <Button 
-                      className="btn btn--outline accounts-edit-cancel" 
-                      onClick={cancelEdit} 
-                      message="Cancel" 
-                      disabled={saving}
-                />
-
-              </div>
-            )}
-          </div>
-        ))}
+      {accounts.length === 0 ? (
+        <p className="accounts-empty">
+          No accounts yet.
+        </p>):(
+       <div className="card" style={{ overflow: "hidden" }}>
+        <Table headers={["Account number", "Balance", "Currency", "Type", "Status"]}>
+          {accounts.map((acc) => (
+            <>
+              <tr key={acc.accountNumber}>
+                <td>{acc.accountNumber}</td>
+                <td className="num">{formatMoney(acc.currency, parseFloat(acc.balance))}</td>
+                <td>{acc.currency}</td>
+                <td>{acc.accountType}</td>
+                <td>
+                  <span className={statusPill(acc.status)}>{acc.status}</span>
+                </td>
+              </tr>
+            </>
+          ))}
+        </Table>
       </div>
+      )}
     </div>
   );
 }

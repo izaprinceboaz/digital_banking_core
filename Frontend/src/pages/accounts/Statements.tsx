@@ -6,6 +6,7 @@ import type { AccountResponse } from "../../types/account";
 import "./Statements.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
+import Table from "../../components/Table";
 
 export default function Statements() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -47,37 +48,36 @@ export default function Statements() {
       />
 
       <div className="card stmt-table-wrap">
-        <div className="stmt-table-row stmt-table-row--head">
-          <span>Reference</span>
-          <span>Description</span>
-          <span>Type</span>
-          <span className="stmt-cell-right">Amount</span>
-          <span className="stmt-cell-right">Balance after</span>
-        </div>
-        {rows.length === 0 && (
+        {rows.length === 0 ? (
           <p className="stmt-empty">No transactions on this account yet.</p>
-        )}
-        {rows.map((r) => (
-          <div className="stmt-table-row" key={r.transactionRef}>
-            <span className="stmt-ref num">{r.transactionRef}</span>
-            <span className="stmt-desc">{r.description || "—"}</span>
-            <span>
-              <span className={r.entryType === "CREDIT" ? "pill pill--success" : "pill pill--danger"}>
-                {r.entryType}
-              </span>
-            </span>
-            <span
-              className="stmt-cell-right num"
-              style={{ color: r.entryType === "CREDIT" ? "var(--success)" : "var(--text)" }}
-            >
-              {r.entryType === "CREDIT" ? "+" : "−"}
-              {account ? formatMoney(account.currency, Math.abs(r.amount)) : r.amount}
-            </span>
-            <span className="stmt-cell-right num stmt-balance-after">
-              {account ? formatMoney(account.currency, r.balanceAfter) : r.balanceAfter}
-            </span>
-          </div>
-        ))}
+        ):(
+          <Table headers={["Reference", "Type", "Description", "Amount", "Balance after"]}>
+            {rows.map((r) => (
+              <tr key={r.transactionRef}>
+                <td>{r.transactionRef}</td>
+                <td>
+                  <span className={r.entryType === "CREDIT" ? "pill pill--success" : "pill pill--danger"}>
+                    {r.entryType}
+                  </span>
+                </td>
+                <td>{r.description}</td>
+                <td>
+                  <span
+                    className="stmt-cell-right num"
+                    style={{ color: r.entryType === "CREDIT" ? "var(--success)" : "var(--text)" }}
+                  >
+                    {r.entryType === "CREDIT" ? "+" : "−"}
+                    {account ? formatMoney(account.currency, Math.abs(r.amount)) : r.amount}
+                  </span>
+                </td>
+                <td>
+                  {account ? formatMoney(account.currency, r.balanceAfter) : r.balanceAfter}
+                </td>
+              </tr>
+          
+            ))}
+        </Table>
+      )}
       </div>
     </div>
   );

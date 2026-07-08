@@ -10,6 +10,7 @@ import "./Transactions.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
+import Table from "../../components/Table";
 
 function statusPill(status: string): string {
   if (status === "COMPLETED") return "pill pill--success";
@@ -163,36 +164,29 @@ export default function Transactions() {
           <span className="card-title">History</span>
           <span className="txn-table-account num">Account {selectedAccount}</span>
         </div>
-        <div className="txn-row txn-row--head">
-          <span>Receiver</span>
-          <span className="txn-cell-right">Amount</span>
-          <span>Description</span>
-          <span>Currency</span>
-          <span>Status</span>
-        </div>
-        {transactions.length === 0 && (
+        {transactions.length === 0 ? (
           <p className="txn-empty">No transactions on this account yet.</p>
+        ):(
+          <Table headers={["Receiver", "Amount", "Description", "Currency", "Status"]}>
+            {transactions.map((t) => {
+              const incoming = t.receiverAccountNumber === selectedAccount;
+              return (
+                <tr key={t.id}>
+                  <td>{t.receiverAccountNumber}</td>
+                  <td className="num">
+                    {incoming ? "+" : "−"}
+                    {formatMoney(t.currency, Math.abs(t.amount))}
+                    </td>
+                  <td>{t.description}</td>
+                  <td>{t.currency}</td>
+                  <td>
+                    <span className={statusPill(t.status)}>{t.status}</span>
+                  </td>
+                </tr>
+              );
+            })}
+            </Table>
         )}
-        {transactions.map((t) => {
-          const incoming = t.receiverAccountNumber === selectedAccount;
-          return (
-            <div className="txn-row" key={t.id}>
-              <span className="txn-cell num txn-ellipsis">{t.receiverAccountNumber}</span>
-              <span
-                className="txn-amount txn-cell-right num"
-                style={{ color: incoming ? "var(--success)" : "var(--text)" }}
-              >
-                {incoming ? "+" : "−"}
-                {formatMoney(t.currency, Math.abs(t.amount))}
-              </span>
-              <span className="txn-cell-dark txn-ellipsis">{t.description}</span>
-              <span className="txn-cell">{t.currency}</span>
-              <span>
-                <span className={statusPill(t.status)}>{t.status}</span>
-              </span>
-            </div>
-          );
-        })}
       </div>
     </div>
   );
