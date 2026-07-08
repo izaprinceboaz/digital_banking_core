@@ -1,19 +1,7 @@
 import { Link } from "react-router-dom";
 import type { AccountResponse } from "../types/account";
 import "./BankCard.css";
-
-function formatMoney(currency: string, amount: number): string {
-  try {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: currency === "RWF" ? 0 : 2,
-      maximumFractionDigits: currency === "RWF" ? 0 : 2,
-    }).format(amount);
-  } catch {
-    return currency + " " + amount.toLocaleString();
-  }
-}
+import formatMoney from "../utils/format";
 
 interface Props {
   account: AccountResponse;

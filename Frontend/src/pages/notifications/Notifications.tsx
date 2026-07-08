@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { getMyNotifications } from "../../services/notificationService";
 import type { NotificationResponse } from "../../types/notification";
+import { markNotificationAsRead } from "../../services/notificationService";
 import "./Notifications.css";
+import PageHeader from "../../components/PageHeader";
 
 const GLYPHS: Record<string, string> = {
   TRANSFER: "↗",
@@ -39,22 +41,23 @@ export default function Notifications() {
     setReadIds(new Set(notifications.map((n) => n.id)));
   }
 
+  function markRead(id: string) {
+    setReadIds((prev) => new Set(prev).add(id));
+    markNotificationAsRead(id).catch(console.error);
+  }
+
   const isUnread = (n: NotificationResponse) => !n.isRead && !readIds.has(n.id);
   const unread = notifications.filter(isUnread).length;
 
   return (
     <div className="page page--narrow">
-      <div className="page-head">
-        <div>
-          <h2 className="page-title">Notifications</h2>
-          <p className="page-sub">
-            {unread > 0 ? unread + " unread" : "You're all caught up"}
-          </p>
-        </div>
-        <button className="btn btn--outline notif-mark-read" onClick={markAllRead}>
-          Mark all as read
-        </button>
-      </div>
+      <PageHeader 
+        title="Notifications" 
+        subtitle={unread > 0 ? unread + " unread" : "You're all caught up"}
+        action={<button className="btn btn--outline notif-mark-read" onClick={markAllRead}>
+                  Mark all as read
+                </button>}
+      />
 
       <div className="card notif-list">
         {notifications.length === 0 && (
@@ -74,6 +77,11 @@ export default function Notifications() {
               <div className="notif-body">{n.message}</div>
             </div>
             <span className="notif-time">{timeLabel(n.createdAt)}</span>
+            {isUnread(n) && (
+              <button onClick={() => markRead(n.id)} className="btn">
+                Mark as read
+              </button>
+            )}
           </div>
         ))}
       </div>

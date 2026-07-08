@@ -4,19 +4,8 @@ import { getMyStatements } from "../../services/accountService";
 import type { StatementRow } from "../../services/accountService";
 import type { AccountResponse } from "../../types/account";
 import "./Statements.css";
-
-function formatMoney(currency: string, amount: number): string {
-  try {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: currency === "RWF" ? 0 : 2,
-      maximumFractionDigits: currency === "RWF" ? 0 : 2,
-    }).format(amount);
-  } catch {
-    return currency + " " + amount.toLocaleString();
-  }
-}
+import formatMoney from "../../utils/format";
+import PageHeader from "../../components/PageHeader";
 
 export default function Statements() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -42,23 +31,20 @@ export default function Statements() {
 
   return (
     <div className="page page--narrow">
-      <div className="page-head">
-        <div>
-          <h2 className="page-title">Statements</h2>
-          <p className="page-sub">{rows.length} transaction{rows.length === 1 ? "" : "s"} on this account</p>
-        </div>
-        <select
-          className="select-inline"
-          value={selected}
-          onChange={(e) => setSelected(e.target.value)}
-        >
-          {accounts.map((a) => (
-            <option key={a.accountNumber} value={a.accountNumber}>
-              {a.currency} account — {a.accountNumber}
-            </option>
-          ))}
-        </select>
-      </div>
+      <PageHeader 
+        title="Statements" 
+        action={<select 
+                    className="select-inline"
+                    value={selected}
+                    onChange={(e) => setSelected(e.target.value)}>
+                      {accounts.map((a) => (
+                        <option key={a.accountNumber} value={a.accountNumber}>
+                          {a.currency} account — {a.accountNumber}
+                        </option>
+                      ))}
+                </select>
+                }
+      />
 
       <div className="card stmt-table-wrap">
         <div className="stmt-table-row stmt-table-row--head">

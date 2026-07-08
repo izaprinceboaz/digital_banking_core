@@ -20,7 +20,7 @@ export async function deleteNotification(id: string): Promise<void> {
 }
 
 export async function markNotificationAsRead(id: string): Promise<void> {
-  await api.post(`/api/notifications/${id}/mark-as-read`);
+  await api.patch(`/api/notifications/${id}/mark-as-read`);
 }
 
 // TODO: the backend has no mark-as-read endpoint yet; add one to

@@ -5,19 +5,8 @@ import { findTransactionsByAccountNumber } from "../services/transactionService"
 import type { AccountResponse } from "../types/account";
 import BankCard from "../components/BankCard";
 import "./Dashboard.css";
-
-function formatMoney(currency: string, amount: number): string {
-  try {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: currency === "RWF" ? 0 : 2,
-      maximumFractionDigits: currency === "RWF" ? 0 : 2,
-    }).format(amount);
-  } catch {
-    return currency + " " + amount.toLocaleString();
-  }
-}
+import formatMoney from "../utils/format";
+import PageHeader from "../components/PageHeader";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -61,6 +50,11 @@ export default function Dashboard() {
         </div>
         <div className="dash-avatar">M</div>
       </div>
+
+      <PageHeader 
+        title={greeting()} 
+        subtitle="Here's your account overview"
+      />
 
       {/* Bank cards */}
       <div className="dash-cards">

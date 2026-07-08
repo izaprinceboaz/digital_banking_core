@@ -5,19 +5,8 @@ import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import type { SavingsPlanResponse, InterestRecordResponse } from "../../types/savings";
 import "./Savings.css";
-
-function formatMoney(currency: string, amount: number): string {
-  try {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: currency === "RWF" ? 0 : 2,
-      maximumFractionDigits: currency === "RWF" ? 0 : 2,
-    }).format(amount);
-  } catch {
-    return "RWF " + Math.round(amount).toLocaleString();
-  }
-}
+import formatMoney from "../../utils/format";
+import PageHeader from "../../components/PageHeader";
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—";
@@ -132,17 +121,13 @@ export default function Savings() {
 
   return (
     <div className="page">
-      <div className="page-head">
-        <div>
-          <h2 className="page-title">Savings</h2>
-          <p className="page-sub">
-            {active} active plan{active === 1 ? "" : "s"} · interest compounds automatically
-          </p>
-        </div>
-        <button className="btn" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Close" : "+ New plan"}
-        </button>
-      </div>
+      <PageHeader 
+        title="Savings" 
+        subtitle={`${active} active plan${active === 1 ? "" : "s"} · interest compounds automatically`}
+        action={<button className="btn" onClick={() => setShowForm(!showForm)}>
+                  {showForm ? "Close" : "+ New plan"} 
+                </button>}
+      />
 
       {showForm && (
         <div className="card card--pad">

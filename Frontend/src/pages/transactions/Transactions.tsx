@@ -7,19 +7,8 @@ import {
 import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import "./Transactions.css";
-
-function formatMoney(currency: string, amount: number): string {
-  try {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: currency === "RWF" ? 0 : 2,
-      maximumFractionDigits: currency === "RWF" ? 0 : 2,
-    }).format(amount);
-  } catch {
-    return currency + " " + amount.toLocaleString();
-  }
-}
+import formatMoney from "../../utils/format";
+import PageHeader from "../../components/PageHeader";
 
 function statusPill(status: string): string {
   if (status === "COMPLETED") return "pill pill--success";
@@ -89,22 +78,21 @@ export default function Transactions() {
 
   return (
     <div className="page">
-      <div className="page-head">
-        <div>
-          <h2 className="page-title">Transactions</h2>
-        </div>
-        <select
-          className="select-inline"
-          value={selectedAccount}
-          onChange={(e) => setSelectedAccount(e.target.value)}
-        >
-          {accounts.map((a) => (
-            <option key={a.accountNumber} value={a.accountNumber}>
-              {a.accountNumber} ({a.currency} — {a.accountType})
-            </option>
-          ))}
-        </select>
-      </div>
+
+      <PageHeader 
+        title="Transactions" 
+        action={<select
+                    className="select-inline"
+                    value={selectedAccount}
+                    onChange={(e) => setSelectedAccount(e.target.value)}
+                  >
+                    {accounts.map((a) => (
+                      <option key={a.accountNumber} value={a.accountNumber}>
+                        {a.accountNumber} ({a.currency} — {a.accountType})
+                      </option>
+                    ))}
+                  </select>}
+      />
 
       <div className="card card--pad">
         <div className="card-title txn-form-title">New transfer</div>

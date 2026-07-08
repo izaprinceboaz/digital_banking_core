@@ -4,19 +4,8 @@ import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import BankCard from "../../components/BankCard";
 import "./Accounts.css";
-
-function formatMoney(currency: string, amount: number): string {
-  try {
-    return new Intl.NumberFormat("en", {
-      style: "currency",
-      currency,
-      minimumFractionDigits: currency === "RWF" ? 0 : 2,
-      maximumFractionDigits: currency === "RWF" ? 0 : 2,
-    }).format(amount);
-  } catch {
-    return currency + " " + amount.toLocaleString();
-  }
-}
+import formatMoney from "../../utils/format";
+import PageHeader from "../../components/PageHeader";
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -89,14 +78,12 @@ export default function Accounts() {
 
   return (
     <div className="page">
-      <div className="page-head">
-        <div>
-          <h2 className="page-title">Accounts</h2>
-        </div>
-        <button className="btn" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Close" : "+ New account"}
-        </button>
-      </div>
+      <PageHeader 
+        title="Accounts" 
+        action={<button className="btn" onClick={() => setShowForm(!showForm)}>
+                  {showForm ? "Close" : "+ New account"} 
+                </button>}
+      />
 
       {showForm && (
         <div className="card card--pad">
