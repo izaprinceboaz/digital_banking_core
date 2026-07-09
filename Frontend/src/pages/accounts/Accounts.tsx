@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { createAccount, getMyAccounts, updateAccountStatus } from "../../services/accountService";
+import { createAccount, getMyAccounts, updateAccountStatus, deleteAccount } from "../../services/accountService";
 import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import BankCard from "../../components/BankCard";
@@ -19,11 +19,10 @@ export default function Accounts() {
   const [currency, setCurrency] = useState("RWF");
   const [balance, setBalance] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [editingAccount, setEditingAccount] = useState<string | null>(null);
-  const [editStatus, setEditStatus] = useState("");
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<any | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
+  const [confirmingClose, setConfirmingClose] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -57,28 +56,36 @@ export default function Accounts() {
       setError(getApiErrorMessage(err, "Couldn't create the account. Try again."));
     }
   }
-  function openEdit(acc: AccountResponse) {
-    setEditingAccount(acc.accountNumber);
-    setEditStatus(acc.status);
-  }
-
-  function cancelEdit() {
-    setEditingAccount(null);
-    setEditStatus("");
+  function resetActions() {
+    setConfirmingClose(false);
     setEditError(null);
   }
 
-  async function saveEdit() {
-    if (!editingAccount) return;
+  async function toggleFreeze(acc: AccountResponse) {
+    const next = acc.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
     setSaving(true);
     setEditError(null);
     try {
-      const updated = await updateAccountStatus(editingAccount, editStatus);
+      const updated = await updateAccountStatus(acc.accountNumber, next);
       setSelected(updated);
-      cancelEdit();
       load();
     } catch (err) {
-      setEditError(getApiErrorMessage(err, "Couldn't update status. Try again."));
+      setEditError(getApiErrorMessage(err, "Couldn't update the account. Try again."));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function doClose(acc: AccountResponse) {
+    setSaving(true);
+    setEditError(null);
+    try {
+      await deleteAccount(acc.accountNumber);
+      setSelected(null);
+      setConfirmingClose(false);
+      load();
+    } catch (err) {
+      setEditError(getApiErrorMessage(err, "Couldn't close the account. Try again."));
     } finally {
       setSaving(false);
     }
@@ -202,7 +209,7 @@ export default function Accounts() {
         </div>
       )}
       {selected && (
-        <Dialog title="Account details" onClose={() => { setSelected(null); cancelEdit(); }}>
+        <Dialog title="Account details" onClose={() => { setSelected(null); resetActions(); }}>
           <div className="detail-row">
             <span className="detail-label">Account number</span>
             <span className="detail-value">{selected.accountNumber}</span>
@@ -221,27 +228,40 @@ export default function Accounts() {
           </div>
           <div className="detail-row">
             <span className="detail-label">Status</span>
-            {editingAccount === selected.accountNumber ? (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} style={{ height: 32, fontSize: 13 }}>
-                  <option value="ACTIVE">ACTIVE</option>
-                  <option value="INACTIVE">INACTIVE</option>
-                  <option value="SUSPENDED">SUSPENDED</option>
-                  <option value="FROZEN">FROZEN</option>
-                  <option value="CLOSED">CLOSED</option>
-                </select>
-                <button className="btn" style={{ height: 32, padding: "0 12px", fontSize: 13 }} onClick={saveEdit} disabled={saving}>{saving ? "…" : "Save"}</button>
-                <button className="btn btn--outline" style={{ height: 32, padding: "0 12px", fontSize: 13 }} onClick={cancelEdit}>Cancel</button>
+            <span className={statusPill(selected.status)}>{selected.status}</span>
+          </div>
+
+          {editError && <p className="banner banner--danger" style={{ marginTop: 4 }}>{editError}</p>}
+
+          {selected.status !== "CLOSED" && (
+            confirmingClose ? (
+              <div className="dialog-actions">
+                <span>Close account {selected.accountNumber}? This can't be undone.</span>
+                <Button className="btn btn--danger" onClick={() => doClose(selected)} disabled={saving} message={saving ? "…" : "Yes, close it"} />
+                <Button className="btn btn--outline" onClick={() => setConfirmingClose(false)} disabled={saving} message="Cancel" />
               </div>
             ) : (
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span className={statusPill(selected.status)}>{selected.status}</span>
-                <button className="btn btn--outline" style={{ height: 28, padding: "0 10px", fontSize: 12 }} onClick={() => openEdit(selected)}>Edit</button>
+              <div className="dialog-actions">
+                <Button
+                  className="btn btn--outline"
+                  onClick={() => toggleFreeze(selected)}
+                  disabled={saving}
+                  message={selected.status === "ACTIVE" ? "Freeze account" : "Unfreeze account"}
+                />
+                <Button
+                  className="btn btn--danger"
+                  onClick={() => setConfirmingClose(true)}
+                  disabled={saving || parseFloat(selected.balance) !== 0}
+                  message="Close account"
+                />
               </div>
-            )}
-          </div>
-          {editError && <p className="banner banner--danger" style={{ marginTop: 4 }}>{editError}</p>}
-          <Link to="/statements" state={{ account: selected }}>
+            )
+          )}
+          {selected.status !== "CLOSED" && parseFloat(selected.balance) !== 0 && (
+            <p className="hint" style={{ marginTop: 4 }}>Balance must be zero to close this account.</p>
+          )}
+
+          <Link to="/statements" state={{ account: selected }} style={{ display: "inline-block", marginTop: 16 }}>
             See statements
           </Link>
         </Dialog>

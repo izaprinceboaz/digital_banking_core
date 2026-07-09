@@ -135,14 +135,6 @@ public class AccountService {
     }
 
     @Transactional
-    public void deleteAccount(String accountNumber) {
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
-        accountRepository.delete(account);
-    }
-
-
-    @Transactional
     public Account updateBalance(String accountNumber, BigDecimal newBalance) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
