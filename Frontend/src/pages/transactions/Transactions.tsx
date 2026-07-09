@@ -11,6 +11,8 @@ import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
 import Table from "../../components/Table";
+import Dialog from "../../components/Dialog";
+
 
 function statusPill(status: string): string {
   if (status === "COMPLETED") return "pill pill--success";
@@ -32,6 +34,7 @@ export default function Transactions() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [selected, setSelected] = useState<any | null>(null);
 
   useEffect(() => {
     getMyAccounts()
@@ -171,7 +174,7 @@ export default function Transactions() {
             {transactions.map((t) => {
               const incoming = t.receiverAccountNumber === selectedAccount;
               return (
-                <tr key={t.id}>
+                <tr key={t.id}  onClick={() => setSelected(t)} style={{ cursor: "pointer" }}>
                   <td>{t.receiverAccountNumber}</td>
                   <td className="num">
                     {incoming ? "+" : "−"}
@@ -185,8 +188,42 @@ export default function Transactions() {
                 </tr>
               );
             })}
-            </Table>
+          </Table>
         )}
+        {selected && (
+          <Dialog title="Transaction details" onClose={() => setSelected(null)}>
+            <div className="detail-row">
+              <span className="detail-label">Reference</span>
+              <span className="detail-value num">{selected.id}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">From</span>
+              <span className="detail-value num">{selectedAccount}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">To</span>
+              <span className="detail-value num">{selected.receiverAccountNumber}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Amount</span>
+              <span className="detail-value num">{formatMoney(selected.currency, selected.amount)}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Description</span>
+              <span className="detail-value">{selected.description || "—"}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Status</span>
+              <span><span className={statusPill(selected.status)}>{selected.status}</span></span>
+            </div>
+            {selected.failureReason && (
+              <div className="detail-row">
+                <span className="detail-label">Failure reason</span>
+                <span className="detail-value" style={{ color: "var(--danger)" }}>{selected.failureReason}</span>
+              </div>
+            )}
+          </Dialog>
+          )}
       </div>
     </div>
   );

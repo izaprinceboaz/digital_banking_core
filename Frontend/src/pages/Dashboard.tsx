@@ -8,6 +8,7 @@ import "./Dashboard.css";
 import formatMoney from "../utils/format";
 import PageHeader from "../components/PageHeader";
 import Table from "../components/Table"
+import Dialog from "../components/Dialog"
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -22,6 +23,7 @@ interface TxnWithAccount {
 export default function Dashboard() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [allTxns, setAllTxns] = useState<TxnWithAccount[]>([]);
+  const [selected, setSelected] = useState<any | null>(null);
 
   useEffect(() => {
     getMyAccounts().then((data) => {
@@ -72,7 +74,7 @@ export default function Dashboard() {
           {allTxns.slice(0, 10).map(({ txn: t, account }) => {
             const incoming = t.receiverAccountNumber === account.accountNumber;
             return (
-              <tr key={t.id}>
+              <tr key={t.id} onClick={() => setSelected(t)} style={{ cursor: "pointer" }}>
                 <td>{t.description || t.type}</td>
                 <td className="num">{account.accountType} •••• {account.accountNumber.slice(-4)}</td>
                 <td>{t.type}</td>
@@ -88,6 +90,30 @@ export default function Dashboard() {
             );
           })}
         </Table>
+        )}
+        {selected && (
+          <Dialog title="Transaction details" onClose={() => setSelected(null)}>
+            <div className="detail-row">
+              <span className="detail-label">Reference</span>
+              <span className="detail-value num">{selected.id}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">To</span>
+              <span className="detail-label">{selected.receiverAccountNumber}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Amount</span>
+              <span className="detail-value num">{formatMoney(selected.currency, selected.amount)}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Description</span>
+              <span className="detail-value">{selected.description || "—"}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Status</span>
+              <span className={`pill pill--${selected.status === "COMPLETED" ? "success" : selected.status === "FAILED" ? "danger" : "warn"}`}>{selected.status}</span>
+            </div>
+          </Dialog>
         )}
       </div>
     </div>

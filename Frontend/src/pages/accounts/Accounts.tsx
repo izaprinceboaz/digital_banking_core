@@ -7,7 +7,10 @@ import "./Accounts.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
-import Table from "../../components/Table"
+import Table from "../../components/Table";
+import Dialog from "../../components/Dialog";
+import { Link } from "react-router-dom";
+
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
@@ -19,6 +22,8 @@ export default function Accounts() {
   const [editingAccount, setEditingAccount] = useState<string | null>(null);
   const [editStatus, setEditStatus] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selected, setSelected] = useState<any | null>(null);
+
 
   function load() {
     getMyAccounts()
@@ -150,7 +155,7 @@ export default function Accounts() {
         <Table headers={["Account number", "Balance", "Currency", "Type", "Status"]}>
           {accounts.map((acc) => (
             <>
-              <tr key={acc.accountNumber}>
+              <tr key={acc.accountNumber} onClick={() => setSelected(acc)} style={{ cursor: "pointer" }}>
                 <td>{acc.accountNumber}</td>
                 <td className="num">{formatMoney(acc.currency, parseFloat(acc.balance))}</td>
                 <td>{acc.currency}</td>
@@ -163,6 +168,31 @@ export default function Accounts() {
           ))}
         </Table>
       </div>
+      )}
+      {selected && (
+        <Dialog title="Account details" onClose={() => setSelected(null)}>
+          <div className="detail-row">
+            <span className="detail-label">Account number</span>
+            <span className="detail-value">{selected.accountNumber}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Balance</span>
+            <span className="detail-value num">{formatMoney(selected.currency, parseFloat(selected.balance))}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Currency</span>
+            <span className="detail-value">{selected.currency}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Type</span>
+            <span className="detail-value">{selected.accountType}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Status</span>
+            <span className={statusPill(selected.status)}>{selected.status}</span>
+          </div>
+          <Link to="/statements" state={{ accountNumber: selected.accountNumber }}>See statements</Link>
+        </Dialog>
       )}
     </div>
   );

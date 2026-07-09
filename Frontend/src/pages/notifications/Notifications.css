@@ -77,3 +77,17 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+.notif-section-label {
+  padding: 10px 20px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.notif-icon--read {
+  opacity: 0.4;
+}
