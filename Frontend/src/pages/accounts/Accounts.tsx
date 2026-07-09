@@ -191,7 +191,9 @@ export default function Accounts() {
             <span className="detail-label">Status</span>
             <span className={statusPill(selected.status)}>{selected.status}</span>
           </div>
-          <Link to="/statements" state={{ accountNumber: selected.accountNumber }}>See statements</Link>
+          <Link to="/statements" state={{ account: selected }}>
+            See statements
+          </Link>
         </Dialog>
       )}
     </div>

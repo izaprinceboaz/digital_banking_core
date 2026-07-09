@@ -14,3 +14,15 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
 export async function logout(refreshToken: string): Promise<void> {
   await api.post("/api/auth/logout", { refreshToken });
 }
+
+export async function refreshAccessToken(): Promise<string | null> {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) return null;
+  try {
+    const res = await api.post<{ accessToken: string }>("/api/auth/refresh", { refreshToken });
+    localStorage.setItem("accessToken", res.data.accessToken);
+    return res.data.accessToken;
+  } catch {
+    return null;
+  }
+}

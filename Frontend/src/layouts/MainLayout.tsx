@@ -29,7 +29,6 @@ export default function MainLayout() {
           <NavLink to="/accounts" className={linkClass}>Accounts</NavLink>
           <NavLink to="/transactions" className={linkClass}>Transactions</NavLink>
           <NavLink to="/savings" className={linkClass}>Savings</NavLink>
-          <NavLink to="/statements" className={linkClass}>Statements</NavLink>
           <NavLink to="/notifications" className={linkClass}>Notifications</NavLink>
         </div>
 
