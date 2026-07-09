@@ -5,6 +5,7 @@ import com.bok.account.entity.AccountStatus;
 import com.bok.account.entity.EntryType;
 import com.bok.account.entity.Statement;
 import com.bok.account.exception.AccountNotActiveException;
+import com.bok.account.exception.AccountNotEmptyException;
 import com.bok.account.exception.AccountNotFoundException;
 import com.bok.account.exception.InsufficientFundsException;
 import com.bok.account.repository.AccountRepository;
@@ -176,12 +177,24 @@ public class AccountService {
     public Account updateAccountStatus(String accountNumber, String newStatus, String userId) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+
         if (!account.getUserId().toString().equals(userId)) {
             throw new AccountNotFoundException(accountNumber);
         }
+
+        // customer self-service may only freeze/unfreeze
+        if (!newStatus.equals("ACTIVE") && !newStatus.equals("SUSPENDED")) {
+            throw new AccountNotActiveException();
+        }
+        // a bank hold (FROZEN) or a closed account can't be changed by the customer
+        if (account.getStatus() == AccountStatus.FROZEN || account.getStatus() == AccountStatus.CLOSED) {
+            throw new AccountNotActiveException();
+        }
+
         account.setStatus(AccountStatus.valueOf(newStatus));
         return accountRepository.save(account);
     }
+
 
     public Account getAccountByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
@@ -232,5 +245,22 @@ public class AccountService {
         BigDecimal exchangeRate =  new BigDecimal("1.1399");
         return amount.multiply(exchangeRate);
     }
+
+    @Transactional
+    public Account closeAccount(String accountNumber, String userId) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException(accountNumber));
+
+        if (!account.getUserId().toString().equals(userId)) {
+            throw new AccountNotFoundException(accountNumber);
+        }
+        if (account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            throw new AccountNotEmptyException();
+        }
+
+        account.setStatus(AccountStatus.CLOSED);
+        return accountRepository.save(account);
+    }
+
 
 }

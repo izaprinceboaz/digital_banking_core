@@ -33,8 +33,11 @@ export default function Transactions() {
 
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [selected, setSelected] = useState<any | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     getMyAccounts()
@@ -42,16 +45,18 @@ export default function Transactions() {
         setAccounts(data);
         if (data.length > 0) setSelectedAccount(data[0].accountNumber);
       })
-      .catch(console.error);
+      .catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load data.")));
   }, []);
 
   useEffect(() => {
     if (!selectedAccount) return;
+    setSearch("");
+    setPage(1);
     const acc = accounts.find((a) => a.accountNumber === selectedAccount);
     if (acc) setCurrency(acc.currency);
     findTransactionsByAccountNumber(selectedAccount)
       .then(setTransactions)
-      .catch(console.error);
+      .catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load data.")));
   }, [selectedAccount, accounts]);
 
   async function handleTransfer() {
@@ -81,6 +86,14 @@ export default function Transactions() {
     }
   }
 
+  const PAGE_SIZE = 10;
+  const s = search.toLowerCase();
+  const filtered = transactions.filter(
+    (t) => !s || t.receiverAccountNumber?.toLowerCase().includes(s) || t.description?.toLowerCase().includes(s) || t.status?.toLowerCase().includes(s) || t.amount?.toFixed(2).includes(s)
+  );
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div className="page">
 
@@ -99,6 +112,7 @@ export default function Transactions() {
                   </select>}
       />
 
+      {loadError && <p className="banner banner--danger">{loadError}</p>}
       <div className="card card--pad">
         <div className="card-title txn-form-title">New transfer</div>
         {sent && (
@@ -165,21 +179,28 @@ export default function Transactions() {
       <div className="card txn-table">
         <div className="txn-table-head">
           <span className="card-title">History</span>
-          <span className="txn-table-account num">Account {selectedAccount}</span>
+          <input
+            className="tbl-search"
+            placeholder="Search transactions…"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
         </div>
         {transactions.length === 0 ? (
           <p className="txn-empty">No transactions on this account yet.</p>
-        ):(
+        ) : paginated.length === 0 ? (
+          <p className="txn-empty">No results for "{search}".</p>
+        ) : (
           <Table headers={["Receiver", "Amount", "Description", "Currency", "Status"]}>
-            {transactions.map((t) => {
+            {paginated.map((t) => {
               const incoming = t.receiverAccountNumber === selectedAccount;
               return (
-                <tr key={t.id}  onClick={() => setSelected(t)} style={{ cursor: "pointer" }}>
+                <tr key={t.id} onClick={() => setSelected(t)} style={{ cursor: "pointer" }}>
                   <td>{t.receiverAccountNumber}</td>
                   <td className="num">
                     {incoming ? "+" : "−"}
                     {formatMoney(t.currency, Math.abs(t.amount))}
-                    </td>
+                  </td>
                   <td>{t.description}</td>
                   <td>{t.currency}</td>
                   <td>
@@ -189,6 +210,13 @@ export default function Transactions() {
               );
             })}
           </Table>
+        )}
+        {filtered.length > PAGE_SIZE && (
+          <div className="tbl-pagination">
+            <span>{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}</span>
+            <button className="tbl-page-btn" onClick={() => setPage((p) => p - 1)} disabled={page === 1}>←</button>
+            <button className="tbl-page-btn" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages}>→</button>
+          </div>
         )}
         {selected && (
           <Dialog title="Transaction details" onClose={() => setSelected(null)}>

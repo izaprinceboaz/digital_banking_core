@@ -11,6 +11,8 @@ import Notifications from './pages/notifications/Notifications'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
 import MainLayout from './layouts/MainLayout'
+import Profile from './pages/auth/Profile'
+
 
 function App() {
   return (
@@ -42,6 +44,7 @@ function App() {
         <Route path="/savings" element={<Savings />} />
         <Route path="/statements" element={<Statements />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" replace />} />

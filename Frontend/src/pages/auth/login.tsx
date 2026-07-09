@@ -21,6 +21,7 @@ export default function Login() {
       const res = await login({ email: email.trim(), passwordHash: password });
       localStorage.setItem("accessToken", res.accessToken);
       localStorage.setItem("refreshToken", res.refreshToken);
+      localStorage.setItem("user", JSON.stringify(res.user));
       navigate("/dashboard");
     } catch (err) {
       setError(getApiErrorMessage(err, "Incorrect email or password. Try again."));

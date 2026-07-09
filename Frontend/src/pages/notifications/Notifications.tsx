@@ -5,6 +5,7 @@ import { markNotificationAsRead } from "../../services/notificationService";
 import "./Notifications.css";
 import PageHeader from "../../components/PageHeader";
 import Dialog from "../../components/Dialog";
+import { getApiErrorMessage } from "../../services/api";
 
 const GLYPHS: Record<string, string> = {
   TRANSFER: "↗",
@@ -33,9 +34,10 @@ export default function Notifications() {
   const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<any | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    getMyNotifications().then(setNotifications).catch(console.error);
+    getMyNotifications().then(setNotifications).catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load notifications.")));
   }, []);
 
   function markRead(id: string) {
@@ -57,6 +59,7 @@ export default function Notifications() {
         subtitle={unread > 0 ? unread + " unread" : "You're all caught up"}
       />
 
+      {loadError && <p className="banner banner--danger">{loadError}</p>}
       <div>
         {notifications.length === 0 && (
           <p className="notif-empty">Nothing here yet — you'll see account activity as it happens.</p>

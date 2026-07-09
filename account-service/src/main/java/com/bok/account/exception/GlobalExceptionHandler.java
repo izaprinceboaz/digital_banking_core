@@ -36,6 +36,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(ex.getMessage()));
     }
 
+    @ExceptionHandler(AccountNotEmptyException.class)
+    public ResponseEntity<Map<String, String>> handleAccountNotEmpty(AccountNotEmptyException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         String combined = ex.getBindingResult().getFieldErrors().stream()

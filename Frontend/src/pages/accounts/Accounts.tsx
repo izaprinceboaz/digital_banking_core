@@ -23,6 +23,10 @@ export default function Accounts() {
   const [editStatus, setEditStatus] = useState("");
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<any | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
 
   function load() {
@@ -33,7 +37,7 @@ export default function Accounts() {
           localStorage.setItem("accountNumber", data[0].accountNumber);
         }
       })
-      .catch(console.error);
+      .catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load accounts.")));
   }
 
   useEffect(load, []);
@@ -61,17 +65,20 @@ export default function Accounts() {
   function cancelEdit() {
     setEditingAccount(null);
     setEditStatus("");
+    setEditError(null);
   }
 
   async function saveEdit() {
     if (!editingAccount) return;
     setSaving(true);
+    setEditError(null);
     try {
-      await updateAccountStatus(editingAccount, editStatus);
+      const updated = await updateAccountStatus(editingAccount, editStatus);
+      setSelected(updated);
       cancelEdit();
       load();
     } catch (err) {
-      console.error(err);
+      setEditError(getApiErrorMessage(err, "Couldn't update status. Try again."));
     } finally {
       setSaving(false);
     }
@@ -83,15 +90,24 @@ export default function Accounts() {
     return "pill";
   }
 
+  const PAGE_SIZE = 10;
+  const s = search.toLowerCase();
+  const filteredAccounts = accounts.filter(
+    (a) => !s || a.accountNumber.toLowerCase().includes(s) || a.accountType.toLowerCase().includes(s) || a.currency.toLowerCase().includes(s) || a.status.toLowerCase().includes(s) || parseFloat(a.balance).toFixed(2).includes(s)
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / PAGE_SIZE));
+  const paginated = filteredAccounts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div className="page">
-      <PageHeader 
-        title="Accounts" 
-        action={<Button 
-                  className="btn"  
+      <PageHeader
+        title="Accounts"
+        action={<Button
+                  className="btn"
                   onClick={() => setShowForm(!showForm)}
                    message={showForm ? "Close" : "+ New account"}/>}
       />
+      {loadError && <p className="banner banner--danger">{loadError}</p>}
 
       {showForm && (
         <div className="card card--pad">
@@ -148,29 +164,45 @@ export default function Accounts() {
       </div>
 
       {accounts.length === 0 ? (
-        <p className="accounts-empty">
-          No accounts yet.
-        </p>):(
-       <div className="card" style={{ overflow: "hidden" }}>
-        <Table headers={["Account number", "Balance", "Currency", "Type", "Status"]}>
-          {accounts.map((acc) => (
-            <>
-              <tr key={acc.accountNumber} onClick={() => setSelected(acc)} style={{ cursor: "pointer" }}>
-                <td>{acc.accountNumber}</td>
-                <td className="num">{formatMoney(acc.currency, parseFloat(acc.balance))}</td>
-                <td>{acc.currency}</td>
-                <td>{acc.accountType}</td>
-                <td>
-                  <span className={statusPill(acc.status)}>{acc.status}</span>
-                </td>
-              </tr>
-            </>
-          ))}
-        </Table>
-      </div>
+        <p className="accounts-empty">No accounts yet.</p>
+      ) : (
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div className="tbl-controls">
+            <input
+              className="tbl-search"
+              placeholder="Search accounts…"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            />
+          </div>
+          {paginated.length === 0 ? (
+            <p className="accounts-empty">No results for "{search}".</p>
+          ) : (
+            <Table headers={["Account number", "Balance", "Currency", "Type", "Status"]}>
+              {paginated.map((acc) => (
+                <tr key={acc.accountNumber} onClick={() => setSelected(acc)} style={{ cursor: "pointer" }}>
+                  <td>{acc.accountNumber}</td>
+                  <td className="num">{formatMoney(acc.currency, parseFloat(acc.balance))}</td>
+                  <td>{acc.currency}</td>
+                  <td>{acc.accountType}</td>
+                  <td>
+                    <span className={statusPill(acc.status)}>{acc.status}</span>
+                  </td>
+                </tr>
+              ))}
+            </Table>
+          )}
+          {filteredAccounts.length > PAGE_SIZE && (
+            <div className="tbl-pagination">
+              <span>{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredAccounts.length)} of {filteredAccounts.length}</span>
+              <button className="tbl-page-btn" onClick={() => setPage((p) => p - 1)} disabled={page === 1}>←</button>
+              <button className="tbl-page-btn" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages}>→</button>
+            </div>
+          )}
+        </div>
       )}
       {selected && (
-        <Dialog title="Account details" onClose={() => setSelected(null)}>
+        <Dialog title="Account details" onClose={() => { setSelected(null); cancelEdit(); }}>
           <div className="detail-row">
             <span className="detail-label">Account number</span>
             <span className="detail-value">{selected.accountNumber}</span>
@@ -189,8 +221,26 @@ export default function Accounts() {
           </div>
           <div className="detail-row">
             <span className="detail-label">Status</span>
-            <span className={statusPill(selected.status)}>{selected.status}</span>
+            {editingAccount === selected.accountNumber ? (
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} style={{ height: 32, fontSize: 13 }}>
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="INACTIVE">INACTIVE</option>
+                  <option value="SUSPENDED">SUSPENDED</option>
+                  <option value="FROZEN">FROZEN</option>
+                  <option value="CLOSED">CLOSED</option>
+                </select>
+                <button className="btn" style={{ height: 32, padding: "0 12px", fontSize: 13 }} onClick={saveEdit} disabled={saving}>{saving ? "…" : "Save"}</button>
+                <button className="btn btn--outline" style={{ height: 32, padding: "0 12px", fontSize: 13 }} onClick={cancelEdit}>Cancel</button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <span className={statusPill(selected.status)}>{selected.status}</span>
+                <button className="btn btn--outline" style={{ height: 28, padding: "0 10px", fontSize: 12 }} onClick={() => openEdit(selected)}>Edit</button>
+              </div>
+            )}
           </div>
+          {editError && <p className="banner banner--danger" style={{ marginTop: 4 }}>{editError}</p>}
           <Link to="/statements" state={{ account: selected }}>
             See statements
           </Link>

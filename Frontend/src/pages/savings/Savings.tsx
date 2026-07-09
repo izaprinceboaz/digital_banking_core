@@ -49,6 +49,7 @@ export default function Savings() {
   const [principal, setPrincipal] = useState("");
   const [compounding, setCompounding] = useState("MONTHLY");
   const [maturityDate, setMaturityDate] = useState("");
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
 
   const [action, setAction] = useState<ActionState | null>(null);
@@ -69,8 +70,8 @@ export default function Savings() {
         if (savings.length > 0) setSelectedAccount(savings[0].accountNumber);
         return loadPlans(accs);
       })
-      .catch(console.error);
-    listInterestRecords().then(setRecords).catch(console.error);
+      .catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load data.")));
+    listInterestRecords().then(setRecords).catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load data.")));
   }, []);
 
   async function handleCreate() {
@@ -133,6 +134,7 @@ export default function Savings() {
                 />}
       />
 
+      {loadError && <p className="banner banner--danger">{loadError}</p>}
       {showForm && (
         <div className="card card--pad">
           <div className="card-title savings-form-title">Create a savings plan</div>

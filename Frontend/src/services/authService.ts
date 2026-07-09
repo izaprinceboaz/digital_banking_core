@@ -26,3 +26,12 @@ export async function refreshAccessToken(): Promise<string | null> {
     return null;
   }
 }
+
+export async function getInformation(id: string) : Promise<AuthResponse | null> {
+  try {
+    const res = await api.get<AuthResponse>(`/api/users/${id}`);
+    return res.data;
+  } catch {
+    return null;
+  }
+}

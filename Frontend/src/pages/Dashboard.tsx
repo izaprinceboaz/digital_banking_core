@@ -9,6 +9,7 @@ import formatMoney from "../utils/format";
 import PageHeader from "../components/PageHeader";
 import Table from "../components/Table"
 import Dialog from "../components/Dialog"
+import { getApiErrorMessage } from "../services/api";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -24,6 +25,7 @@ export default function Dashboard() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [allTxns, setAllTxns] = useState<TxnWithAccount[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     getMyAccounts().then((data) => {
@@ -41,7 +43,7 @@ export default function Dashboard() {
         );
         setAllTxns(flat);
       });
-    }).catch(console.error);
+    }).catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load your data.")));
   }, []);
 
   return (
@@ -51,6 +53,7 @@ export default function Dashboard() {
         subtitle="Here's your account overview"
       />
 
+      {loadError && <p className="banner banner--danger">{loadError}</p>}
       {/* Bank cards */}
       <div className="dash-cards">
         {accounts.length === 0 && (

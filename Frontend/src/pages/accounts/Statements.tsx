@@ -7,11 +7,15 @@ import PageHeader from "../../components/PageHeader";
 import Table from "../../components/Table";
 import Dialog from "../../components/Dialog";
 import { useLocation } from "react-router-dom";
+import { getApiErrorMessage } from "../../services/api";
 
 
 export default function Statements() {
   const [rows, setRows] = useState<StatementRow[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const location = useLocation();
 
 
@@ -20,10 +24,17 @@ export default function Statements() {
 
   useEffect(() => {
     if (account) {
-      getMyStatements(account.accountNumber).then(setRows).catch(console.error);
+      getMyStatements(account.accountNumber).then(setRows).catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load statements.")));
     }
   }, [account]);
-  
+
+  const PAGE_SIZE = 10;
+  const s = search.toLowerCase();
+  const filtered = rows.filter(
+    (r) => !s || r.transactionRef?.toLowerCase().includes(s) || r.description?.toLowerCase().includes(s) || r.entryType?.toLowerCase().includes(s) || r.amount?.toFixed(2).includes(s)
+  );
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="page page--narrow">
@@ -31,12 +42,23 @@ export default function Statements() {
         title="Statements"
       />
 
+      {loadError && <p className="banner banner--danger">{loadError}</p>}
       <div className="card stmt-table-wrap">
+        <div className="tbl-controls">
+          <input
+            className="tbl-search"
+            placeholder="Search statements…"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
         {rows.length === 0 ? (
           <p className="stmt-empty">No transactions on this account yet.</p>
-        ):(
+        ) : paginated.length === 0 ? (
+          <p className="stmt-empty">No results for "{search}".</p>
+        ) : (
           <Table headers={["Reference", "Type", "Description", "Amount", "Balance after"]}>
-            {rows.map((r) => (
+            {paginated.map((r) => (
               <tr key={r.transactionRef} onClick={() => setSelected(r)} style={{ cursor: "pointer" }}>
                 <td>{r.transactionRef}</td>
                 <td>
@@ -58,10 +80,16 @@ export default function Statements() {
                   {account ? formatMoney(account.currency, r.balanceAfter) : r.balanceAfter}
                 </td>
               </tr>
-          
             ))}
-        </Table>
-      )}
+          </Table>
+        )}
+        {filtered.length > PAGE_SIZE && (
+          <div className="tbl-pagination">
+            <span>{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}</span>
+            <button className="tbl-page-btn" onClick={() => setPage((p) => p - 1)} disabled={page === 1}>←</button>
+            <button className="tbl-page-btn" onClick={() => setPage((p) => p + 1)} disabled={page === totalPages}>→</button>
+          </div>
+        )}
       {selected && (
         <Dialog title="Transaction details" onClose={() => setSelected(null)}>
           <div className="detail-row">

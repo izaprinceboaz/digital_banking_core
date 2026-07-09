@@ -80,9 +80,12 @@ public class AccountController {
     }
 
     @DeleteMapping("/{accountNumber}")
-    public void deleteAccount(@PathVariable String accountNumber) {
-        accountService.deleteAccount(accountNumber);
+    public AccountResponse deleteAccount(@PathVariable String accountNumber,
+                                        @AuthenticationPrincipal String userId) {
+        Account account = accountService.closeAccount(accountNumber, userId);
+        return AccountResponse.from(account);
     }
+
 
     @PostMapping("/currency")
     public BigDecimal checkCurrency(@Valid @RequestBody CurrencyCheckRequest request) {

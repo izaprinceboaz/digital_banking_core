@@ -29,6 +29,7 @@ export default function Register() {
       });
       localStorage.setItem("accessToken", res.accessToken);
       localStorage.setItem("refreshToken", res.refreshToken);
+      localStorage.setItem("user", JSON.stringify(res.user));
       navigate("/dashboard");
     } catch (err) {
       setError(
