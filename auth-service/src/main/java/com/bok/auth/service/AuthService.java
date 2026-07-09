@@ -19,7 +19,6 @@ import com.bok.auth.dto.UserResponse;
 import com.bok.auth.exception.DuplicationEmailException;
 import com.bok.auth.exception.InvalidCredentialsException;
 import com.bok.auth.exception.InvalidRefreshTokenException;
-import com.bok.auth.client.NotificationClient;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -32,17 +31,14 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final NotificationClient notificationClient;
     private static final long REFRESH_TOKEN_EXPIRATION_DAYS = 7;
 
     public AuthService(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository,
-                        PasswordEncoder passwordEncoder, JwtService jwtService, 
-                        NotificationClient notificationClient) {
+                        PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.notificationClient = notificationClient;
     }
 
     public AuthResponse login(LoginRequest loginRequest) {
@@ -52,9 +48,6 @@ public class AuthService {
         if (!passwordEncoder.matches(loginRequest.getPasswordHash(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
-
-        notificationClient.sendLoginNotification(user.getId(), "Successfully logged in. Welcome back!");
-
         return buildAuthResponse(user);
     }
 
@@ -71,8 +64,6 @@ public class AuthService {
         newUser.setPhoneNumber(request.getPhoneNumber());
         newUser.setPasswordHash(passwordEncoder.encode(request.getPasswordHash()));
         User saved = userRepository.save(newUser);
-
-        notificationClient.sendRegisterNotification(saved.getId(), "Successfully registered. Welcome!");
 
         return buildAuthResponse(saved);
     }

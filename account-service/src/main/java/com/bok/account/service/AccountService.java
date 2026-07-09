@@ -37,7 +37,7 @@ public class AccountService {
     }
 
     @Transactional
-    public Account debit(String accountNumber, BigDecimal amount) {
+    public Account debit(String accountNumber, BigDecimal amount, String description) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
@@ -55,7 +55,7 @@ public class AccountService {
         Statement statement = new Statement();
         statement.setAccount(updatedAccount);
         statement.setTransactionRef("DBT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase());
-        statement.setDescription("Account debit");
+        statement.setDescription(description);
         statement.setAmount(amount);
         statement.setBalanceAfter(updatedAccount.getBalance());
         statement.setEntryType(EntryType.DEBIT);
@@ -70,7 +70,7 @@ public class AccountService {
     }
 
     @Transactional
-    public Account credit(String accountNumber, BigDecimal amount) {
+    public Account credit(String accountNumber, BigDecimal amount, String description) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountNotFoundException(accountNumber));
 
@@ -85,7 +85,7 @@ public class AccountService {
         Statement statement = new Statement();
         statement.setAccount(updatedAccount);
         statement.setTransactionRef("CRT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase());
-        statement.setDescription("Account credit");
+        statement.setDescription(description);
         statement.setAmount(amount);
         statement.setBalanceAfter(updatedAccount.getBalance());
         statement.setEntryType(EntryType.CREDIT);

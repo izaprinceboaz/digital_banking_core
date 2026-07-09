@@ -107,7 +107,7 @@ public class TransactionService {
 
             convertedAmount = accountClient.checkCurrency(transferRequest.getSenderAccountNumber(), transferRequest.getReceiverAccountNumber(), transferRequest.getAmount(), authHeader);
 
-            accountClient.debit(transaction.getSenderAccountNumber(), transaction.getAmount(), authHeader);
+            accountClient.debit(transaction.getSenderAccountNumber(), transaction.getAmount(), "Transfer to " + transaction.getReceiverAccountNumber(), authHeader);
 
             UUID senderUserId = accountClient.getUserId(transaction.getSenderAccountNumber(), authHeader);
             notificationClient.sendNotification(senderUserId, "Transfer of " + transaction.getAmount() + " " + transaction.getCurrency() + " to account " + transaction.getReceiverAccountNumber() + " is successful. Reference: " + transaction.getReferenceNumber(), authHeader);
@@ -120,13 +120,13 @@ public class TransactionService {
 
         try {
             
-            accountClient.credit(transaction.getReceiverAccountNumber(), convertedAmount, authHeader);
+            accountClient.credit(transaction.getReceiverAccountNumber(), convertedAmount, "Transfer from " + transaction.getSenderAccountNumber(), authHeader);
 
             UUID receiverUserId = accountClient.getUserId(transaction.getReceiverAccountNumber(), authHeader);
             notificationClient.sendNotification(receiverUserId, "You have received " + convertedAmount + " " + transaction.getCurrency() + " from account " + transaction.getSenderAccountNumber() + ". Reference: " + transaction.getReferenceNumber(), authHeader);
 
         } catch (RuntimeException ex) {
-            accountClient.credit(transaction.getSenderAccountNumber(), transaction.getAmount(), authHeader);
+            accountClient.credit(transaction.getSenderAccountNumber(), transaction.getAmount(), "Transfer reversal: " + transaction.getReferenceNumber(), authHeader);
             transaction.setStatus(TransactionStatus.FAILED);
             transaction.setFailureReason("Credit failed, rolled back: " + ex.getMessage());
             return transactionRepository.save(transaction);

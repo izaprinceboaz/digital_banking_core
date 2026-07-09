@@ -5,6 +5,8 @@ import com.bok.account.service.AccountService;
 import com.bok.account.dto.AccountResponse;
 import com.bok.account.dto.CreateAccountRequest;
 import com.bok.account.dto.CurrencyCheckRequest;
+import com.bok.account.dto.TransferRequest;
+
 
 import jakarta.validation.Valid;
 
@@ -61,14 +63,14 @@ public class AccountController {
     }
 
     @PostMapping("/{accountNumber}/debit")
-    public AccountResponse debitAccount(@PathVariable String accountNumber, @RequestBody BigDecimal amount) {
-        Account account = accountService.debit(accountNumber, amount);
+    public AccountResponse debitAccount(@PathVariable String accountNumber, @RequestBody TransferRequest request) {
+        Account account = accountService.debit(accountNumber, request.getAmount(), request.getDescription());
         return AccountResponse.from(account);
     }
 
     @PostMapping("/{accountNumber}/credit")
-    public AccountResponse creditAccount(@PathVariable String accountNumber, @RequestBody BigDecimal amount) {
-        Account account = accountService.credit(accountNumber, amount);
+    public AccountResponse creditAccount(@PathVariable String accountNumber, @RequestBody TransferRequest request) {
+        Account account = accountService.credit(accountNumber, request.getAmount(), request.getDescription());
         return AccountResponse.from(account);
     }
 

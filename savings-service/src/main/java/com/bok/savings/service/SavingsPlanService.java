@@ -50,7 +50,7 @@ public class SavingsPlanService {
     }
 
     public SavingsPlan createSavingsPlan(SavingsPlan savingsPlan, String authHeader) {
-        accountClient.debit(savingsPlan.getAccountNumber(), savingsPlan.getPrincipalAmount(), authHeader);
+        accountClient.debit(savingsPlan.getAccountNumber(), savingsPlan.getPrincipalAmount(), "Savings plan opening", authHeader);
         SavingsPlan savedPlan = savingsPlanRepository.save(savingsPlan);
 
         try {
@@ -99,7 +99,7 @@ public class SavingsPlanService {
 
         boolean matured = plan.getMaturityDate() != null && !LocalDate.now().isBefore(plan.getMaturityDate());
         if (matured) {
-            accountClient.credit(plan.getAccountNumber(), closingBalance, authHeader);
+            accountClient.credit(plan.getAccountNumber(), closingBalance, "Plan Matured", authHeader);
             plan.setCurrentBalance(BigDecimal.ZERO);
             plan.setStatus(SavingsStatus.MATURED);
         }
@@ -136,7 +136,7 @@ public class SavingsPlanService {
             throw new InvalidSavingsStatusException();
         }
 
-        accountClient.debit(request.getAccountNumber(), request.getAmount(), authHeader);
+        accountClient.debit(request.getAccountNumber(), request.getAmount(), "Savings deposit", authHeader);
 
         plan.setCurrentBalance(plan.getCurrentBalance().add(request.getAmount()));
 
@@ -172,7 +172,7 @@ public class SavingsPlanService {
         plan.setCurrentBalance(plan.getCurrentBalance().subtract(request.getAmount()));
         SavingsPlan updatedPlan = savingsPlanRepository.save(plan);
 
-        accountClient.credit(request.getAccountNumber(), request.getAmount(), authHeader);
+        accountClient.credit(request.getAccountNumber(), request.getAmount(), "Savings withdrawal", authHeader);
 
         try {
             UUID userId = accountClient.getUserId(plan.getAccountNumber(), authHeader);

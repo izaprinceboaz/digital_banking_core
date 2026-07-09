@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -17,18 +18,18 @@ public class AccountClient {
         this.restClient = RestClient.builder().baseUrl(accountServiceUrl).build();
     }
 
-    public void debit(String accountNumber, BigDecimal amount, String authHeader) {
+    public void debit(String accountNumber, BigDecimal amount, String description, String authHeader) {
         var req = restClient.post()
                 .uri("/api/accounts/{accountNumber}/debit", accountNumber);
         if (authHeader != null) req = req.header("Authorization", authHeader);
-        req.body(amount).retrieve().toBodilessEntity();
+        req.body(Map.of("amount", amount, "description", description)).retrieve().toBodilessEntity();
     }
 
-    public void credit(String accountNumber, BigDecimal amount, String authHeader) {
+    public void credit(String accountNumber, BigDecimal amount, String description, String authHeader) {
         var req = restClient.post()
                 .uri("/api/accounts/{accountNumber}/credit", accountNumber);
         if (authHeader != null) req = req.header("Authorization", authHeader);
-        req.body(amount).retrieve().toBodilessEntity();
+        req.body(Map.of("amount", amount, "description", description)).retrieve().toBodilessEntity();
     }
 
     public UUID getUserId(String accountNumber, String authHeader) {

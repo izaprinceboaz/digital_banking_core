@@ -17,20 +17,20 @@ public class AccountClient {
         this.restClient = RestClient.builder().baseUrl(accountServiceUrl).build();
     }
 
-    public void debit(String accountNumber, BigDecimal amount, String authHeader) {
+    public void debit(String accountNumber, BigDecimal amount, String description, String authHeader) {
         restClient.post()
                 .uri("/api/accounts/{accountNumber}/debit", accountNumber)
                 .header("Authorization", authHeader)
-                .body(amount)
+                .body(Map.of("amount", amount, "description", description))
                 .retrieve()
                 .toBodilessEntity();
     }
 
-    public void credit(String accountNumber, BigDecimal amount, String authHeader) {
+    public void credit(String accountNumber, BigDecimal amount, String description, String authHeader) {
         restClient.post()
                 .uri("/api/accounts/{accountNumber}/credit", accountNumber)
                 .header("Authorization", authHeader)
-                .body(amount)
+                .body(Map.of("amount", amount, "description", description))
                 .retrieve()
                 .toBodilessEntity();
     }
