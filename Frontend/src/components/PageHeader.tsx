@@ -14,7 +14,6 @@ export default function PageHeader({ title, subtitle, action }: Props) {
         {subtitle && <p className="page-sub">{subtitle}</p>}
       </div>
       {action && <div>{action}</div>}
-      {/* <div className="dash-avatar">M</div> */}
     </div>
   );
 }

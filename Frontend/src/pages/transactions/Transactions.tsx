@@ -12,6 +12,7 @@ import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
 import Table from "../../components/Table";
 import Dialog from "../../components/Dialog";
+import cleanErrorMessage from "../../utils/cleanErrorMessage";
 
 
 function statusPill(status: string): string {
@@ -66,7 +67,7 @@ export default function Transactions() {
     setSent(false);
     setSending(true);
     try {
-      await transfer({
+      const trxn = await transfer({
         senderAccountNumber: selectedAccount,
         receiverAccountNumber,
         amount: amt,
@@ -74,10 +75,13 @@ export default function Transactions() {
         description,
         currency,
       });
-      setSent(true);
-      setReceiverAccountNumber("");
-      setAmount("");
-      setDescription("");
+      if( trxn.status === "FAILED" ) {
+        setError(cleanErrorMessage(trxn.failureReason) || "The transfer couldn't be completed.");
+        setSent(false);
+      } else {
+        setSent(true);
+        setReceiverAccountNumber(""); setAmount(""); setDescription("");
+      }
       findTransactionsByAccountNumber(selectedAccount).then(setTransactions);
     } catch (err) {
       setError(getApiErrorMessage(err, "The transfer couldn't be sent. Try again."));
@@ -120,7 +124,7 @@ export default function Transactions() {
             Transfer sent.
           </p>
         )}
-        {error && <p className="banner banner--danger txn-form-banner">{error}</p>}
+        {error && <p className="banner banner--danger txn-form-banner">{error}</p>}        
         <div className="txn-form-grid">
           <div className="field">
             <label htmlFor="receiver">Receiver account number</label>
@@ -247,7 +251,7 @@ export default function Transactions() {
             {selected.failureReason && (
               <div className="detail-row">
                 <span className="detail-label">Failure reason</span>
-                <span className="detail-value" style={{ color: "var(--danger)" }}>{selected.failureReason}</span>
+                <span className="detail-value" style={{ color: "var(--danger)" }}>{cleanErrorMessage(selected.failureReason)}</span>
               </div>
             )}
           </Dialog>

@@ -41,6 +41,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg(ex.getMessage()));
     }
 
+    @ExceptionHandler(DownstreamException.class)
+    public ResponseEntity<Map<String, String>> handleDownstream(DownstreamException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatus());
+        if (status == null || status.is5xxServerError()) {
+            status = HttpStatus.BAD_GATEWAY;
+        }
+        return ResponseEntity.status(status).body(msg(ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         String combined = ex.getBindingResult().getFieldErrors().stream()

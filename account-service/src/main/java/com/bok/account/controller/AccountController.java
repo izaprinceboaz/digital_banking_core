@@ -7,7 +7,6 @@ import com.bok.account.dto.CreateAccountRequest;
 import com.bok.account.dto.CurrencyCheckRequest;
 import com.bok.account.dto.TransferRequest;
 
-
 import jakarta.validation.Valid;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,14 +23,13 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    public AccountController( AccountService accountService) {
+    public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
 
     @PostMapping("/create")
     public AccountResponse createAccount(@Valid @RequestBody CreateAccountRequest request,
-                                         @AuthenticationPrincipal String userId
-    ) {
+            @AuthenticationPrincipal String userId) {
         Account account = new Account();
         account.setUserId(UUID.fromString(userId));
         account.setAccountType(request.getAccountType());
@@ -54,7 +52,6 @@ public class AccountController {
         Account account = accountService.getAccountByAccountNumber(accountNumber);
         return AccountResponse.from(account);
     }
-
 
     @PostMapping("/{accountNumber}/update-balance")
     public AccountResponse updateBalance(@PathVariable String accountNumber, @RequestBody BigDecimal newBalance) {
@@ -83,22 +80,22 @@ public class AccountController {
 
     @DeleteMapping("/{accountNumber}")
     public AccountResponse deleteAccount(@PathVariable String accountNumber,
-                                        @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId) {
         Account account = accountService.closeAccount(accountNumber, userId);
         return AccountResponse.from(account);
     }
 
-
     @PostMapping("/currency")
     public BigDecimal checkCurrency(@Valid @RequestBody CurrencyCheckRequest request) {
-        BigDecimal convertedAmount = accountService.checkCurrency(request.getSenderAccountNumber(), request.getReceiverAccountNumber(), request.getAmount());
+        BigDecimal convertedAmount = accountService.checkCurrency(request.getSenderAccountNumber(),
+                request.getReceiverAccountNumber(), request.getAmount());
         return convertedAmount;
     }
 
     @PatchMapping("/{accountNumber}/status")
-    public AccountResponse updateAccountStatus(@PathVariable String accountNumber, 
-                                               @RequestBody String status,
-                                               @AuthenticationPrincipal String userId) {
+    public AccountResponse updateAccountStatus(@PathVariable String accountNumber,
+            @RequestBody String status,
+            @AuthenticationPrincipal String userId) {
         Account account = accountService.updateAccountStatus(accountNumber, status, userId);
         return AccountResponse.from(account);
     }
