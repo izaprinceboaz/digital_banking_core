@@ -34,7 +34,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        return "POST".equals(request.getMethod()) && "/api/notifications".equals(request.getRequestURI());
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/swagger-ui") || uri.startsWith("/v3/api-docs")) {
+            return true;
+        }
+        return "POST".equals(request.getMethod()) && "/api/notifications".equals(uri);
     }
 
     @Override
