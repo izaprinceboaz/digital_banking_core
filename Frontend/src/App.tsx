@@ -42,7 +42,7 @@ function App() {
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/savings" element={<Savings />} />
-        <Route path="/statements" element={<Statements />} />
+        <Route path="/accounts/statements" element={<Statements />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
       </Route>

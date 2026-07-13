@@ -1,32 +1,29 @@
 import { useEffect, useState } from "react";
-import { getMyStatements } from "../../services/accountService";
-import type { StatementRow } from "../../services/accountService";
 import "./Statements.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Table from "../../components/Table";
 import Dialog from "../../components/Dialog";
 import { useLocation } from "react-router-dom";
-import { getApiErrorMessage } from "../../services/api";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { loadStatements } from "../../store/statementsSlice";
 
 
 export default function Statements() {
-  const [rows, setRows] = useState<StatementRow[]>([]);
+  const dispatch = useAppDispatch();
+  const { rows, loading, error, loadedFor } = useAppSelector((state) => state.statements);
   const [selected, setSelected] = useState<any | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const location = useLocation();
 
-
-
   const account = (location.state as any)?.account;
 
   useEffect(() => {
-    if (account) {
-      getMyStatements(account.accountNumber).then(setRows).catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load statements.")));
+    if (account && account.accountNumber !== loadedFor) {
+      dispatch(loadStatements(account.accountNumber));
     }
-  }, [account]);
+  }, [account, dispatch]);
 
   const PAGE_SIZE = 10;
   const s = search.toLowerCase();
@@ -42,7 +39,7 @@ export default function Statements() {
         title="Statements"
       />
 
-      {loadError && <p className="banner banner--danger">{loadError}</p>}
+      {error && <p className="banner banner--danger">{error}</p>}
       <div className="card stmt-table-wrap">
         <div className="tbl-controls">
           <input
@@ -52,7 +49,9 @@ export default function Statements() {
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
-        {rows.length === 0 ? (
+        {loading ? (
+          <p className="stmt-empty">Loading…</p>
+        ) : rows.length === 0 ? (
           <p className="stmt-empty">No transactions on this account yet.</p>
         ) : paginated.length === 0 ? (
           <p className="stmt-empty">No results for "{search}".</p>

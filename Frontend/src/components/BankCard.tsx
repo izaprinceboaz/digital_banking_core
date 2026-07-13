@@ -23,6 +23,10 @@ export default function BankCard({ account, index, linkTo }: Props) {
       <div className="bank-card-bottom">
         <span className="bank-card-number">•••• •••• {account.accountNumber.slice(-4)}</span>
         <span className="bank-card-currency">{account.currency}</span>
+        <span className={`bank-card-status bank-card-status--${account.status.toLowerCase()}`}>
+          <span className="bank-card-status-dot" />
+          {account.status}
+        </span>
       </div>
     </>
   );

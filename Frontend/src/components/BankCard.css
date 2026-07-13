@@ -82,3 +82,28 @@
   padding: 3px 8px;
   border-radius: 6px;
 }
+
+.bank-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.bank-card-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+.bank-card-status--active .bank-card-status-dot { background: #22c55e; }
+.bank-card-status--suspended .bank-card-status-dot { background: #f59e0b; }
+.bank-card-status--frozen .bank-card-status-dot { background: #3b82f6; }
+.bank-card-status--closed .bank-card-status-dot { background: #ef4444; }
+.bank-card-status--inactive .bank-card-status-dot { background: #9ca3af; }

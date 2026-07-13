@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../../services/authService";
 import PageHeader from "../../components/PageHeader";
 import type { UserResponse } from "../../types/auth";
 import "./Profile.css";
@@ -16,7 +15,6 @@ function getStoredUser(): UserResponse | null {
 type Tab = "personal" | "notifications";
 
 export default function Profile() {
-  const navigate = useNavigate();
   const user = getStoredUser();
   const [tab, setTab] = useState<Tab>("personal");
 
@@ -25,24 +23,10 @@ export default function Profile() {
     : "User";
   const initial = displayName.charAt(0).toUpperCase();
 
-  function handleLogout() {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (refreshToken) logout(refreshToken).catch(console.error);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-    navigate("/login");
-  }
-
   return (
     <div className="page">
       <PageHeader
         title="Profile"
-        action={
-          <button className="btn btn--outline" onClick={handleLogout}>
-            Log out
-          </button>
-        }
       />
 
       <div className="card" style={{ overflow: "hidden" }}>

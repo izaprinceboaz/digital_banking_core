@@ -112,11 +112,11 @@ export default function Accounts() {
         action={<Button
                   className="btn"
                   onClick={() => setShowForm(!showForm)}
-                   message={showForm ? "Close" : "+ New account"}/>}
+                  message={showForm ? "Close" : "+ New account"}/>}
       />
       {loadError && <p className="banner banner--danger">{loadError}</p>}
 
-      {showForm && (
+      {/* {showForm && (
         <div className="card card--pad">
           <div className="card-title accounts-form-title">Open a new account</div>
           {error && <p className="banner banner--danger accounts-form-error">{error}</p>}
@@ -162,6 +162,52 @@ export default function Accounts() {
             />
           </div>
         </div>
+      )} */}
+
+      {showForm && (
+      <Dialog title="Create Account" onClose={() => { setShowForm(false); resetActions();}}>
+        <div className="accounts-form-grid">
+          <div className="field">
+            <label htmlFor="accountType">Account type</label>
+            <select
+              id="accountType"
+              value={accountType}
+              onChange={(e) => setAccountType(e.target.value)}
+            >
+              <option value="SAVINGS">SAVINGS</option>
+              <option value="WITHDRAWAL">WITHDRAWAL</option>
+              <option value="DEPOSIT">DEPOSIT</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="currency">Currency</label>
+            <select
+              id="currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              <option value="RWF">RWF</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="balance">Opening balance</label>
+            <input
+              id="balance"
+              type="number"
+              placeholder="0"
+              value={balance}
+              onChange={(e) => setBalance(e.target.value)}
+            />
+          </div>
+          <Button 
+                className="btn accounts-form-submit" 
+                onClick={handleCreateAccount} 
+                message="Create" 
+          />
+          </div>
+      </Dialog>
       )}
 
       <div className="accounts-cards">
@@ -261,7 +307,7 @@ export default function Accounts() {
             <p className="hint" style={{ marginTop: 4 }}>Balance must be zero to close this account.</p>
           )}
 
-          <Link to="/statements" state={{ account: selected }} style={{ display: "inline-block", marginTop: 16 }}>
+          <Link to="/accounts/statements" state={{ account: selected }} style={{ display: "inline-block", marginTop: 16 }}>
             See statements
           </Link>
         </Dialog>
