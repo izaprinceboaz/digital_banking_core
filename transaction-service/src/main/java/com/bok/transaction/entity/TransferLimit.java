@@ -27,6 +27,10 @@ public class TransferLimit {
     @Column(name = "daily_used", nullable = false, precision = 15, scale = 2)
     private BigDecimal dailyUsed = BigDecimal.ZERO;
 
+    // true once a user explicitly sets limits via the API; otherwise limits follow the account currency default
+    @Column(name = "customized", nullable = false)
+    private boolean customized = false;
+
     @Column(name = "last_reset_date")
     private LocalDate lastResetDate;
 
@@ -90,5 +94,13 @@ public class TransferLimit {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public boolean isCustomized() {
+        return customized;
+    }
+
+    public void setCustomized(boolean customized) {
+        this.customized = customized;
     }
 }

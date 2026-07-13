@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader";
 import type { UserResponse } from "../../types/auth";
 import "./Profile.css";
@@ -17,6 +16,7 @@ type Tab = "personal" | "notifications";
 export default function Profile() {
   const user = getStoredUser();
   const [tab, setTab] = useState<Tab>("personal");
+  const [isOn, setIsOn ] = useState(false);
 
   const displayName = user
     ? [user.firstName, user.lastName].filter(Boolean).join(" ")
@@ -88,9 +88,29 @@ export default function Profile() {
               </p>
             </div>
             <div className="profile-fields">
-              <p className="profile-empty">Not yet implemented.</p>
+              <div className="profile-field">
+                <span  className="profile-field-label">Receive by Email</span>
+                <span style={{cursor:"pointer"}} onClick = {() => setIsOn(prev => !prev)} className="profile-field-value">
+                  { isOn ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-left-icon lucide-toggle-left"><circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-right-icon lucide-toggle-right"><circle cx="15" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
+                  )}
+                  </span>                 
+              </div>
+              <div className="profile-field">
+                <span className="profile-field-label">Receive By SMS</span>
+                <span style={{cursor:"pointer"}} onClick = {() => setIsOn(prev => !prev)} className="profile-field-value">
+                  { isOn ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-left-icon lucide-toggle-left"><circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-right-icon lucide-toggle-right"><circle cx="15" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
+                  )}
+                  </span>  
+                </div>
             </div>
           </div>
+
         )}
       </div>
     </div>

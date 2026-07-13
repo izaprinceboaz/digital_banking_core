@@ -211,7 +211,7 @@ public class AccountService {
             statement.setAccount(savedAccount);
             statement.setTransactionRef("CRT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase());
             statement.setDescription("OPENING BALANCE");
-            statement.setAmount(BigDecimal.ZERO);
+            statement.setAmount(savedAccount.getBalance());
             statement.setBalanceAfter(savedAccount.getBalance());
             statement.setEntryType(EntryType.CREDIT);
             statementRepository.save(statement);

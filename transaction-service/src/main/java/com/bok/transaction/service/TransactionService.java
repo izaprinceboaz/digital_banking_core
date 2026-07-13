@@ -78,9 +78,15 @@ public class TransactionService {
             .orElseGet(() -> {
                 TransferLimit newLimit = new TransferLimit();
                 newLimit.setAccountNumber(transferRequest.getSenderAccountNumber());
-                applyDefaultLimits(newLimit, accountClient.getCurrency(transferRequest.getSenderAccountNumber(), authHeader));
                 return transferLimitRepository.save(newLimit);
             });
+
+        // Unless a user explicitly set limits, keep them in sync with the account currency default.
+        // This also self-corrects rows created before currency-aware defaults existed.
+        if (!limit.isCustomized()) {
+            applyDefaultLimits(limit, accountClient.getCurrency(transferRequest.getSenderAccountNumber(), authHeader));
+            limit = transferLimitRepository.save(limit);
+        }
 
         if (limit.getLastResetDate() == null || limit.getLastResetDate().isBefore(LocalDate.now())) {
             limit.setDailyUsed(BigDecimal.ZERO);
@@ -88,17 +94,19 @@ public class TransactionService {
         }
 
         if (transferRequest.getAmount().compareTo(limit.getPerTxnLimit()) > 0) {
+            String reason = "Transfer amount exceeds per transaction limit of " + limit.getPerTxnLimit();
             transaction.setStatus(TransactionStatus.FAILED);
-            transaction.setFailureReason("Transfer amount exceeds per transaction limit.");
+            transaction.setFailureReason(reason);
             transactionRepository.save(transaction);
-            throw new TransferLimitExceededException();
+            throw new TransferLimitExceededException(reason);
         }
 
         if ( limit.getDailyUsed().add(transferRequest.getAmount()).compareTo(limit.getDailyLimit()) > 0) {
+            String reason = "Exceeds daily limit of " + limit.getDailyLimit();
             transaction.setStatus(TransactionStatus.FAILED);
-            transaction.setFailureReason("Exceeds daily limit of " + limit.getDailyLimit());
+            transaction.setFailureReason(reason);
             transactionRepository.save(transaction);
-            throw new TransferLimitExceededException();
+            throw new TransferLimitExceededException(reason);
         }
 
 

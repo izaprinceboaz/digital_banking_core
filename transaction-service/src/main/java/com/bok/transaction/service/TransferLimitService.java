@@ -51,6 +51,7 @@ public class TransferLimitService {
         if (perTxnLimit != null) {
             limit.setPerTxnLimit(perTxnLimit);
         }
+        limit.setCustomized(true);
         return transferLimitRepository.save(limit);
     }
 }

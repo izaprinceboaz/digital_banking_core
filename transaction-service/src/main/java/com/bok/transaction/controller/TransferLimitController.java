@@ -3,6 +3,7 @@ package com.bok.transaction.controller;
 import com.bok.transaction.entity.TransferLimit;
 import com.bok.transaction.dto.SetTransferLimitRequest;
 import com.bok.transaction.service.TransferLimitService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class TransferLimitController {
 
     @PutMapping("/{accountNumber}")
     public TransferLimit setTransferLimit(@PathVariable String accountNumber,
-                                          @RequestBody SetTransferLimitRequest request) {
+                                          @Valid @RequestBody SetTransferLimitRequest request) {
         return transferLimitService.setLimits(accountNumber, request.getDailyLimit(), request.getPerTxnLimit());
     }
 }
