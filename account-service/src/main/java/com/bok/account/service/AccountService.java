@@ -198,10 +198,27 @@ public class AccountService {
     }
 
 
+    @Transactional
     public Account createAccount(Account account) {
         String accountNumber = accountNumberGenerator.generate(account.getAccountType());
         account.setAccountNumber(accountNumber);
-        return accountRepository.save(account);
+
+        Account savedAccount = accountRepository.save(account);
+
+        if ( savedAccount.getBalance().compareTo(BigDecimal.ZERO) > 0 ) {            
+        
+            Statement statement = new Statement();
+            statement.setAccount(savedAccount);
+            statement.setTransactionRef("CRT-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase());
+            statement.setDescription("OPENING BALANCE");
+            statement.setAmount(BigDecimal.ZERO);
+            statement.setBalanceAfter(savedAccount.getBalance());
+            statement.setEntryType(EntryType.CREDIT);
+            statementRepository.save(statement);
+
+        }
+
+        return savedAccount;
     }
 
     public List<Account> listAccounts() {
