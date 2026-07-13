@@ -1,6 +1,7 @@
 package com.bok.transaction.controller;
 
 import com.bok.transaction.entity.TransferLimit;
+import com.bok.transaction.dto.SetTransferLimitRequest;
 import com.bok.transaction.service.TransferLimitService;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,5 +36,11 @@ public class TransferLimitController {
     @DeleteMapping("/{id}")
     public void deleteTransferLimit(@PathVariable UUID id) {
         transferLimitService.deleteTransferLimit(id);
+    }
+
+    @PutMapping("/{accountNumber}")
+    public TransferLimit setTransferLimit(@PathVariable String accountNumber,
+                                          @RequestBody SetTransferLimitRequest request) {
+        return transferLimitService.setLimits(accountNumber, request.getDailyLimit(), request.getPerTxnLimit());
     }
 }

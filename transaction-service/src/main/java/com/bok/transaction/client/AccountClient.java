@@ -71,6 +71,15 @@ public class AccountClient {
                 .userId();
     }
 
+    public String getCurrency(String accountNumber, String authHeader) {
+        return restClient.get()
+                .uri("/api/accounts/{accountNumber}", accountNumber)
+                .header("Authorization", authHeader)
+                .retrieve()
+                .body(AccountResponse.class)
+                .currency();
+    }
+
     public BigDecimal checkCurrency(String senderAccountNumber, String receiverAccountNumber, BigDecimal amount, String authHeader) {
         Map<String, Object> request = Map.of(
                 "senderAccountNumber", senderAccountNumber,

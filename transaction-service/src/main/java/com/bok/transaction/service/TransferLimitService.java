@@ -1,5 +1,6 @@
 package com.bok.transaction.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,5 +36,21 @@ public class TransferLimitService {
 
     public void deleteTransferLimit(  UUID id) {
         transferLimitRepository.deleteById(id);
+    }
+
+    public TransferLimit setLimits(String accountNumber, BigDecimal dailyLimit, BigDecimal perTxnLimit) {
+        TransferLimit limit = transferLimitRepository.findByAccountNumber(accountNumber)
+                .orElseGet(() -> {
+                    TransferLimit created = new TransferLimit();
+                    created.setAccountNumber(accountNumber);
+                    return created;
+                });
+        if (dailyLimit != null) {
+            limit.setDailyLimit(dailyLimit);
+        }
+        if (perTxnLimit != null) {
+            limit.setPerTxnLimit(perTxnLimit);
+        }
+        return transferLimitRepository.save(limit);
     }
 }

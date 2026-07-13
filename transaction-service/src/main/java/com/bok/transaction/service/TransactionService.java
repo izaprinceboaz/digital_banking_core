@@ -78,6 +78,7 @@ public class TransactionService {
             .orElseGet(() -> {
                 TransferLimit newLimit = new TransferLimit();
                 newLimit.setAccountNumber(transferRequest.getSenderAccountNumber());
+                applyDefaultLimits(newLimit, accountClient.getCurrency(transferRequest.getSenderAccountNumber(), authHeader));
                 return transferLimitRepository.save(newLimit);
             });
 
@@ -138,5 +139,15 @@ public class TransactionService {
         transferLimitRepository.save(limit);
 
         return transactionRepository.save(transaction);
+    }
+
+    private void applyDefaultLimits(TransferLimit limit, String currency) {
+        if ("USD".equals(currency) || "EUR".equals(currency)) {
+            limit.setDailyLimit(new BigDecimal("5000"));
+            limit.setPerTxnLimit(new BigDecimal("2000"));
+        } else {
+            limit.setDailyLimit(new BigDecimal("1000000"));
+            limit.setPerTxnLimit(new BigDecimal("500000"));
+        }
     }
 }
