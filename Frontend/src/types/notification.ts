@@ -9,3 +9,23 @@ export interface NotificationResponse {
   sentAt: string | null;
   createdAt: string;
 }
+
+export interface NotificationPreferenceResponse {
+  id: string;
+  emailEnabled : boolean;
+  smsEnabled : boolean;
+  inAppEnabled : boolean;
+  transactionAlerts : boolean;
+  loginAlerts : boolean;
+  interestAlerts : boolean;
+}
+
+export interface NotificationPreferenceRequest {
+  id: string;
+  emailEnabled : boolean;
+  smsEnabled : boolean;
+  inAppEnabled : boolean;
+  transactionAlerts : boolean;
+  loginAlerts : boolean;
+  interestAlerts : boolean;
+}

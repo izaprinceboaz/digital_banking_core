@@ -1,5 +1,5 @@
 import api from "./api";
-import type { NotificationResponse } from "../types/notification";
+import type { NotificationPreferenceRequest, NotificationPreferenceResponse, NotificationResponse } from "../types/notification";
 
 // notification-service — NotificationController (/api/notifications)
 
@@ -21,4 +21,14 @@ export async function deleteNotification(id: string): Promise<void> {
 
 export async function markNotificationAsRead(id: string): Promise<void> {
   await api.patch(`/api/notifications/${id}/mark-as-read`);
+}
+
+export async function getMyNotificationsPreference(): Promise<NotificationPreferenceResponse> {
+  const res = await api.get<NotificationPreferenceResponse>(`/api/notification-preferences/my-notification-preferences`)
+  return res.data;
+}
+
+export async function saveMyNotificationPreference(prefs: NotificationPreferenceRequest) {
+  const res = await api.post(`/api/notification-preferences`, prefs)
+  return res.data;  
 }

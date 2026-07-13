@@ -13,7 +13,7 @@ import com.bok.notification.exception.NotificationPreferenceNotFoundException;
 @Service
 public class NotificationPreferenceService {
 
-    
+
     private final NotificationPreferenceRepository notificationPreferenceRepository;
 
 
@@ -21,8 +21,32 @@ public class NotificationPreferenceService {
         this.notificationPreferenceRepository = notificationPreferenceRepository;
     }
 
-    public NotificationPreference createNotificationPreference(  NotificationPreference notificationPreference) {
-        return notificationPreferenceRepository.save(notificationPreference);
+    // Returns the user's saved preferences, or a transient default set if they've never saved any.
+    // No row is written on read — the entity's field defaults are the defaults.
+    public NotificationPreference getOrDefault(UUID userId) {
+        return notificationPreferenceRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    NotificationPreference pref = new NotificationPreference();
+                    pref.setUserId(userId);
+                    return pref;
+                });
+    }
+
+    // Upsert: one row per user (enforced by the unique user_id). First save inserts, later saves update.
+    public NotificationPreference savePreference(UUID userId, NotificationPreference incoming) {
+        NotificationPreference pref = notificationPreferenceRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    NotificationPreference fresh = new NotificationPreference();
+                    fresh.setUserId(userId);
+                    return fresh;
+                });
+        pref.setEmailEnabled(incoming.isEmailEnabled());
+        pref.setSmsEnabled(incoming.isSmsEnabled());
+        pref.setInAppEnabled(incoming.isInAppEnabled());
+        pref.setTransactionAlerts(incoming.isTransactionAlerts());
+        pref.setLoginAlerts(incoming.isLoginAlerts());
+        pref.setInterestAlerts(incoming.isInterestAlerts());
+        return notificationPreferenceRepository.save(pref);
     }
 
     public List<NotificationPreference> listNotificationPreferences() {
@@ -31,10 +55,6 @@ public class NotificationPreferenceService {
 
     public NotificationPreference getNotificationPreferenceById(  UUID id) {
         return notificationPreferenceRepository.findById(id).orElseThrow(() -> new NotificationPreferenceNotFoundException());
-    }
-
-    public List<NotificationPreference> findNotificationPreferencesByUserId(UUID userId) {
-        return notificationPreferenceRepository.findNotificationPreferencesByUserId(userId);
     }
 
     public void deleteNotificationPreference(  UUID id) {

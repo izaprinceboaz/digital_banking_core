@@ -23,19 +23,18 @@ public class NotificationPreferenceController {
     }
 
     @PostMapping
-    public NotificationPreference createNotificationPreference(
+    public NotificationPreference saveNotificationPreference(
         @Valid @RequestBody CreateNotificationPreferenceRequest request,
         @AuthenticationPrincipal String userId) {
-        NotificationPreference notificationPreference = new NotificationPreference();
-        notificationPreference.setUserId(UUID.fromString(userId));
-        notificationPreference.setEmailEnabled(request.isEmailEnabled());
-        notificationPreference.setSmsEnabled(request.isSmsEnabled());
-        notificationPreference.setInAppEnabled(request.isInAppEnabled());
-        notificationPreference.setTransactionAlerts(request.isTransactionAlerts());
-        notificationPreference.setLoginAlerts(request.isLoginAlerts());
-        notificationPreference.setInterestAlerts(request.isInterestAlerts());
+        NotificationPreference incoming = new NotificationPreference();
+        incoming.setEmailEnabled(request.isEmailEnabled());
+        incoming.setSmsEnabled(request.isSmsEnabled());
+        incoming.setInAppEnabled(request.isInAppEnabled());
+        incoming.setTransactionAlerts(request.isTransactionAlerts());
+        incoming.setLoginAlerts(request.isLoginAlerts());
+        incoming.setInterestAlerts(request.isInterestAlerts());
 
-        return notificationPreferenceService.createNotificationPreference(notificationPreference);
+        return notificationPreferenceService.savePreference(UUID.fromString(userId), incoming);
     }
 
     @GetMapping
@@ -49,8 +48,8 @@ public class NotificationPreferenceController {
     }
 
     @GetMapping("/my-notification-preferences")
-    public List<NotificationPreference> findNotificationPreferencesByUserId(@AuthenticationPrincipal String userId) {
-        return notificationPreferenceService.findNotificationPreferencesByUserId(UUID.fromString(userId));
+    public NotificationPreference getMyNotificationPreferences(@AuthenticationPrincipal String userId) {
+        return notificationPreferenceService.getOrDefault(UUID.fromString(userId));
     }
 
     @DeleteMapping("/{id}")

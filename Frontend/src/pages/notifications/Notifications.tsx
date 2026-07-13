@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { getMyNotifications, markNotificationAsRead } from "../../services/notificationService";
+import { deleteNotification, getMyNotifications, markNotificationAsRead } from "../../services/notificationService";
 import type { NotificationResponse } from "../../types/notification";
 import "./Notifications.css";
 import PageHeader from "../../components/PageHeader";
 import Dialog from "../../components/Dialog";
 import { getApiErrorMessage } from "../../services/api";
+import Button from "../../components/Button";
 
 const GLYPHS: Record<string, string> = {
   TRANSFER: "↗",
@@ -57,12 +58,11 @@ export default function Notifications() {
       <div
         key={n.id}
         className={`notif-row${unreadItem ? " notif-row--unread" : ""}`}
-        onClick={() => { setSelected(n); markRead(n.id); }}
       >
         <div className={`notif-icon${unreadItem ? "" : " notif-icon--read"}`}>
           {glyphFor(n.eventType)}
         </div>
-        <div className="notif-main">
+        <div className="notif-main" onClick={() => { setSelected(n); markRead(n.id); }}>
           <div className="notif-title-row">
             <span className="notif-title">{n.title}</span>
             {unreadItem && <span className="notif-dot" />}
@@ -70,7 +70,7 @@ export default function Notifications() {
           <div className="notif-body">{n.message}</div>
         </div>
         <span className="notif-time">{timeLabel(n.createdAt)}</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <svg onClick={() => {deleteNotification(n.id); setNotifications((prev) => prev.filter((item) => item.id !== n.id));}} style={{ cursor: "pointer" }} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </div>
     );
   }
@@ -80,6 +80,12 @@ export default function Notifications() {
       <PageHeader
         title="Notifications"
         subtitle={unread > 0 ? `${unread} unread` : "You're all caught up"}
+      />
+
+      <Button
+        message="Delete All"
+        className="btn"
+        onClick={() => {}}
       />
 
       {loadError && <p className="banner banner--danger">{loadError}</p>}

@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageHeader from "../../components/PageHeader";
 import type { UserResponse } from "../../types/auth";
 import "./Profile.css";
-
+import { getMyNotificationsPreference, saveMyNotificationPreference } from "../../services/notificationService"
+import type { NotificationPreferenceResponse } from "../../types/notification";
+import Button from "../../components/Button";
+ 
 function getStoredUser(): UserResponse | null {
   try {
     return JSON.parse(localStorage.getItem("user") || "null");
@@ -13,10 +16,43 @@ function getStoredUser(): UserResponse | null {
 
 type Tab = "personal" | "notifications";
 
+type PrefToggleField =
+  | "emailEnabled"
+  | "smsEnabled"
+  | "inAppEnabled"
+  | "transactionAlerts"
+  | "loginAlerts"
+  | "interestAlerts";
+
+const PREF_FIELDS: { field: PrefToggleField; label: string }[] = [
+  { field: "emailEnabled", label: "Receive by Email" },
+  { field: "smsEnabled", label: "Receive by SMS" },
+  { field: "inAppEnabled", label: "In-app notifications" },
+  { field: "transactionAlerts", label: "Transaction alerts" },
+  { field: "loginAlerts", label: "Login alerts" },
+  { field: "interestAlerts", label: "Interest alerts" },
+];
+
+function Toggle({ on }: { on: boolean }) {
+  return on ? (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-right-icon lucide-toggle-right"><circle cx="15" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-left-icon lucide-toggle-left"><circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
+  );
+}
+
 export default function Profile() {
   const user = getStoredUser();
   const [tab, setTab] = useState<Tab>("personal");
-  const [isOn, setIsOn ] = useState(false);
+  const [prefs, setPrefs] = useState<NotificationPreferenceResponse | null>(null);
+
+  useEffect(() => {
+    getMyNotificationsPreference().then(setPrefs);
+  }, []);
+  
+  function toggle(field: PrefToggleField) {
+    setPrefs((prev) => (prev ? { ...prev, [field]: !prev[field] } : prev));
+  }
 
   const displayName = user
     ? [user.firstName, user.lastName].filter(Boolean).join(" ")
@@ -88,29 +124,28 @@ export default function Profile() {
               </p>
             </div>
             <div className="profile-fields">
-              <div className="profile-field">
-                <span  className="profile-field-label">Receive by Email</span>
-                <span style={{cursor:"pointer"}} onClick = {() => setIsOn(prev => !prev)} className="profile-field-value">
-                  { isOn ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-left-icon lucide-toggle-left"><circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-right-icon lucide-toggle-right"><circle cx="15" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
-                  )}
-                  </span>                 
-              </div>
-              <div className="profile-field">
-                <span className="profile-field-label">Receive By SMS</span>
-                <span style={{cursor:"pointer"}} onClick = {() => setIsOn(prev => !prev)} className="profile-field-value">
-                  { isOn ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-left-icon lucide-toggle-left"><circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-toggle-right-icon lucide-toggle-right"><circle cx="15" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/></svg>
-                  )}
-                  </span>  
+              {PREF_FIELDS.map(({ field, label }) => (
+                <div className="profile-field" key={field}>
+                  <span className="profile-field-label">{label}</span>
+                  <span
+                    style={{ cursor: "pointer" }}
+                    onClick={() => toggle(field)}
+                    className="profile-field-value"
+                  >
+                    <Toggle on={prefs?.[field] ?? false} />
+                  </span>
                 </div>
+              ))}
+              <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 32px" }}>
+                <Button
+                  type="button"
+                  className="btn"
+                  onClick={() => prefs && saveMyNotificationPreference(prefs)}
+                  message="Save Preferences"
+                />
+              </div>
             </div>
           </div>
-
         )}
       </div>
     </div>
