@@ -21,8 +21,6 @@ public class NotificationPreferenceService {
         this.notificationPreferenceRepository = notificationPreferenceRepository;
     }
 
-    // Returns the user's saved preferences, or a transient default set if they've never saved any.
-    // No row is written on read — the entity's field defaults are the defaults.
     public NotificationPreference getOrDefault(UUID userId) {
         return notificationPreferenceRepository.findByUserId(userId)
                 .orElseGet(() -> {
@@ -32,7 +30,6 @@ public class NotificationPreferenceService {
                 });
     }
 
-    // Upsert: one row per user (enforced by the unique user_id). First save inserts, later saves update.
     public NotificationPreference savePreference(UUID userId, NotificationPreference incoming) {
         NotificationPreference pref = notificationPreferenceRepository.findByUserId(userId)
                 .orElseGet(() -> {

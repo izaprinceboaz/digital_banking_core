@@ -101,6 +101,16 @@ public class AuthService {
         refreshTokenRepository.save(refreshToken);
     }
 
+    @Transactional
+    public void updatePassword(UUID userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new InvalidCredentialsException();
+        }
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
     public User getUserById(UUID id) {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException());
     }

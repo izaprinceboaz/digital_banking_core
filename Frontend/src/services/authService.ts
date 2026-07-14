@@ -15,6 +15,10 @@ export async function logout(refreshToken: string): Promise<void> {
   await api.post("/api/auth/logout", { refreshToken });
 }
 
+export async function updatePassword(data: { currentPassword: string; newPassword: string }): Promise<void> {
+  await api.post("/api/auth/update-password", data);
+}
+
 export async function refreshAccessToken(): Promise<string | null> {
   const refreshToken = localStorage.getItem("refreshToken");
   if (!refreshToken) return null;
