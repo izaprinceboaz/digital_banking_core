@@ -8,6 +8,7 @@ import "./Savings.css";
 import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
+import ToastMessage from "../../components/ToastMessage";
 
 
 function formatDate(iso: string | null): string {
@@ -134,7 +135,7 @@ export default function Savings() {
                 />}
       />
 
-      {loadError && <p className="banner banner--danger">{loadError}</p>}
+      <ToastMessage message={loadError} variant="danger" onClose={() => setLoadError(null)} />
       {showForm && (
         <div className="card card--pad">
           <div className="card-title savings-form-title">Create a savings plan</div>
@@ -144,9 +145,7 @@ export default function Savings() {
             </p>
           ) : (
             <>
-              {createError && (
-                <p className="banner banner--danger savings-form-error">{createError}</p>
-              )}
+              <ToastMessage message={createError} variant="danger" onClose={() => setCreateError(null)} />
               <div className="savings-form-grid">
                 <div className="field">
                   <label htmlFor="savingsAccount">Account</label>

@@ -12,6 +12,7 @@ import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
 import Table from "../../components/Table";
 import Dialog from "../../components/Dialog";
+import ToastMessage from "../../components/ToastMessage";
 import cleanErrorMessage from "../../utils/cleanErrorMessage";
 
 
@@ -116,15 +117,11 @@ export default function Transactions() {
                   </select>}
       />
 
-      {loadError && <p className="banner banner--danger">{loadError}</p>}
+      <ToastMessage message={loadError} variant="danger" onClose={() => setLoadError(null)} />
+      <ToastMessage message={sent ? "Transfer sent." : null} variant="success" onClose={() => setSent(false)} />
+      <ToastMessage message={error} variant="danger" onClose={() => setError(null)} />
       <div className="card card--pad">
         <div className="card-title txn-form-title">New transfer</div>
-        {sent && (
-          <p className="banner banner--success txn-form-banner">
-            Transfer sent.
-          </p>
-        )}
-        {error && <p className="banner banner--danger txn-form-banner">{error}</p>}        
         <div className="txn-form-grid">
           <div className="field">
             <label htmlFor="receiver">Receiver account number</label>

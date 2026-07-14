@@ -9,6 +9,7 @@ import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
 import Table from "../../components/Table";
 import Dialog from "../../components/Dialog";
+import ToastMessage from "../../components/ToastMessage";
 import { Link } from "react-router-dom";
 
 
@@ -116,7 +117,7 @@ export default function Accounts() {
                   onClick={() => setShowForm(!showForm)}
                   message={showForm ? "Close" : "+ New account"}/>}
       />
-      {loadError && <p className="banner banner--danger">{loadError}</p>}
+      <ToastMessage message={loadError} variant="danger" onClose={() => setLoadError(null)} />
 
       {showForm && (
       <Dialog title="Create Account" onClose={() => { setShowForm(false); resetActions();}}>
@@ -236,7 +237,7 @@ export default function Accounts() {
             <span className={statusPill(selected.status)}>{selected.status}</span>
           </div>
 
-          {editError && <p className="banner banner--danger" style={{ marginTop: 4 }}>{editError}</p>}
+          <ToastMessage message={editError} variant="danger" onClose={() => setEditError(null)} />
 
           {selected.status !== "CLOSED" && (
             confirmingClose ? (

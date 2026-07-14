@@ -6,6 +6,7 @@ import PageHeader from "../../components/PageHeader";
 import Dialog from "../../components/Dialog";
 import { getApiErrorMessage } from "../../services/api";
 import Button from "../../components/Button";
+import ToastMessage from "../../components/ToastMessage";
 
 const GLYPHS: Record<string, string> = {
   TRANSFER: "↗",
@@ -88,7 +89,7 @@ export default function Notifications() {
         onClick={() => {}}
       />
 
-      {loadError && <p className="banner banner--danger">{loadError}</p>}
+      <ToastMessage message={loadError} variant="danger" onClose={() => setLoadError(null)} />
 
       <div className="card" style={{ overflow: "hidden" }}>
         {notifications.length === 0 && (

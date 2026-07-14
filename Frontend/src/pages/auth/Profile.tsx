@@ -6,6 +6,7 @@ import { getMyNotificationsPreference, saveMyNotificationPreference } from "../.
 import type { NotificationPreferenceResponse } from "../../types/notification";
 import Button from "../../components/Button";
 import Dialog from "../../components/Dialog";
+import ToastMessage from "../../components/ToastMessage";
 import { updatePassword } from "../../services/authService";
 import { getApiErrorMessage } from "../../services/api";
  
@@ -161,11 +162,11 @@ export default function Profile() {
                   Update Password
                 </button>
               </div>
-              {pwSuccess && (
-                <div style={{ padding: "0 32px 16px" }}>
-                  <p className="banner banner--success">Your password has been updated.</p>
-                </div>
-              )}
+              <ToastMessage
+                message={pwSuccess ? "Your password has been updated." : null}
+                variant="success"
+                onClose={() => setPwSuccess(false)}
+              />
             </div>
           </div>
         )}
@@ -206,7 +207,7 @@ export default function Profile() {
 
       {pwOpen && (
         <Dialog title="Update password" onClose={() => setPwOpen(false)}>
-          {pwError && <p className="banner banner--danger">{pwError}</p>}
+          <ToastMessage message={pwError} variant="danger" onClose={() => setPwError(null)} />
           <div className="field">
             <label htmlFor="currentPassword">Current password</label>
             <input

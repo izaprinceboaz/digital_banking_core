@@ -4,6 +4,7 @@ import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Button from "../../components/Button";
 import Dialog from "../../components/Dialog";
+import ToastMessage from "../../components/ToastMessage";
 import { Link, useLocation } from "react-router-dom";
 import { getMyTransferLimits, setMyTransferLimits } from "../../services/transactionService";
 import { getApiErrorMessage } from "../../services/api";
@@ -138,8 +139,8 @@ export default function TransferLimits() {
         <div className="tl-grid">
           {/* Left — account + editable limits */}
           <div className="card card--pad tl-main">
-            {saved && <p className="banner banner--success">Limits updated.</p>}
-            {error && !editing && <p className="banner banner--danger">{error}</p>}
+            <ToastMessage message={saved ? "Limits updated." : null} variant="success" onClose={() => setSaved(false)} />
+            <ToastMessage message={error} variant="danger" onClose={() => setError(null)} />
 
             <div className="tl-label">From</div>
             <div className="tl-account">
@@ -187,7 +188,6 @@ export default function TransferLimits() {
 
       {editing && limit && (
         <Dialog title={`Edit ${editLabel}`} onClose={closeEdit}>
-          {error && <p className="banner banner--danger">{error}</p>}
           <div className="field">
             <label htmlFor="limitInput">New {editLabel}{currency ? ` (${currency})` : ""}</label>
             <input

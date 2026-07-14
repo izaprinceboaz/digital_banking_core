@@ -9,6 +9,7 @@ import formatMoney from "../utils/format";
 import PageHeader from "../components/PageHeader";
 import Table from "../components/Table"
 import Dialog from "../components/Dialog"
+import ToastMessage from "../components/ToastMessage";
 import { getApiErrorMessage } from "../services/api";
 
 function greeting(): string {
@@ -53,7 +54,7 @@ export default function Dashboard() {
         subtitle="Here's your account overview"
       />
 
-      {loadError && <p className="banner banner--danger">{loadError}</p>}
+      <ToastMessage message={loadError} variant="danger" onClose={() => setLoadError(null)} />
       {/* Bank cards */}
       <div className="dash-cards">
         {accounts.length === 0 && (
