@@ -12,6 +12,7 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
 import MainLayout from './layouts/MainLayout'
 import Profile from './pages/auth/Profile'
+import TransferLimits from './pages/accounts/TransferLimits'
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/savings" element={<Savings />} />
         <Route path="/accounts/statements" element={<Statements />} />
+        <Route path="/accounts/transfer-limits" element={<TransferLimits />}></Route>
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
       </Route>

@@ -7,9 +7,11 @@ interface Props {
   account: AccountResponse;
   index: number;
   linkTo?: string;
+  onClick?: () => void;
+  style?: React.CSSProperties;
 }
 
-export default function BankCard({ account, index, linkTo }: Props) {
+export default function BankCard({ account, index, linkTo, onClick, style}: Props) {
   const className = `bank-card bank-card--${index % 3}`;
   const inner = (
     <>
@@ -39,5 +41,9 @@ export default function BankCard({ account, index, linkTo }: Props) {
     );
   }
 
-  return <div className={className}>{inner}</div>;
+  return (
+    <div className={className} onClick={onClick} style={style}>
+      {inner}
+    </div>
+  );
 }

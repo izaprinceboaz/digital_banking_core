@@ -34,12 +34,17 @@ public class TransferLimitController {
         return transferLimitService.getTransferLimitById(id);
     }
 
+    @GetMapping("/account/{accountNumber}")
+    public TransferLimit getTransferLimitByAccountNumber(@PathVariable String accountNumber) {
+        return transferLimitService.getTransferLimitByAccountNumber(accountNumber);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteTransferLimit(@PathVariable UUID id) {
         transferLimitService.deleteTransferLimit(id);
     }
 
-    @PutMapping("/{accountNumber}")
+    @PutMapping("/account/{accountNumber}")
     public TransferLimit setTransferLimit(@PathVariable String accountNumber,
                                           @Valid @RequestBody SetTransferLimitRequest request) {
         return transferLimitService.setLimits(accountNumber, request.getDailyLimit(), request.getPerTxnLimit());

@@ -4,7 +4,7 @@ import formatMoney from "../../utils/format";
 import PageHeader from "../../components/PageHeader";
 import Table from "../../components/Table";
 import Dialog from "../../components/Dialog";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { loadStatements } from "../../store/statementsSlice";
 
@@ -35,6 +35,10 @@ export default function Statements() {
 
   return (
     <div className="page page--narrow">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link to=".." relative="path"> <strong>Accounts</strong> </Link> <span>{">"}</span>
+            <div> Transfer Limits </div>
+        </div>
       <PageHeader 
         title="Statements"
       />

@@ -26,6 +26,7 @@ export default function Accounts() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [showBalance, setShowBalance] = useState(false);
 
 
   function load() {
@@ -59,6 +60,7 @@ export default function Accounts() {
   function resetActions() {
     setConfirmingClose(false);
     setEditError(null);
+    setShowBalance(false);
   }
 
   async function toggleFreeze(acc: AccountResponse) {
@@ -116,54 +118,6 @@ export default function Accounts() {
       />
       {loadError && <p className="banner banner--danger">{loadError}</p>}
 
-      {/* {showForm && (
-        <div className="card card--pad">
-          <div className="card-title accounts-form-title">Open a new account</div>
-          {error && <p className="banner banner--danger accounts-form-error">{error}</p>}
-          <div className="accounts-form-grid">
-            <div className="field">
-              <label htmlFor="accountType">Account type</label>
-              <select
-                id="accountType"
-                value={accountType}
-                onChange={(e) => setAccountType(e.target.value)}
-              >
-                <option value="SAVINGS">SAVINGS</option>
-                <option value="WITHDRAWAL">WITHDRAWAL</option>
-                <option value="DEPOSIT">DEPOSIT</option>
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="currency">Currency</label>
-              <select
-                id="currency"
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-              >
-                <option value="RWF">RWF</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="balance">Opening balance</label>
-              <input
-                id="balance"
-                type="number"
-                placeholder="0"
-                value={balance}
-                onChange={(e) => setBalance(e.target.value)}
-              />
-            </div>
-            <Button 
-                  className="btn accounts-form-submit" 
-                  onClick={handleCreateAccount} 
-                  message="Create" 
-            />
-          </div>
-        </div>
-      )} */}
-
       {showForm && (
       <Dialog title="Create Account" onClose={() => { setShowForm(false); resetActions();}}>
         <div className="accounts-form-grid">
@@ -212,7 +166,7 @@ export default function Accounts() {
 
       <div className="accounts-cards">
         {accounts.map((acc, i) => (
-          <BankCard key={acc.accountNumber} account={acc} index={i} />
+          <BankCard key={acc.accountNumber} account={acc} index={i} onClick={() => setSelected(acc)} style={{ cursor: "pointer" }}/>
         ))}
       </div>
 
@@ -262,7 +216,12 @@ export default function Accounts() {
           </div>
           <div className="detail-row">
             <span className="detail-label">Balance</span>
-            <span className="detail-value num">{formatMoney(selected.currency, parseFloat(selected.balance))}</span>
+            <span className="detail-value num" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              {showBalance ? formatMoney(selected.currency, parseFloat(selected.balance)) : "••••••••"}
+              <span style={{ cursor: "pointer", display: "inline-flex", color: "var(--text-muted)" }} onClick={() => setShowBalance((v) => !v)}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+            </span>
           </div>
           <div className="detail-row">
             <span className="detail-label">Currency</span>
@@ -309,6 +268,9 @@ export default function Accounts() {
 
           <Link to="/accounts/statements" state={{ account: selected }} style={{ display: "inline-block", marginTop: 16 }}>
             See statements
+          </Link>
+          <Link to="/accounts/transfer-limits" state={{ account: selected }} style={{ display: "inline-block", marginTop: 16 }}>
+            Transfer Limits
           </Link>
         </Dialog>
       )}

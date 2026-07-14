@@ -25,3 +25,13 @@ export async function deleteTransaction(id: string): Promise<any> {
   const res = await api.delete(`/api/transactions/${id}`);
   return res.data;
 }
+
+export async function getMyTransferLimits(accountNumber: string): Promise<any> {
+  const res = await api.get(`/api/transfer-limits/account/${accountNumber}`);
+  return res.data
+}
+
+export async function setMyTransferLimits(accountNumber: string, data: any): Promise<any> {
+  const res = await api.put(`/api/transfer-limits/account/${accountNumber}`, data);
+  return res.data
+}

@@ -20,7 +20,7 @@ public class TransferLimitService {
     }
 
     
-    public TransferLimit createTransferLimit(  TransferLimit transferLimit) {
+    public TransferLimit createTransferLimit(TransferLimit transferLimit) {
         return transferLimitRepository.save(transferLimit);
     }
 
@@ -30,11 +30,23 @@ public class TransferLimitService {
     }
 
     
-    public TransferLimit getTransferLimitById(  UUID id) {
+    public TransferLimit getTransferLimitById(UUID id) {
         return transferLimitRepository.findById(id).orElseThrow(() -> new TransferLimitNotFoundException());
     }
 
-    public void deleteTransferLimit(  UUID id) {
+    // Returns the account's saved limits, or a transient default set (entity defaults) if none exist yet.
+    // No row is written on read — this only feeds the UI; transfer enforcement handles its own row.
+    public TransferLimit getTransferLimitByAccountNumber(String accountNumber) {
+        return transferLimitRepository.findByAccountNumber(accountNumber)
+                .orElseGet(() -> {
+                    TransferLimit fresh = new TransferLimit();
+                    fresh.setAccountNumber(accountNumber);
+                    return fresh;
+                });
+    }
+
+
+    public void deleteTransferLimit(UUID id) {
         transferLimitRepository.deleteById(id);
     }
 
