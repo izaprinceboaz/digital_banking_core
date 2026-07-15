@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getMyAccounts } from "../../services/accountService";
-import { createSavingsPlan, findSavingsPlansByAccountNumber, deposit, withdraw, listInterestRecords } from "../../services/savingsService";
+import { createSavingsPlan, findSavingsPlansByAccountNumber, deposit, withdraw, listInterestRecords, deleteSavingsPlan } from "../../services/savingsService";
 import { getApiErrorMessage } from "../../services/api";
 import type { AccountResponse } from "../../types/account";
 import type { SavingsPlanResponse, InterestRecordResponse } from "../../types/savings";
@@ -33,7 +33,7 @@ function statusPill(status: string): string {
 
 interface ActionState {
   planId: string;
-  mode: "deposit" | "withdraw";
+  mode: "deposit" | "withdraw" | "cancel";
   amount: string;
   loading: boolean;
   error: string | null;
@@ -102,7 +102,7 @@ export default function Savings() {
   async function handleAction() {
     if (!action) return;
     const amt = parseFloat(action.amount) || 0;
-    if (amt <= 0) return;
+    if (action.mode !== "cancel" && amt <= 0) return;
     const plan = plans.find((p) => p.id === action.planId);
     if (!plan) return;
 
@@ -110,8 +110,10 @@ export default function Savings() {
     try {
       if (action.mode === "deposit") {
         await deposit({ savingsPlanId: plan.id, accountNumber: plan.accountNumber, amount: amt });
-      } else {
+      } else if (action.mode === "withdraw") {
         await withdraw({ savingsPlanId: plan.id, accountNumber: plan.accountNumber, amount: amt });
+      } else if (action.mode === "cancel") {
+        await deleteSavingsPlan(plan.id);
       }
       setAction(null);
       loadPlans(accounts);
@@ -139,81 +141,98 @@ export default function Savings() {
 
       <ToastMessage message={loadError} variant="danger" onClose={() => setLoadError(null)} />
       {showForm && (
-        <Dialog title="Create a savings plan" onClose={() => setShowForm(false)}>
-          <div className="card card--pad">
-            <div className="card-title savings-form-title">Create a savings plan</div>
-            {savingsAccounts.length === 0 ? (
-              <p className="banner banner--danger savings-form-error">
-                You need a SAVINGS account to create a plan. Open one in the Accounts tab first.
-              </p>
-            ) : (
-              <>
-                <ToastMessage message={createError} variant="danger" onClose={() => setCreateError(null)} />
-                <div className="savings-form-grid">
-                  <div className="field">
-                    <label htmlFor="savingsAccount">Account</label>
-                    <select
-                      id="savingsAccount"
-                      value={selectedAccount}
-                      onChange={(e) => setSelectedAccount(e.target.value)}
-                    >
-                      {savingsAccounts.map((a) => (
-                        <option key={a.accountNumber} value={a.accountNumber}>
-                          {a.accountNumber} ({a.currency})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="field">
-                    <label htmlFor="planName">Plan name</label>
-                    <input
-                      id="planName"
-                      placeholder="e.g. Emergency fund"
-                      value={planName}
-                      onChange={(e) => setPlanName(e.target.value)}
-                    />
-                  </div>
-                  <div className="field">
-                    <label htmlFor="principal">Principal</label>
-                    <input
-                      id="principal"
-                      type="number"
-                      placeholder="0"
-                      value={principal}
-                      onChange={(e) => setPrincipal(e.target.value)}
-                    />
-                  </div>
-                  <div className="field">
-                    <label htmlFor="compounding">Compounding</label>
-                    <select
-                      id="compounding"
-                      value={compounding}
-                      onChange={(e) => setCompounding(e.target.value)}
-                    >
-                      <option value="MONTHLY">MONTHLY</option>
-                      <option value="QUARTERLY">QUARTERLY</option>
-                      <option value="ANNUALLY">ANNUALLY</option>
-                    </select>
-                  </div>
-                  <div className="field">
-                    <label htmlFor="maturityDate">Maturity date</label>
-                    <input
-                      id="maturityDate"
-                      type="date"
-                      value={maturityDate}
-                      min={new Date().toISOString().split("T")[0]}
-                      onChange={(e) => setMaturityDate(e.target.value)}
-                    />
-                  </div>
-                  <Button
-                    className="btn savings-form-submit"
-                    message="Create"
-                    onClick={handleCreate}
+        <Dialog title="Create a savings plan" onClose={() => { setShowForm(false); setCreateError(null); }}>
+          {savingsAccounts.length === 0 ? (
+            <p className="banner banner--danger">
+              You need a SAVINGS account to create a plan. Open one in the Accounts tab first.
+            </p>
+          ) : (
+            <div className="savings-form">
+              <ToastMessage message={createError} variant="danger" onClose={() => setCreateError(null)} />
+
+              <div className="field">
+                <label htmlFor="savingsAccount">Account</label>
+                <select
+                  id="savingsAccount"
+                  value={selectedAccount}
+                  onChange={(e) => setSelectedAccount(e.target.value)}
+                >
+                  {savingsAccounts.map((a) => (
+                    <option key={a.accountNumber} value={a.accountNumber}>
+                      {a.accountNumber} ({a.currency})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="field">
+                <label htmlFor="planName">Plan name</label>
+                <input
+                  id="planName"
+                  placeholder="e.g. Emergency fund"
+                  value={planName}
+                  onChange={(e) => setPlanName(e.target.value)}
+                />
+              </div>
+
+              <div className="field">
+                <label htmlFor="principal">Principal amount</label>
+                <input
+                  id="principal"
+                  type="number"
+                  min="0"
+                  placeholder="0.00"
+                  value={principal}
+                  onChange={(e) => setPrincipal(e.target.value)}
+                />
+              </div>
+
+              <div className="savings-form-row">
+                <div className="field">
+                  <label htmlFor="compounding">Compounding</label>
+                  <select
+                    id="compounding"
+                    value={compounding}
+                    onChange={(e) => setCompounding(e.target.value)}
+                  >
+                    <option value="DAILY">Daily</option>
+                    <option value="MONTHLY">Monthly</option>
+                    <option value="ANNUALLY">Annually</option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label htmlFor="maturityDate">
+                    Maturity date <span className="field-hint">(optional)</span>
+                  </label>
+                  <input
+                    id="maturityDate"
+                    type="date"
+                    value={maturityDate}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setMaturityDate(e.target.value)}
                   />
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+
+              <p className="savings-form-note">
+                Earns <strong>7.5%</strong> per year, compounded {compounding.toLowerCase()}. Interest is applied automatically.
+              </p>
+
+              <div className="dialog-actions savings-form-actions">
+                <Button
+                  className="btn btn--outline"
+                  message="Cancel"
+                  onClick={() => { setShowForm(false); setCreateError(null); }}
+                />
+                <Button
+                  className="btn"
+                  message="Create plan"
+                  onClick={handleCreate}
+                  disabled={!planName.trim() || !(parseFloat(principal) > 0) || !selectedAccount}
+                />
+              </div>
+            </div>
+          )}
         </Dialog>
       )}
 
@@ -281,30 +300,43 @@ export default function Savings() {
                       setAction({ planId: p.id, mode: "withdraw", amount: "", loading: false, error: null })
                     }
                   />
+                  <Button
+                    className="btn btn--danger savings-action"
+                    message="Close"
+                    onClick={() =>
+                      setAction({ planId: p.id, mode: "cancel", amount: "", loading: false, error: null })
+                    }
+                  />
                 </div>
               )}
 
               {isActionOpen && (
                 <div className="savings-action-inline">
                   <span className="savings-action-label">
-                    {action!.mode === "deposit" ? "Deposit into" : "Withdraw from"} {p.planName}
+                    {action!.mode === "deposit"
+                      ? `Deposit into ${p.planName}`
+                      : action!.mode === "withdraw"
+                      ? `Withdraw from ${p.planName}`
+                      : `Close ${p.planName}? ${formatMoney(currency, p.currentBalance)} will be returned to your account.`}
                   </span>
                   {action!.error && (
                     <p className="banner banner--danger savings-action-error">{action!.error}</p>
                   )}
                   <div className="savings-action-row">
-                    <input
-                      className="savings-action-input"
-                      type="number"
-                      placeholder="0.00"
-                      value={action!.amount}
-                      onChange={(e) =>
-                        setAction((a) => a && { ...a, amount: e.target.value })
-                      }
-                    />
-                    <Button 
-                          className="btn"
-                          message={action!.loading ? "…" : "Confirm"}
+                    {action!.mode !== "cancel" && (
+                      <input
+                        className="savings-action-input"
+                        type="number"
+                        placeholder="0.00"
+                        value={action!.amount}
+                        onChange={(e) =>
+                          setAction((a) => a && { ...a, amount: e.target.value })
+                        }
+                      />
+                    )}
+                    <Button
+                          className={action!.mode === "cancel" ? "btn btn--danger" : "btn"}
+                          message={action!.loading ? "…" : action!.mode === "cancel" ? "Close plan" : "Confirm"}
                           onClick={handleAction}
                           disabled={action!.loading}
                     />

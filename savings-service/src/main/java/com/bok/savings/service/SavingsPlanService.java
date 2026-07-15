@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bok.savings.client.AccountClient;
-import com.bok.savings.client.AccountResponse;
 import com.bok.savings.dto.DepositRequest;
 import com.bok.savings.dto.WithdrawRequest;
 import com.bok.savings.entity.CompoundingFrequency;
@@ -18,7 +18,6 @@ import com.bok.savings.entity.InterestRecord;
 import com.bok.savings.entity.SavingsPlan;
 import com.bok.savings.entity.SavingsStatus;
 import com.bok.savings.exception.InsufficientSavingsBalanceException;
-import com.bok.savings.exception.InvalidAccountTypeException;
 import com.bok.savings.exception.InvalidSavingsStatusException;
 import com.bok.savings.exception.SavingsPlanNotFoundException;
 import com.bok.savings.repository.InterestRecordRepository;
@@ -76,8 +75,22 @@ public class SavingsPlanService {
         return savingsPlanRepository.findSavingsPlansByAccountNumber(accountNumber);
     }
 
-    public void deleteSavingsPlan(UUID id) {
-        savingsPlanRepository.deleteById(id);
+    @Transactional
+    public SavingsPlan softDeleteSavingsPlan(UUID id, String authHeader) {
+        SavingsPlan plan = savingsPlanRepository.findById(id)
+                .orElseThrow(() -> new SavingsPlanNotFoundException());
+
+        if (plan.getStatus() != SavingsStatus.ACTIVE) {
+            throw new InvalidSavingsStatusException("Only an active plan can be closed.");
+        }
+
+        if (plan.getCurrentBalance().compareTo(BigDecimal.ZERO) > 0) {
+            accountClient.credit(plan.getAccountNumber(), plan.getCurrentBalance(), "Savings plan closed", authHeader);
+            plan.setCurrentBalance(BigDecimal.ZERO);
+        }
+
+        plan.setStatus(SavingsStatus.CANCELLED);
+        return savingsPlanRepository.save(plan);
     }
 
     public InterestRecord applyInterest(UUID id, String authHeader) {

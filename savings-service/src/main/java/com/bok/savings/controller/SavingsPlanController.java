@@ -72,7 +72,8 @@ public class SavingsPlanController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteSavingsPlan(@PathVariable UUID id) {
-        savingsPlanService.deleteSavingsPlan(id);
+    public SavingsPlan deleteSavingsPlan(@PathVariable UUID id,
+                                         @RequestHeader("Authorization") String authHeader) {
+        return savingsPlanService.softDeleteSavingsPlan(id, authHeader);
     }
 }
