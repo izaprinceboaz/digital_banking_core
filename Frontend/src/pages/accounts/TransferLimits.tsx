@@ -8,14 +8,7 @@ import ToastMessage from "../../components/ToastMessage";
 import { Link, useLocation } from "react-router-dom";
 import { getMyTransferLimits, setMyTransferLimits } from "../../services/transactionService";
 import { getApiErrorMessage } from "../../services/api";
-
-interface TransferLimit {
-  accountNumber: string;
-  dailyLimit: number;
-  perTxnLimit: number;
-  dailyUsed: number;
-  customized: boolean;
-}
+import type { TransferLimitResponse } from "../../types/transaction";
 
 type EditField = "daily" | "perTxn";
 
@@ -33,7 +26,7 @@ export default function TransferLimits() {
   const location = useLocation();
   const account = (location.state as any)?.account;
 
-  const [limit, setLimit] = useState<TransferLimit | null>(null);
+  const [limit, setLimit] = useState<TransferLimitResponse | null>(null);
   const [editing, setEditing] = useState<EditField | null>(null);
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(true);
@@ -48,7 +41,7 @@ export default function TransferLimits() {
       return;
     }
     getMyTransferLimits(account.accountNumber)
-      .then((data: TransferLimit) => setLimit(data))
+      .then((data: TransferLimitResponse) => setLimit(data))
       .catch((err) => setError(getApiErrorMessage(err, "Couldn't load transfer limits.")))
       .finally(() => setLoading(false));
   }, [account]);

@@ -21,7 +21,7 @@ export default function Accounts() {
   const [balance, setBalance] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [selected, setSelected] = useState<any | null>(null);
+  const [selected, setSelected] = useState<AccountResponse | null>(null);
   const [editError, setEditError] = useState<string | null>(null);
   const [confirmingClose, setConfirmingClose] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);

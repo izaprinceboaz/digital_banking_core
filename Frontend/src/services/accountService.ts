@@ -1,5 +1,5 @@
 import api from "./api";
-import type { AccountResponse, CreateAccountRequest } from "../types/account";
+import type { AccountResponse, CreateAccountRequest, StatementRow } from "../types/account";
 
 export async function getMyAccounts(): Promise<AccountResponse[]> {
   const res = await api.get<AccountResponse[]>(`/api/accounts/my-accounts`);
@@ -31,7 +31,7 @@ export async function credit(accountNumber: String, data: String): Promise<Accou
   return res.data;
 }
 
-export async function deleteAccount(accountNumber: String): Promise<any> {
+export async function deleteAccount(accountNumber: String): Promise<void> {
   const res = await api.delete(`/api/accounts/${accountNumber}`);
   return res.data;
 }
@@ -41,14 +41,6 @@ export async function updateAccountStatus(accountNumber: string, status: string)
     headers: { "Content-Type": "text/plain" },
   });
   return res.data;
-}
-
-export interface StatementRow {
-  transactionRef: string;
-  description: string;
-  amount: number;
-  balanceAfter: number;
-  entryType: "DEBIT" | "CREDIT";
 }
 
 export async function getMyStatements(accountNumber: string): Promise<StatementRow[]> {

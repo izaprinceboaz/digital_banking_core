@@ -30,3 +30,8 @@ export interface RegisterRequest {
 export interface RefreshTokenRequest {
     refreshToken: string;
 }
+
+export interface UpdatePasswordRequest {
+    currentPassword: string;
+    newPassword: string;
+}

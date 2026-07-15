@@ -14,3 +14,11 @@ export interface CreateAccountRequest {
   currency: string;
   balance: number;
 }
+
+export interface StatementRow {
+  transactionRef: string;
+  description: string;
+  amount: number;
+  balanceAfter: number;
+  entryType: "DEBIT" | "CREDIT";
+}

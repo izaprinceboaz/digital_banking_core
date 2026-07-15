@@ -1,5 +1,5 @@
 import api from "./api";
-import type { LoginRequest, AuthResponse, RegisterRequest } from "../types/auth";
+import type { LoginRequest, AuthResponse, RegisterRequest, UpdatePasswordRequest } from "../types/auth";
 
 export async function login(data: LoginRequest): Promise<AuthResponse> {
   const res = await api.post<AuthResponse>("/api/auth/login", data);
@@ -15,8 +15,9 @@ export async function logout(refreshToken: string): Promise<void> {
   await api.post("/api/auth/logout", { refreshToken });
 }
 
-export async function updatePassword(data: { currentPassword: string; newPassword: string }): Promise<void> {
-  await api.post("/api/auth/update-password", data);
+export async function updatePassword(data: UpdatePasswordRequest): Promise<UpdatePasswordRequest> {
+  const res = await api.post<UpdatePasswordRequest>("/api/auth/update-password", data);
+  return res.data;
 }
 
 export async function refreshAccessToken(): Promise<string | null> {

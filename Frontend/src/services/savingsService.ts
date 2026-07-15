@@ -9,16 +9,12 @@ import type {
 
 // savings-service — SavingsPlanController (/api/savings-plans)
 
-export async function createSavingsPlan(
-  data: CreateSavingsPlanRequest
-): Promise<SavingsPlanResponse> {
+export async function createSavingsPlan(data: CreateSavingsPlanRequest): Promise<SavingsPlanResponse> {
   const res = await api.post<SavingsPlanResponse>(`/api/savings-plans`, data);
   return res.data;
 }
 
-export async function findSavingsPlansByAccountNumber(
-  accountNumber: string
-): Promise<SavingsPlanResponse[]> {
+export async function findSavingsPlansByAccountNumber(accountNumber: string): Promise<SavingsPlanResponse[]> {
   const res = await api.get<SavingsPlanResponse[]>(
     `/api/savings-plans/my-savings-plans/${accountNumber}`
   );

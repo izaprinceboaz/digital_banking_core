@@ -11,21 +11,17 @@ import Table from "../components/Table"
 import Dialog from "../components/Dialog"
 import ToastMessage from "../components/ToastMessage";
 import { getApiErrorMessage } from "../services/api";
+import type { TransactionResponse, TxnWithAccount } from "../types/transaction";
 
 function greeting(): string {
   const h = new Date().getHours();
   return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
 }
 
-interface TxnWithAccount {
-  txn: any;
-  account: AccountResponse;
-}
-
 export default function Dashboard() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [allTxns, setAllTxns] = useState<TxnWithAccount[]>([]);
-  const [selected, setSelected] = useState<any | null>(null);
+  const [selected, setSelected] = useState<TransactionResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {

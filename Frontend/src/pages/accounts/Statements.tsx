@@ -7,12 +7,13 @@ import Dialog from "../../components/Dialog";
 import { Link, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { loadStatements } from "../../store/statementsSlice";
+import type { StatementRow } from "../../types/account";
 
 
 export default function Statements() {
   const dispatch = useAppDispatch();
   const { rows, loading, error, loadedFor } = useAppSelector((state) => state.statements);
-  const [selected, setSelected] = useState<any | null>(null);
+  const [selected, setSelected] = useState<StatementRow | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const location = useLocation();
@@ -37,7 +38,7 @@ export default function Statements() {
     <div className="page page--narrow">
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Link to=".." relative="path"> <strong>Accounts</strong> </Link> <span>{">"}</span>
-            <div> Transfer Limits </div>
+            <div> Statements </div>
         </div>
       <PageHeader 
         title="Statements"

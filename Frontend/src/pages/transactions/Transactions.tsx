@@ -14,6 +14,7 @@ import Table from "../../components/Table";
 import Dialog from "../../components/Dialog";
 import ToastMessage from "../../components/ToastMessage";
 import cleanErrorMessage from "../../utils/cleanErrorMessage";
+import type { TransactionResponse } from "../../types/transaction";
 
 
 function statusPill(status: string): string {
@@ -25,7 +26,7 @@ function statusPill(status: string): string {
 export default function Transactions() {
   const [accounts, setAccounts] = useState<AccountResponse[]>([]);
   const [selectedAccount, setSelectedAccount] = useState("");
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
 
   const [receiverAccountNumber, setReceiverAccountNumber] = useState("");
   const [amount, setAmount] = useState("");
@@ -37,14 +38,15 @@ export default function Transactions() {
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [selected, setSelected] = useState<any | null>(null);
+  const [selected, setSelected] = useState<TransactionResponse | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     getMyAccounts()
       .then((data) => {
-        setAccounts(data);
+        const filtered = data.filter((acc) => acc.status === "ACTIVE");
+        setAccounts(filtered);
         if (data.length > 0) setSelectedAccount(data[0].accountNumber);
       })
       .catch((err) => setLoadError(getApiErrorMessage(err, "Couldn't load data.")));
