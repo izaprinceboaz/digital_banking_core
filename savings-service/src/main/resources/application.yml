@@ -22,3 +22,10 @@ services:
 jwt:
   secret: ${JWT_SECRET:digital-banking-core-super-secret-key-change-in-production-0123456789}
   enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true

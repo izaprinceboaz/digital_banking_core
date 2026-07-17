@@ -83,11 +83,11 @@ export default function Notifications() {
         subtitle={unread > 0 ? `${unread} unread` : "You're all caught up"}
       />
 
-      <Button
+      {/* <Button
         message="Delete All"
         className="btn"
         onClick={() => {}}
-      />
+      /> */}
 
       <ToastMessage message={loadError} variant="danger" onClose={() => setLoadError(null)} />
 
